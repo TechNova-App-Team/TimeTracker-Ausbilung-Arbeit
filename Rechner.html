@@ -422,12 +422,15 @@
         <div class="nav-item" id="nav-history" onclick="switchTab('history')">
             <span>📅</span> Historie
         </div>
+        <div class="nav-item" id="nav-export" onclick="switchTab('export')">
+            <span>💾</span> Daten Export
+        </div>
         
         <div class="nav-section">Verwaltung</div>
         <div class="nav-item" onclick="openSettings()">
             <span>⚙️</span> Einstellungen
         </div>
-        <div class="nav-item" onclick="exportData()">
+        <div class="nav-item" onclick="exportData('json')">
             <span>💾</span> Backup
         </div>
         <div class="nav-item" onclick="document.getElementById('fileImp').click()">
@@ -708,6 +711,54 @@
             </div>
         </div>
 
+        <div id="view-export" class="view-section">
+            <div class="card">
+                <h2 style="margin-bottom:1.5rem;">Export-Dashboard</h2>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom: 2rem;">
+                    <div>
+                        <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem;">ZEITRAUM FILTER</h4>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                            <input type="date" id="exportStart" class="glass-input" placeholder="Startdatum">
+                            <input type="date" id="exportEnd" class="glass-input" placeholder="Enddatum">
+                        </div>
+                        <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem;">EINTRAGS-TYP FILTER</h4>
+                        <select id="exportType" class="glass-select">
+                            <option value="all">Alle Typen</option>
+                            <option value="work">💼 Arbeit</option>
+                            <option value="school">📚 Berufsschule</option>
+                            <option value="vacation">🌴 Urlaub</option>
+                            <option value="sick">💊 Krank</option>
+                            <option value="holiday">🏖️ Feiertag</option>
+                        </select>
+                        <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem; margin-top:15px;">MINDESTSTUNDEN (GEARBEITET)</h4>
+                        <input type="number" id="exportMinHours" class="glass-input" step="0.5" placeholder="Mindeststunden (z.B. 4.0)">
+                    </div>
+
+                    <div style="background:rgba(255,255,255,0.05); padding:1.5rem; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between;">
+                        <div>
+                             <h3 style="margin-bottom:10px;">Filter-Übersicht</h3>
+                             <p style="font-size:0.85rem; color:var(--text-muted);">Anzahl der Einträge, die den Filtern entsprechen:</p>
+                             <div style="font-size:3rem; font-weight:800; color:var(--success); margin:10px 0;" id="exportCount">0</div>
+                        </div>
+
+                        <div style="margin-top:2rem;">
+                            <button class="btn btn-primary" onclick="exportFilteredData('csv')" style="margin-bottom:10px;">Als CSV exportieren</button>
+                            <button class="btn btn-primary" onclick="exportFilteredData('json')" style="background:var(--school);">Als JSON exportieren</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding:1rem; background:rgba(255,255,255,0.02); min-height:150px;">
+                    <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Vorschau der gefilterten Daten:</h4>
+                    <div id="exportPreview" style="max-height: 400px; overflow-y: auto;">
+                        <p style="color:var(--text-muted);">Bitte Filter einstellen und auf "Als CSV exportieren" klicken.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </main>
 
     <div class="modal" id="settingsModal">
@@ -865,6 +916,12 @@
             document.getElementById('currentDate').textContent = now.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'long'});
         }, 1000);
         document.getElementById('inpDate').valueAsDate = new Date();
+
+        // Neuen Export-Filter Listener hinzufügen
+        document.getElementById('exportStart').addEventListener('change', renderExportViewPreview);
+        document.getElementById('exportEnd').addEventListener('change', renderExportViewPreview);
+        document.getElementById('exportType').addEventListener('change', renderExportViewPreview);
+        document.getElementById('exportMinHours').addEventListener('input', renderExportViewPreview);
     };
 
     function save() { 
@@ -888,7 +945,7 @@
         const navEl = document.getElementById('nav-' + tabId);
         if(navEl) navEl.classList.add('active');
         
-        const titles = { 'dashboard': 'Übersicht', 'history': 'Gesamte Historie', 'performance': 'Performance Analyse', 'ihk': 'IHK / Karriere' };
+        const titles = { 'dashboard': 'Übersicht', 'history': 'Gesamte Historie', 'performance': 'Performance Analyse', 'ihk': 'IHK / Karriere', 'export': 'Daten Export' };
         document.querySelector('.page-title').textContent = titles[tabId];
 
         if (tabId === 'performance') {
@@ -897,6 +954,9 @@
         }
         if (tabId === 'ihk') {
             renderIHKView();
+        }
+        if (tabId === 'export') {
+            renderExportViewPreview();
         }
     }
 
@@ -934,15 +994,35 @@
              document.getElementById('ihkStartEndDates').innerText = `Daten fehlen/Ungültig.`;
         }
         
-        // 2. Gesamt Soll-Stunden Audit
+        // 2. Gesamt Soll-Stunden Audit - **KORREKTUR: Berücksichtige gebuchte Tage**
         if (start && end) {
             let totalExpectedHours = 0;
             let currentDate = new Date(start);
             const endDateObj = new Date(end);
             
+            // Map gebuchter Tage für schnelles Nachschlagen
+            const bookedDays = new Map(); // Map<dateString, type>
+            data.entries.forEach(e => {
+                bookedDays.set(e.date, e.type);
+            });
+            
             while (currentDate <= endDateObj) {
+                const dateKey = currentDate.toISOString().split('T')[0];
                 const dayIndex = currentDate.getDay(); // 0=So, 6=Sa
-                totalExpectedHours += data.settings.hours[dayIndex] || 0;
+                const expected = data.settings.hours[dayIndex] || 0;
+                
+                // Nur Tage mit Sollstunden berücksichtigen (Mo-Fr)
+                if (expected > 0) {
+                    const bookedType = bookedDays.get(dateKey);
+                    
+                    // Sollstunden nur addieren, wenn es kein Urlaub, Feiertag oder Krankheit ist
+                    if (bookedType !== 'vacation' && bookedType !== 'holiday' && bookedType !== 'sick') {
+                        // Wenn es Arbeit oder Schule ist (mit Soll-Zeit > 0), wird die Sollzeit gezählt
+                        totalExpectedHours += expected;
+                    }
+                    // Wenn es Urlaub/Feiertag/Krank ist (und Soll-Zeit > 0 war), wird die Sollzeit ignoriert, da Diff=0.
+                }
+
                 currentDate.setDate(currentDate.getDate() + 1);
             }
             document.getElementById('ihkTotalExpectedHours').innerText = `${totalExpectedHours.toFixed(0)}h`;
@@ -1116,7 +1196,7 @@
         document.getElementById('inpHours').value = '';
     }
     
-    // --- TIMER LOGIC (Unverändert) ---
+    // --- TIMER LOGIC (Mit Korrektur) ---
     
     function logTimerAction(action, time = Date.now()) {
         const lastAction = timer.log.at(-1);
@@ -1162,6 +1242,15 @@
             document.getElementById('timerBox').classList.remove('timer-active');
             let total = timer.paused + (timer.start > 0 ? now - timer.start : 0);
             let h = total / 3.6e6;
+            
+            // **KORREKTUR:** Auto-Pause abziehen, wenn Schwelle überschritten ist
+            const breakThresholdHours = data.settings.break.thresh;
+            const breakMinutes = data.settings.break.min;
+            if (h >= breakThresholdHours) {
+                h -= (breakMinutes / 60);
+                alert(`Hinweis: ${breakMinutes} Minuten Auto-Pause abgezogen.`);
+            }
+
 
             if (confirm(`Zeit stoppen: ${h.toFixed(2)}h?`)) {
                 document.getElementById('inpHours').value = h.toFixed(2);
@@ -1874,6 +1963,120 @@
         `;
     }
 
+    // --- DATEN EXPORT LOGIC (NEU) ---
+
+    function filterEntries() {
+        const startStr = document.getElementById('exportStart').value;
+        const endStr = document.getElementById('exportEnd').value;
+        const type = document.getElementById('exportType').value;
+        const minHours = parseFloat(document.getElementById('exportMinHours').value) || 0;
+
+        let filtered = data.entries;
+
+        if (startStr) {
+            filtered = filtered.filter(e => new Date(e.date) >= new Date(startStr));
+        }
+        if (endStr) {
+            // Enddatum + 1 Tag, um den gesamten Endtag einzubeziehen
+            const endDate = new Date(endStr);
+            endDate.setDate(endDate.getDate() + 1); 
+            filtered = filtered.filter(e => new Date(e.date) < endDate);
+        }
+        if (type !== 'all') {
+            filtered = filtered.filter(e => e.type === type);
+        }
+        if (minHours > 0) {
+            filtered = filtered.filter(e => e.worked >= minHours);
+        }
+
+        return filtered;
+    }
+
+    function renderExportViewPreview() {
+        const filteredData = filterEntries();
+        const countEl = document.getElementById('exportCount');
+        const previewEl = document.getElementById('exportPreview');
+        
+        countEl.innerText = filteredData.length;
+
+        if (filteredData.length === 0) {
+            previewEl.innerHTML = '<p style="color:var(--text-muted);">Keine Einträge für die gewählten Filter gefunden.</p>';
+            return;
+        }
+
+        let previewHTML = '';
+        
+        // Anzeigen der ersten 10 Einträge in Kurzform
+        previewHTML += filteredData.slice(0, 10).map(e => `
+            <div class="entry-row type-${e.type}" style="padding: 10px 15px; margin-bottom: 5px; border-radius: 8px;">
+                <div style="font-weight: 600;">${new Date(e.date).toLocaleDateString('de-DE')} - ${e.type.toUpperCase()}</div>
+                <div style="font-family: var(--font-mono);">${e.worked.toFixed(2)}h (${e.diff >= 0 ? '+' : ''}${e.diff.toFixed(2)})</div>
+            </div>
+        `).join('');
+
+        if (filteredData.length > 10) {
+            previewHTML += `<p style="color:var(--text-muted); padding:10px;">... und ${filteredData.length - 10} weitere Einträge.</p>`;
+        }
+        
+        previewEl.innerHTML = previewHTML;
+    }
+
+    function convertToCSV(dataArray) {
+        if (dataArray.length === 0) return '';
+        
+        const headers = ['Datum', 'Typ', 'Arbeitszeit_h', 'Sollzeit_h', 'Differenz_h', 'Info', 'Break_Min', 'Shift_Warning'];
+        
+        const csvRows = [headers.join(';')]; 
+
+        for (const entry of dataArray) {
+            const row = [
+                entry.date,
+                entry.type,
+                entry.worked.toFixed(2).replace('.', ','),
+                entry.expected.toFixed(2).replace('.', ','),
+                entry.diff.toFixed(2).replace('.', ','),
+                entry.info.replace(/,/g, ''), // Kommas entfernen, um CSV-Struktur nicht zu stören
+                entry.breakMins,
+                entry.shiftWarning ? 'JA' : 'NEIN'
+            ];
+            csvRows.push(row.join(';'));
+        }
+
+        return csvRows.join('\n');
+    }
+
+    function exportFilteredData(format) {
+        const filtered = filterEntries();
+
+        if (filtered.length === 0) {
+            return alert('Keine Daten für den Export gefunden. Bitte Filter prüfen.');
+        }
+
+        let fileContent;
+        let fileName;
+        let mimeType;
+
+        if (format === 'json') {
+            fileContent = JSON.stringify(filtered, null, 2);
+            fileName = 'time_pro_export.json';
+            mimeType = 'application/json';
+        } else if (format === 'csv') {
+            fileContent = convertToCSV(filtered);
+            fileName = 'time_pro_export.csv';
+            mimeType = 'text/csv';
+        } else {
+            return;
+        }
+
+        const blob = new Blob([fileContent], { type: mimeType });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+        a.click();
+        
+        alert(`Export von ${filtered.length} Einträgen als ${format.toUpperCase()} gestartet.`);
+    }
+
     // --- HILFSFUNKTIONEN (Unverändert) ---
     function isOddWeek(d) { return getWeek(d) % 2 !== 0; }
 
@@ -1955,16 +2158,34 @@
         document.getElementById('corrModal').classList.remove('active');
     }
     
-    function exportData() {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'}));
-        a.download = 'time_pro_backup.json';
-        a.click();
+    function exportData(format) {
+        if (format === 'json') {
+             const a = document.createElement('a');
+             a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'}));
+             a.download = 'time_pro_backup.json';
+             a.click();
+        } else if (format === 'csv') {
+            const csv = convertToCSV(data.entries);
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+            a.download = 'time_pro_full_export.csv';
+            a.click();
+        }
     }
     
     function importData(e) {
         const r = new FileReader();
-        r.onload = ev => { try { data = JSON.parse(ev.target.result); save(); location.reload(); } catch(x){alert('Error');} };
+        r.onload = ev => { 
+            try { 
+                const importedData = JSON.parse(ev.target.result);
+                // Komplette Daten-Struktur ersetzen
+                data = importedData;
+                save(); 
+                location.reload(); 
+            } catch(x){
+                alert('Fehler beim Importieren der Datei. Stelle sicher, dass es eine gültige JSON-Backup-Datei ist.');
+            } 
+        };
         r.readAsText(e.target.files[0]);
     }
     
@@ -1984,7 +2205,11 @@
         data.settings.name = document.getElementById('confName').value;
         data.settings.break.thresh = parseFloat(document.getElementById('confBreakThresh').value);
         data.settings.break.min = parseFloat(document.getElementById('confBreakMin').value);
-        for(let i=1; i<=5; i++) document.getElementById('h'+i).value = parseFloat(document.getElementById('h'+i).value);
+        
+        // Sollstunden speichern (Index 1 bis 5 für Mo-Fr)
+        for(let i=1; i<=5; i++) {
+             data.settings.hours[i] = parseFloat(document.getElementById('h'+i).value);
+        }
         
         data.settings.vacation.total = parseFloat(document.getElementById('confVacationTotal').value);
         data.settings.vacation.usedManual = parseFloat(document.getElementById('confVacationUsedManual').value);
