@@ -4,9 +4,9 @@
 #                                                                 #
 #################################################################
 
-PROJECT: TimeTracker PRO
+PROJECT: Time.Tracker.SingleFile
 DATE:    2025-11-27
-AUTHOR:  TimeTracker PRO Contributors
+AUTHOR:  TechNova-App-Team (Sven Kunz)
 
 ---
 
@@ -18,7 +18,7 @@ APPLY THIS LICENSE IN YOUR GITHUB REPOSITORY.
 
 MIT License
 
-Copyright (c) 2025 TimeTracker PRO Contributors
+Copyright (c) 2025 Time.Tracker.SingleFile Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -69,7 +69,7 @@ git push origin main
 ```
 
 3) Replace copyright notice if you prefer a different year or owner:
-   - Find the line `Copyright (c) 2025 TimeTracker PRO Contributors`
+   - Find the line `Copyright (c) 2025 Time.Tracker.SingleFile Contributors`
    - Replace `2025` with your year or range (e.g., `2022-2025`)
    - Replace owner text with your name or organization.
 
