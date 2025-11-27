@@ -14,7 +14,7 @@
 
 ## Überblick
 
-Die Sicherheit von TimeTracker PRO und seinen Nutzern ist uns sehr wichtig.
+Die Sicherheit von Time.Tracker.SingleFile und seinen Nutzern ist uns sehr wichtig.
 Dieses Dokument erklärt wie wir mit Sicherheitsmeldungen umgehen und wie du
 Schwachstellen verantwortungsvoll melden kannst.
 
@@ -30,8 +30,8 @@ Sicherheit aller Nutzer gefährden könnte.
 Sende eine vertrauliche E-Mail an:
 
 ```
-📧 security@timetracker-pro.local
-   (Oder: support@timetracker-pro.local mit Subject: [SECURITY])
+📧 security@Time.Tracker.SingleFile.XX
+   (Oder: support@Time.Tracker.SingleFile.XXX mit Subject: [SECURITY])
 ```
 
 **Bitte folgende Informationen senden:**
@@ -239,7 +239,7 @@ Wenn ein Sicherheits-Patch veröffentlicht wird, teilen wir folgende Info:
 ```
 Beispiel Sicherheits-Advisory:
 
-ADVISORY: TimeTracker PRO Security Patch v2.0.1
+ADVISORY: Time.Tracker.SingleFile Security Patch v1.0.1
 
 Type: XSS Vulnerability Fix
 Severity: MEDIUM
@@ -278,8 +278,8 @@ Deine Meldung ist sicher:
 ## Kontakt & Support
 
 ```
-Sicherheit:        security@timetracker-pro.local
-Allgemeiner Support: support@timetracker-pro.local
+Sicherheit:        security@Time.Tracker.SingleFile.XXX
+Allgemeiner Support: support@Time.Tracker.SingleFile.XXX
 GitHub Issues:      Bitte nur Non-Security Issues
 ```
 
@@ -291,7 +291,7 @@ GitHub Issues:      Bitte nur Non-Security Issues
 
 ## Overview
 
-The security of TimeTracker PRO and its users is very important to us.
+The security of Time.Tracker.SingleFile and its users is very important to us.
 This document explains how we handle security reports and how you can
 responsibly disclose vulnerabilities.
 
@@ -307,8 +307,8 @@ the security of all users.
 Send a confidential email to:
 
 ```
-📧 security@timetracker-pro.local
-   (Or: support@timetracker-pro.local with Subject: [SECURITY])
+📧 security@Time.Tracker.SingleFile.XXX
+   (Or: support@Time.Tracker.SingleFile.XXX with Subject: [SECURITY])
 ```
 
 **Please include the following information:**
@@ -516,7 +516,7 @@ When a security patch is released, we share this information:
 ```
 Example Security Advisory:
 
-ADVISORY: TimeTracker PRO Security Patch v2.0.1
+ADVISORY: Time.Tracker.SingleFile Security Patch v1.0.1
 
 Type: XSS Vulnerability Fix
 Severity: MEDIUM
@@ -555,8 +555,8 @@ Your report is safe:
 ## Contact & Support
 
 ```
-Security:       security@timetracker-pro.local
-General Support: support@timetracker-pro.local
+Security:       security@Time.Tracker.SingleFile.XXX
+General Support: support@Time.Tracker.SingleFile.XXX
 GitHub Issues:  Please only non-security issues
 ```
 
@@ -564,7 +564,7 @@ GitHub Issues:  Please only non-security issues
 
 <div align="center">
 
-**Thank you for helping us keep TimeTracker PRO secure.**
+**Thank you for helping us keep Time.Tracker.SingleFile secure.**
 
 *Your responsible disclosure makes our community safer.*
 
