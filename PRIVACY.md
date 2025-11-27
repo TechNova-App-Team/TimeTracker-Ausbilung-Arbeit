@@ -10,11 +10,11 @@
 
 <a id="deutsch"></a>
 
-# DATENSCHUTZERKLÄRUNG TIMETRACKER PRO
+# DATENSCHUTZERKLÄRUNG Time.Tracker.SingleFile
 
 **Version:** 1.0  
 **Datum:** 2025-11-27  
-**Gültig für:** TimeTracker PRO v2.0.0 und später
+**Gültig für:** Time.Tracker.SingleFile v1.2.0 und später
 
 ---
 
@@ -35,7 +35,7 @@
 
 ## Übersicht
 
-TimeTracker PRO ist eine **Client-seitige Webanwendung**. Das bedeutet:
+Time.Tracker.SingleFile ist eine **Client-seitige Webanwendung**. Das bedeutet:
 
 ```
 ✓ Alle Daten werden auf DEINEM Gerät gespeichert (Browser)
@@ -205,7 +205,7 @@ Szenario 3: Manueller Export (du bestimmst!)
 
 ```
 🍪 Cookies:
-   ✓ TimeTracker PRO verwendet KEINE Cookies
+   ✓ Time.Tracker.SingleFile verwendet KEINE Cookies
    ✓ Nur LocalStorage für Persistierung
 
 📊 Tracking/Analytics:
@@ -255,7 +255,7 @@ Du kannst deine Daten löschen.
 ```
 Wie du das machst:
 1. Browser → Settings → Cookies & Website-Daten
-2. Suche: timetracker-pro URL (oder localhost)
+2. Suche: Time.Tracker.SingleFile URL (oder localhost)
 3. Klick: Löschen
 → Alle deine Daten sind SOFORT weg!
 → Browser localStorage gelöscht
@@ -405,10 +405,10 @@ Archiv:             Alte Versionen im GitHub-History
 ## Kontakt & Datenschutz
 
 ```
-Datenschutz-Anfragen:  privacy@timetracker-pro.local
-                       oder: support@timetracker-pro.local
+Datenschutz-Anfragen:  privacy@Time.Tracker.SingleFile.XXX
+                       oder: support@Time.Tracker.SingleFile.XXX
 
-Sicherheitsmeldungen:  security@timetracker-pro.local
+Sicherheitsmeldungen:  security@Time.Tracker.SingleFile.XXX
 
 GitHub Issues:         Nur technische/Feature-Anfragen
 ```
@@ -417,11 +417,11 @@ GitHub Issues:         Nur technische/Feature-Anfragen
 
 <a id="english"></a>
 
-# PRIVACY POLICY TIMETRACKER PRO
+# PRIVACY POLICY Time.Tracker.SingleFile
 
 **Version:** 1.0  
 **Date:** 2025-11-27  
-**Valid for:** TimeTracker PRO v2.0.0 and later
+**Valid for:** Time.Tracker.SingleFile v1.2.0 and later
 
 ---
 
@@ -444,7 +444,7 @@ GitHub Issues:         Nur technische/Feature-Anfragen
 
 ## Overview
 
-TimeTracker PRO is a **client-side web application**. This means:
+Time.Tracker.SingleFile is a **client-side web application**. This means:
 
 ```
 ✓ All data is stored on YOUR device (browser)
@@ -622,7 +622,7 @@ Scenario 3: Manual Export (you decide!)
 
 ```
 🍪 Cookies:
-   ✓ TimeTracker PRO uses NO cookies
+   ✓ Time.Tracker.SingleFile uses NO cookies
    ✓ Only LocalStorage for persistence
 
 📊 Tracking/Analytics:
@@ -674,7 +674,7 @@ You can delete your data.
 ```
 How to do it:
 1. Browser → Settings → Cookies & Website Data
-2. Search: timetracker-pro URL (or localhost)
+2. Search: Time.Tracker.SingleFile URL (or localhost)
 3. Click: Delete
 → All your data is IMMEDIATELY gone!
 → Browser localStorage deleted
@@ -832,10 +832,10 @@ Archive:        Old versions in GitHub history
 ## Contact & Privacy
 
 ```
-Privacy Inquiries:     privacy@timetracker-pro.local
-                       or: support@timetracker-pro.local
+Privacy Inquiries:     privacy@Time.Tracker.SingleFile.XXX
+                       or: support@Time.Tracker.SingleFile.XXX
 
-Security Reports:      security@timetracker-pro.local
+Security Reports:      security@Time.Tracker.SingleFile.XXX
 
 GitHub Issues:         Technical/feature requests only
 ```
