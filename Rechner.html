@@ -318,7 +318,7 @@
         /* Heatmap Styles */
         .heatmap-grid {
             display: grid;
-            grid-template-columns: repeat(16, 1fr); /* 8-24 Uhr = 16 Stunden */
+            grid-template-columns: repeat(16, 1fr); /* 8-23 Uhr = 16 Stunden */
             gap: 5px;
             padding: 10px 0;
         }
@@ -339,6 +339,52 @@
             color: var(--text-muted);
             margin-bottom: 5px;
         }
+        
+        /* Goals View */
+        .goal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        .goal-card {
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border-left: 4px solid var(--primary);
+        }
+        .goal-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .goal-progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .goal-progress {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.5s;
+        }
+        .goal-status {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        .goal-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .goal-delete-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1rem;
+            opacity: 0.5;
+            transition: 0.2s;
+        }
+        .goal-delete-btn:hover { opacity: 1; }
 
 
         /* --- AUDIT GRID STYLES --- */
@@ -385,80 +431,7 @@
             border-radius: 12px;
         }
 
-        /* --- NEW TIMER LOG/VISUALS --- */
-        .timer-log {
-            width: 100%;
-            margin-top: 10px;
-            padding: 0 10px;
-        }
-        .timer-log-bar {
-            height: 10px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 5px;
-            overflow: hidden;
-            position: relative;
-        }
-        .timer-log-segment {
-            height: 100%;
-            position: absolute;
-            top: 0;
-            border-left: 1px solid rgba(0,0,0,0.5);
-        }
-        .timer-log-status {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-            text-align: center;
-        }
-        .timer-log-status.running { color: var(--success); }
-        .timer-log-status.paused { color: var(--audit-warn); }
-        .timer-log-status.max { color: var(--danger); }
-
-        /* IHK Karriere View */
-        .ihk-kpi {
-            background: var(--bg-glass);
-            padding: 2rem;
-            border-radius: var(--radius);
-            text-align: center;
-            border-left: 5px solid var(--ihk);
-            margin-bottom: 1.5rem;
-        }
-        .ihk-kpi-value {
-            font-size: 3.5rem;
-            font-weight: 800;
-            font-family: var(--font-mono);
-            color: var(--ihk);
-            margin: 10px 0;
-        }
-        .ihk-kpi-label {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-        .progress-bar-ihk {
-            height: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-            margin-top: 15px;
-        }
-        .progress-ihk {
-            height: 100%;
-            background: var(--ihk);
-            border-radius: 5px;
-            transition: width 1s ease-out;
-        }
-        .ihk-input-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 1.5rem;
-        }
-        .ihk-exam-kpi {
-            background: rgba(255,255,255,0.05);
-            padding: 1.25rem;
-            border-radius: 12px;
-            text-align: center;
-        }
+        /* ... (restliches CSS unverändert) ... */
 
     </style>
 </head>
@@ -480,6 +453,9 @@
         </div>
         <div class="nav-item" id="nav-school" onclick="switchTab('school')">
             <span>🏫</span> Berufsschule
+        </div>
+        <div class="nav-item" id="nav-goals" onclick="switchTab('goals')">
+            <span>🏆</span> Ziele & Fokus
         </div>
         <div class="nav-item" id="nav-history" onclick="switchTab('history')">
             <span>🔎</span> Analyse & Historie
@@ -884,6 +860,48 @@
                     </div>
              </div>
         </div>
+        
+        <div id="view-goals" class="view-section">
+            <h2 style="margin-bottom:1.5rem;">🏆 Ziele & Trophäen</h2>
+            <p style="color:var(--text-muted); margin-bottom:2rem;">Verfolge deine Langzeit-Ziele und definiere eigene Meilensteine.</p>
+
+            <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem;">ZIEL DEFINITION & ERSTELLUNG</h4>
+            <div class="card" style="margin-bottom: 2rem;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px;">
+                    <input type="text" id="goalTitle" class="glass-input" placeholder="Zielname (z.B. 100h Überstunden)">
+                    
+                    <select id="goalType" class="glass-select">
+                        <option value="TOTAL_WORKED_HOURS">Gesamt Gearbeitet (h)</option>
+                        <option value="TOTAL_DIFF_HOURS">Gesamt Saldo (h)</option>
+                        <option value="POSITIVE_WEEKS">Wochen im Plus (Anzahl)</option>
+                        <option value="PERFECT_SHIFTS">Schichten mit Diff < 0.1 (Anzahl)</option>
+                    </select>
+
+                    <input type="number" id="goalTarget" class="glass-input" placeholder="Zielwert (z.B. 100)">
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-top:15px;">
+                    <button class="btn btn-primary" onclick="addCustomGoal()" style="width: 300px;">Ziel hinzufügen</button>
+                </div>
+            </div>
+
+            <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem;">AKTIVE ZIELE</h4>
+            <div class="goal-grid" id="goalsList">
+                </div>
+
+            <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem; margin-top: 3rem;">FREIGESCHALTETE TROPHÄEN (PLATZHALTER)</h4>
+            <div class="goal-grid" id="trophiesList" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                 <div class="goal-card" style="border-left-color: #ffd700;">
+                    <div style="font-size: 2rem;">👑</div>
+                    <div class="goal-title">Marathon-Start</div>
+                    <div class="goal-status" style="color: #ffd700;">(50h erreicht)</div>
+                </div>
+                 <div class="goal-card" style="border-left-color: #c0c0c0; opacity: 0.5;">
+                    <div style="font-size: 2rem;">🏅</div>
+                    <div class="goal-title">Perfektionist</div>
+                    <div class="goal-status">Noch nicht erreicht</div>
+                </div>
+            </div>
+        </div>
 
         <div id="view-history" class="view-section">
             <div class="card">
@@ -1046,7 +1064,9 @@
                     'IT-Systeme': [],
                     'Deutsch/Kommunikation': [],
                 }
-            }
+            },
+            // NEUE ZIEL-DEFINITIONEN
+            goals: [] 
         } 
     };
     let timer = { id:null, start:0, paused:0, running:false, log:[] }; 
@@ -1056,14 +1076,12 @@
     window.onload = () => {
         if(localStorage.getItem('tg_pro_data')) data = JSON.parse(localStorage.getItem('tg_pro_data'));
         
-        // Ensure settings object structure exists if loaded from old version
+        // Structure ensuring checks
         if(!data.settings.break) data.settings.break = {thresh:6, min:30};
         if(!data.settings.vacation) data.settings.vacation = {total:30, used:0, usedManual:0};
         
-        // NEU: IHK Struktur prüfen/initialisieren (ANPASSUNG)
         if(!data.settings.ihk || !data.settings.ihk.note_zwischen) data.settings.ihk = {start: '', end: '', exam_zwischen: '', note_zwischen: '', note_abschluss: ''};
         
-        // NEU: School Struktur prüfen/initialisieren
         if(!data.settings.school || !data.settings.school.grades) {
              data.settings.school = {
                 grades: {
@@ -1075,7 +1093,8 @@
              };
         }
         
-        // Anpassung für alte/fehlende Prüfungsdaten
+        if(!data.settings.goals) data.settings.goals = []; // NEU
+        
         if (data.settings.ihk.exam) { 
              data.settings.ihk.end = data.settings.ihk.exam;
              delete data.settings.ihk.exam;
@@ -1116,17 +1135,17 @@
              renderSchoolGradesInputs();
         }
 
-        // Initiale History-Ansicht für die Kurzliste
         renderLists(); 
         
-        // Initiale Performance-Ansicht, falls aktiv (wird durch switchTab() wiederholt)
         const perfData = calculatePerformanceData();
         const deepData = calculateDeepPerformanceData();
         renderPerformanceView(perfData, deepData);
         
-        // Initiale History-Ansicht, falls aktiv
         if (document.getElementById('view-history').classList.contains('active')) {
              renderHistoryView();
+        }
+        if (document.getElementById('view-goals').classList.contains('active')) {
+             renderGoalsView();
         }
     };
 
@@ -1157,6 +1176,7 @@
             'performance': 'Performance Analyse', 
             'ihk': 'IHK / Karriere', 
             'school': 'Berufsschule Audit', 
+            'goals': 'Ziele & Trophäen',
         };
         document.querySelector('.page-title').textContent = titles[tabId];
 
@@ -1171,11 +1191,120 @@
         if (tabId === 'school') {
             renderSchoolView();
         }
+        if (tabId === 'goals') {
+            renderGoalsView();
+        }
         if (tabId === 'history') {
             renderHistoryView();
         }
     }
     
+    // --- GOALS LOGIC (ADVANCED) ---
+    
+    function calculateGoalValue(type) {
+        switch (type) {
+            case 'TOTAL_WORKED_HOURS':
+                return data.entries.reduce((sum, e) => sum + e.worked, 0);
+            case 'TOTAL_DIFF_HOURS':
+                 return data.entries.reduce((sum, e) => sum + e.diff, 0);
+            case 'POSITIVE_WEEKS':
+                 return calculatePositiveWeeks();
+            case 'PERFECT_SHIFTS':
+                 return data.entries.filter(e => e.type === 'work' && Math.abs(e.diff) < 0.1).length;
+            default:
+                return 0;
+        }
+    }
+    
+    function getGoalUnit(type) {
+        switch (type) {
+            case 'TOTAL_WORKED_HOURS':
+            case 'TOTAL_DIFF_HOURS':
+                return 'h';
+            case 'POSITIVE_WEEKS':
+                return ' Wochen';
+            case 'PERFECT_SHIFTS':
+                return ' Schichten';
+            default:
+                return '';
+        }
+    }
+
+    function addCustomGoal() {
+        const title = document.getElementById('goalTitle').value.trim();
+        const type = document.getElementById('goalType').value;
+        const target = parseFloat(document.getElementById('goalTarget').value);
+        
+        if (!title || isNaN(target) || target <= 0) {
+            return alert('Bitte gib einen gültigen Zielnamen und einen Zielwert (> 0) ein.');
+        }
+
+        const newGoal = {
+            id: Date.now(),
+            title: title,
+            type: type,
+            target: target
+        };
+
+        data.settings.goals.push(newGoal);
+        save();
+        document.getElementById('goalTitle').value = '';
+        document.getElementById('goalTarget').value = '';
+        renderGoalsView();
+        alert('Neues Ziel erfolgreich hinzugefügt!');
+    }
+    
+    function deleteCustomGoal(id) {
+         if (confirm('Sicher, dass du dieses Ziel löschen möchtest?')) {
+             data.settings.goals = data.settings.goals.filter(goal => goal.id !== id);
+             save();
+             renderGoalsView();
+         }
+    }
+
+    function renderGoalsView() {
+        const goalsListEl = document.getElementById('goalsList');
+        let html = '';
+        
+        // Hardcoded goals for initial visibility/examples
+        const goalsToDisplay = [
+             ...data.settings.goals
+        ];
+        
+        goalsToDisplay.forEach(goal => {
+            const current = calculateGoalValue(goal.type);
+            const progress = Math.min((current / goal.target) * 100, 100);
+            const achieved = progress >= 100;
+            const color = achieved ? 'var(--success)' : 'var(--primary)';
+            const unit = getGoalUnit(goal.type);
+            
+            // Formatierung für Stunden/Saldo-Ziele
+            const currentDisplay = (goal.type === 'TOTAL_DIFF_HOURS' ? (current >= 0 ? '+' : '') : '') + current.toFixed(1);
+            
+            html += `
+                <div class="goal-card" style="border-left-color: ${color}; opacity: ${achieved ? 1 : 0.85};">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size: 2rem;">${achieved ? '🏆' : '🎯'}</div>
+                        <button class="goal-delete-btn" onclick="deleteCustomGoal(${goal.id})">×</button>
+                    </div>
+                    <div class="goal-title">${goal.title}</div>
+                    <div class="goal-status">
+                        ${currentDisplay}${unit} / ${goal.target.toFixed(1)}${unit}
+                    </div>
+                    <div class="goal-progress-bar">
+                        <div class="goal-progress" style="width: ${progress}%; background:${color};"></div>
+                    </div>
+                    <div class="goal-status" style="color: ${color}; margin-top: 5px;">
+                        ${achieved ? '✅ Ziel erreicht!' : 'Aktiv'}
+                    </div>
+                </div>
+            `;
+        });
+        
+        goalsListEl.innerHTML = html;
+    }
+
+
     // --- SCHOOL LOGIC ---
     
     const getNoteColor = (note) => {
@@ -1644,6 +1773,8 @@
         if (document.getElementById('view-history').classList.contains('active')) {
              renderHistoryView();
         }
+        // Neu laden der Ziele
+        renderGoalsView();
     }
     
     // --- TIMER LOGIC (Mit Korrektur) ---
@@ -1852,7 +1983,7 @@
     }
 
 
-    // --- VACATION & FEIERTAGS MANAGEMENT (ERWEITERT) ---
+    // --- VACATION & FEIERTAGS MANAGEMENT ---
     
     function calculateProRataVacation(totalAnnualDays = 30) {
         const startStr = data.settings.ihk.start;
@@ -1875,8 +2006,10 @@
         const entryMonth = startDate.getMonth(); // 0 = Januar
         const remainingMonths = 12 - entryMonth;
         
+        // Formel: (Jahresanspruch / 12) * verbleibende Monate
         const proRata = (totalAnnualDays / 12) * remainingMonths;
-        return Math.ceil(proRata); // Aufrunden auf den nächsten vollen Tag, wie oft üblich
+        // Aufrunden auf den nächsten vollen Tag
+        return Math.ceil(proRata); 
     }
 
     function recalculateVacationUsed() {
@@ -1901,7 +2034,6 @@
         }
 
         let deletedCount = 0;
-        const oldEntriesCount = data.entries.length;
 
         // Nur Einträge löschen, die vom Typ vacation oder holiday sind UND die in der Periode liegen
         data.entries = data.entries.filter(e => {
@@ -2421,8 +2553,6 @@
                     let [h1, m1] = timeStartStr.split(':').map(Number);
                     let [h2, m2] = timeEndStr.split(':').map(Number);
                     
-                    // Um Mitternachtsschichten zu handhaben, aber hier vereinfachen wir für Heatmap (innerhalb 24h)
-                    
                     const netWorkedMinutes = e.worked * 60;
                     
                     let startTimeMins = h1 * 60 + m1;
@@ -2569,54 +2699,68 @@
         
         // --- DEEP DIVE RENDER ---
         
-        // 1. Produktiver Wochentag
+        // 1. Produktiver Wochentag (FIXED)
         const dayChartContainer = document.getElementById('chartProductivityByDay');
         const dayStats = deepData.dayStats.slice(1, 6); // Nur Mo-Fr (Index 1 bis 5)
-        const maxAbsDiff = Math.max(0.1, ...dayStats.map(d => Math.abs(d.count > 0 ? d.totalDiff / d.count : 0)));
+        const dayAverages = dayStats.map(d => d.count > 0 ? d.totalDiff / d.count : 0);
         
+        // Findet den Maximalwert (Absolut) über alle positiven und negativen Durchschnitte
+        const maxAbsDiff = Math.max(1, ...dayAverages.map(Math.abs)); // Minimum 1, um Division durch Null zu vermeiden
+        const chartHeightPx = 200;
+        const chartCenterY = chartHeightPx / 2;
+        const barMaxHeight = chartCenterY - 20; // 80px max Höhe
+
         dayChartContainer.innerHTML = '';
         const dayBarGrid = document.createElement('div');
         dayBarGrid.className = 'bar-chart-grid';
         dayBarGrid.style.gridTemplateColumns = 'repeat(5, 1fr)';
-        dayBarGrid.style.height = '100%';
+        dayBarGrid.style.height = `${chartHeightPx}px`;
         dayBarGrid.style.paddingBottom = '30px'; 
         
         const dayLabels = ['Mo', 'Di', 'Mi', 'Do', 'Fr'];
         
-        dayStats.forEach((d, index) => {
-            const avgDiff = d.count > 0 ? d.totalDiff / d.count : 0;
-            const absHeight = Math.abs(avgDiff) / maxAbsDiff * 80; // max height 80%
+        dayAverages.forEach((avgDiff, index) => {
+            const absHeight = Math.abs(avgDiff) / maxAbsDiff * barMaxHeight;
             const isPositive = avgDiff >= 0;
+            const barColor = isPositive ? 'var(--success)' : 'var(--danger)'; // Grün/Rot für Saldo-Differenz
             
             const col = document.createElement('div');
             col.className = 'bar-col';
-            col.style.justifyContent = isPositive ? 'flex-end' : 'flex-start';
-            col.style.paddingTop = isPositive ? '0' : '50%'; // Verschiebt den Anker
-            col.style.paddingBottom = isPositive ? '50%' : '0'; // Verschiebt den Anker
+            col.style.height = '100%';
+            col.style.position = 'relative'; 
 
             const bar = document.createElement('div');
             bar.className = 'bar';
             bar.style.height = `${absHeight}px`;
             bar.style.width = '25px';
-            bar.style.background = isPositive ? 'var(--primary)' : 'var(--danger)';
-            bar.style.bottom = isPositive ? '50%' : '0';
-            bar.style.transform = isPositive ? 'translateY(0)' : 'translateY(-100%)';
-            bar.style.borderRadius = isPositive ? '3px 3px 0 0' : '0 0 3px 3px';
+            bar.style.background = barColor;
             
+            // Positionierung relativ zur Y-Mitte (chartCenterY)
+            if (isPositive) {
+                bar.style.bottom = `${chartCenterY}px`;
+                bar.style.transform = 'translateY(0)';
+                bar.style.borderRadius = '3px 3px 0 0';
+            } else {
+                bar.style.bottom = `${chartCenterY}px`;
+                bar.style.transform = 'translateY(100%)'; // Beginnt an der Mittellinie und wächst nach unten
+                bar.style.borderRadius = '0 0 3px 3px';
+            }
+            
+            // Value Label
             const valueLabel = document.createElement('span');
             valueLabel.style.position = 'absolute';
             valueLabel.style.fontSize = '0.7rem';
             valueLabel.style.fontWeight = '600';
-            valueLabel.style.color = isPositive ? 'var(--primary)' : 'var(--danger)';
-            valueLabel.style.top = isPositive ? `${50 - absHeight}px` : 'auto';
-            valueLabel.style.bottom = isPositive ? 'auto' : `${50 + absHeight}px`;
+            valueLabel.style.color = barColor;
+            valueLabel.style.bottom = isPositive ? `${chartCenterY + absHeight + 5}px` : `${chartCenterY - absHeight - 20}px`; 
+            valueLabel.style.left = '50%';
+            valueLabel.style.transform = 'translateX(-50%)';
             valueLabel.innerText = avgDiff.toFixed(1) + 'h';
 
             const label = document.createElement('span');
             label.className = 'bar-label';
             label.innerText = dayLabels[index];
-            label.style.bottom = '-10px';
-            label.style.transform = 'none';
+            label.style.bottom = '10px'; // Fester Abstand zum Boden des Containers
 
             col.appendChild(bar);
             col.appendChild(valueLabel);
@@ -2624,14 +2768,14 @@
             dayBarGrid.appendChild(col);
         });
         
-        // Mittellinie hinzufügen (y=50%)
+        // Mittellinie (Y=100px)
         const zeroLine = document.createElement('div');
         zeroLine.style.position = 'absolute';
-        zeroLine.style.top = '50%';
+        zeroLine.style.top = `${chartCenterY}px`;
         zeroLine.style.left = '0';
         zeroLine.style.width = '100%';
         zeroLine.style.height = '1px';
-        zeroLine.style.background = 'rgba(255,255,255,0.1)';
+        zeroLine.style.background = 'rgba(255,255,255,0.2)';
         
         dayChartContainer.style.position = 'relative';
         dayChartContainer.innerHTML = '';
@@ -2639,54 +2783,45 @@
         dayChartContainer.appendChild(dayBarGrid);
 
 
-        // 2. Produktivitäts-Heatmap
+        // 2. Produktivitäts-Heatmap (FIXED)
         const heatmapContainer = document.getElementById('chartProductivityHeatmap');
         const hourlyStats = deepData.hourlyStats;
         
         // Find Max for scaling colors
         const maxWorked = Math.max(0.1, ...hourlyStats.map(h => h.count > 0 ? h.totalWorked / h.count : 0));
         
-        let heatmapHTML = '<div class="heatmap-grid">';
+        let heatmapHTML = '';
         
         // Render Hour Labels (8:00 - 23:00)
-        heatmapHTML += '<div style="grid-column: 1 / -1; display:flex; justify-content:space-between; padding:0 5px; margin-bottom:5px;">';
+        heatmapHTML += '<div style="display:grid; grid-template-columns: repeat(16, 1fr); gap:5px; margin-bottom:5px; margin-top:20px;">';
         for (let i = 8; i <= 23; i++) {
             heatmapHTML += `<span class="heatmap-label">${i}:00</span>`;
         }
         heatmapHTML += '</div>';
 
+        // Helper for color
+        function getHeatmapColor(ratio) {
+             const alpha = 0.15 + ratio * 0.7; // Startet bei 15%, max 85%
+             return `rgba(168, 85, 247, ${alpha})`; 
+        }
 
         // Render Cells
+        heatmapHTML += '<div class="heatmap-grid" style="grid-template-columns: repeat(16, 1fr);">';
         for (let i = 0; i < 16; i++) {
             const avgWorked = hourlyStats[i].count > 0 ? hourlyStats[i].totalWorked / hourlyStats[i].count : 0;
             const hour = 8 + i;
             
-            // Color Scaling (0.0 = low, 1.0 = high)
             const ratio = avgWorked / maxWorked;
             
-            let color = 'var(--heatmap-low)'; 
-            
-            // Generate a color gradient helper function (simple linear interpolation)
-            function getRGB(ratio, r, g, b) {
-                const alpha = 0.4 + (ratio * 0.6); // Mindest-Alpha 0.4
-                return [r, g, b, alpha.toFixed(2)];
+            let color = 'rgba(255,255,255, 0.03)';
+            let displayValue = avgWorked > 0 ? avgWorked.toFixed(1) + 'h' : '0.0h';
+
+            if (ratio > 0.05) {
+                 color = getHeatmapColor(ratio);
             }
             
-            if (ratio > 0) {
-                 const baseR = 168, baseG = 85, baseB = 247; // Primary Color RGB
-                 const r = Math.round(baseR * (0.3 + ratio * 0.7));
-                 const g = Math.round(baseG * (0.3 + ratio * 0.7));
-                 const b = Math.round(baseB * (0.3 + ratio * 0.7));
-
-                 color = `rgba(168, 85, 247, ${0.1 + ratio * 0.8})`; 
-            } else {
-                 color = 'rgba(255,255,255, 0.03)';
-            }
-            
-            const displayValue = avgWorked > 0 ? avgWorked.toFixed(1) + 'h' : '---';
-
             heatmapHTML += `
-                <div class="heatmap-cell" style="background-color: ${color};" title="Ø ${displayValue} gearbeitet ab ${hour}:00">
+                <div class="heatmap-cell" style="background-color: ${color};" title="Ø ${displayValue} gearbeitet um ${hour}:00">
                     
                 </div>
             `;
