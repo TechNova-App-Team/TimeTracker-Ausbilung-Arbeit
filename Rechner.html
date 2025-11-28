@@ -972,9 +972,14 @@
                     <input type="number" id="confVacationTotal" class="glass-input" value="30">
                 </div>
                 <div style="flex:1;">
-                    <label style="font-size:0.7rem; color:#666; display:block; margin-bottom:5px;">Schon genommene Tage:</label>
+                    <label style="font-size:0.7rem; color:#666; display:block; margin-bottom:5px;">Schon genommene Tage (manuell):</label>
                     <input type="number" id="confVacationUsedManual" class="glass-input" value="0">
                 </div>
+            </div>
+            
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1.5rem;">
+                <p>Aktueller, anteiliger Urlaubsanspruch (basierend auf IHK-Start): <strong id="vacationProRata" style="color:var(--success);">0</strong> Tage</p>
+                <p>Der Wert oben ('Jahresanspruch') wird automatisch auf diesen Wert gesetzt, wenn du die Einstellungen speicherst.</p>
             </div>
 
             <div class="vacation-grid">
@@ -984,16 +989,17 @@
                 </div>
 
                 <div class="vacation-block-tool">
-                    <h5 style="margin-bottom:10px;">Blockbuchung (Urlaub/Feiertag)</h5>
+                    <h5 style="margin-bottom:10px;">Blockbuchung verwalten</h5>
                     <select id="periodType" class="glass-select" style="margin-bottom:10px;">
-                        <option value="vacation">🌴 Urlaub</option>
-                        <option value="holiday">🏖️ Firmen-Frei/Feiertag</option>
+                        <option value="vacation">🌴 Urlaub buchen</option>
+                        <option value="holiday">🏖️ Firmen-Frei/Feiertag buchen</option>
                     </select>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
                         <input type="date" id="periodStart" class="glass-input" placeholder="Startdatum">
                         <input type="date" id="periodEnd" class="glass-input" placeholder="Enddatum">
                     </div>
                     <button class="btn btn-primary" onclick="bookPeriod()">Tage buchen & überschreiben</button>
+                    <button class="btn btn-danger" onclick="deletePeriod()" style="margin-top:10px; background:var(--danger);">Perioden-Buchungen löschen</button>
                 </div>
             </div>
 
@@ -1350,7 +1356,7 @@
     }
 
 
-    // --- IHK / KARRIERE LOGIC (ERWEITERT) ---
+    // --- IHK / KARRIERE LOGIC ---
     function renderIHKView() {
         const { start, end, exam_zwischen, note_zwischen, note_abschluss } = data.settings.ihk;
         const now = new Date().getTime();
@@ -1846,13 +1852,78 @@
     }
 
 
-    // --- VACATION & FEIERTAGS MANAGEMENT (Unverändert) ---
+    // --- VACATION & FEIERTAGS MANAGEMENT (ERWEITERT) ---
     
+    function calculateProRataVacation(totalAnnualDays = 30) {
+        const startStr = data.settings.ihk.start;
+        const now = new Date();
+        
+        if (!startStr) {
+            return totalAnnualDays; 
+        }
+
+        const startDate = new Date(startStr);
+        const startYear = startDate.getFullYear();
+        const currentYear = now.getFullYear();
+
+        if (currentYear > startYear) {
+            // Nach dem ersten Jahr oder wenn das Startdatum vor dem 1. Januar des aktuellen Jahres liegt
+            return totalAnnualDays;
+        }
+
+        // Berechnung für das Eintrittsjahr (Annahme: Anspruch ab dem 1. des Eintrittsmonats)
+        const entryMonth = startDate.getMonth(); // 0 = Januar
+        const remainingMonths = 12 - entryMonth;
+        
+        const proRata = (totalAnnualDays / 12) * remainingMonths;
+        return Math.ceil(proRata); // Aufrunden auf den nächsten vollen Tag, wie oft üblich
+    }
+
     function recalculateVacationUsed() {
         const vacationEntries = data.entries.filter(e => e.type === 'vacation' && e.expected > 0);
         const autoUsedDays = vacationEntries.length;
         data.settings.vacation.used = autoUsedDays + parseFloat(data.settings.vacation.usedManual || 0);
     }
+    
+    function deletePeriod() {
+        const startStr = document.getElementById('periodStart').value;
+        const endStr = document.getElementById('periodEnd').value;
+        
+        if (!startStr || !endStr) return alert('Bitte Start- und Enddatum für die zu löschende Periode wählen.');
+
+        const startDate = new Date(startStr);
+        const endDate = new Date(endStr);
+        
+        if (startDate > endDate) return alert('Startdatum muss vor Enddatum liegen.');
+        
+        if (!confirm(`Sicher? Alle Periodenbuchungen (Urlaub/Feiertag) zwischen ${startStr} und ${endStr} werden unwiderruflich gelöscht!`)) {
+            return;
+        }
+
+        let deletedCount = 0;
+        const oldEntriesCount = data.entries.length;
+
+        // Nur Einträge löschen, die vom Typ vacation oder holiday sind UND die in der Periode liegen
+        data.entries = data.entries.filter(e => {
+            const eDate = new Date(e.date);
+            
+            const isTargetType = (e.type === 'vacation' || e.type === 'holiday');
+            const isWithinPeriod = eDate >= startDate && eDate <= endDate;
+            
+            if (isTargetType && isWithinPeriod) {
+                deletedCount++;
+                return false; // Eintrag löschen (nicht behalten)
+            }
+            return true; // Eintrag behalten
+        });
+        
+        recalculateVacationUsed();
+        
+        alert(`${deletedCount} Perioden-Buchungen wurden gelöscht.`);
+        save();
+        document.getElementById('settingsModal').classList.remove('active');
+    }
+
 
     function bookPeriod() {
         const startStr = document.getElementById('periodStart').value;
@@ -2341,38 +2412,51 @@
             // Stunden-Statistik (Nur 'work'-Typ, mit tatsächlicher Zeitangabe)
             if (e.type === 'work' && e.info && e.info.includes('-')) {
                 try {
-                    const [timeStartStr, timeEndStr] = e.info.split(' ')[0].split('-');
+                    const infoParts = e.info.split(' ');
+                    const timeRange = infoParts[0]; // z.B. "08:00-17:00"
+                    
+                    if (!timeRange.includes('-')) return;
+
+                    const [timeStartStr, timeEndStr] = timeRange.split('-');
                     let [h1, m1] = timeStartStr.split(':').map(Number);
                     let [h2, m2] = timeEndStr.split(':').map(Number);
                     
-                    // Annahme: Schicht ist innerhalb eines Tages (Start < Ende)
-                    const startTimeMins = h1 * 60 + m1;
-                    const endTimeMins = h2 * 60 + m2;
-                    const shiftMinutes = endTimeMins - startTimeMins;
+                    // Um Mitternachtsschichten zu handhaben, aber hier vereinfachen wir für Heatmap (innerhalb 24h)
                     
-                    if (shiftMinutes > 0) {
-                        
-                        // Break Minutes (müssen rückgerechnet werden, da e.worked der Netto-Wert ist)
-                        const rawWorkedHours = e.worked + (e.breakMins / 60);
-                        const rawWorkedMinutes = rawWorkedHours * 60;
-                        
-                        // Wir verteilen die NETTO gearbeitete Zeit gleichmäßig über die Brutto-Schichtzeit
-                        const netWorkedMinutes = e.worked * 60;
+                    const netWorkedMinutes = e.worked * 60;
+                    
+                    let startTimeMins = h1 * 60 + m1;
+                    let endTimeMins = h2 * 60 + m2;
 
-                        // Start- und End-Stunde (8:00 = 8)
-                        const startHour = Math.max(8, h1);
-                        const endHour = Math.min(24, h2);
+                    if (endTimeMins < startTimeMins) endTimeMins += 24 * 60; // Nächster Tag
 
-                        for (let hour = startHour; hour < endHour; hour++) {
-                            if (hour >= 8 && hour <= 23) {
-                                // Index ist Stunde - 8 (8 Uhr = 0, 23 Uhr = 15)
-                                const index = hour - 8;
-                                const durationInHour = 60; // Vereinfachung: gesamte Stunde
-                                
-                                // Geschätzte gearbeitete Zeit in dieser Stunde (Prozentual zur gesamten Brutto-Schicht)
-                                const workedFraction = durationInHour / shiftMinutes;
-                                const workedInThisHour = workedFraction * netWorkedMinutes / 60; // In Stunden
-                                
+                    const totalShiftMinutes = endTimeMins - startTimeMins;
+                    if (totalShiftMinutes <= 0) return;
+
+                    // Start- und End-Stunde (8:00 = 8)
+                    const startHour = Math.floor(startTimeMins / 60);
+                    const endHour = Math.ceil(endTimeMins / 60);
+
+                    for (let hour = startHour; hour < endHour; hour++) {
+                        const effectiveHour = hour % 24;
+                        
+                        if (effectiveHour >= 8 && effectiveHour <= 23) {
+                            // Index ist Stunde - 8 (8 Uhr = 0, 23 Uhr = 15)
+                            const index = effectiveHour - 8;
+                            
+                            const hourStartMins = hour * 60;
+                            const hourEndMins = (hour + 1) * 60;
+                            
+                            // Berechne die Schnittmenge der Schichtzeit mit der aktuellen Stunde (in Minuten)
+                            const segmentStart = Math.max(startTimeMins, hourStartMins);
+                            const segmentEnd = Math.min(endTimeMins, hourEndMins);
+                            const minutesInHour = Math.max(0, segmentEnd - segmentStart);
+                            
+                            // Anteil der Nettoarbeitszeit, die in diese Stunde fällt
+                            const workedFraction = minutesInHour / totalShiftMinutes;
+                            const workedInThisHour = workedFraction * netWorkedMinutes / 60; // In Stunden
+                            
+                            if (index >= 0 && index < hourlyStats.length) {
                                 hourlyStats[index].totalWorked += workedInThisHour;
                                 hourlyStats[index].count++;
                             }
@@ -2488,7 +2572,7 @@
         // 1. Produktiver Wochentag
         const dayChartContainer = document.getElementById('chartProductivityByDay');
         const dayStats = deepData.dayStats.slice(1, 6); // Nur Mo-Fr (Index 1 bis 5)
-        const maxAbsDiff = Math.max(0.1, ...dayStats.map(d => Math.abs(d.totalDiff / d.count)));
+        const maxAbsDiff = Math.max(0.1, ...dayStats.map(d => Math.abs(d.count > 0 ? d.totalDiff / d.count : 0)));
         
         dayChartContainer.innerHTML = '';
         const dayBarGrid = document.createElement('div');
@@ -2564,6 +2648,15 @@
         
         let heatmapHTML = '<div class="heatmap-grid">';
         
+        // Render Hour Labels (8:00 - 23:00)
+        heatmapHTML += '<div style="grid-column: 1 / -1; display:flex; justify-content:space-between; padding:0 5px; margin-bottom:5px;">';
+        for (let i = 8; i <= 23; i++) {
+            heatmapHTML += `<span class="heatmap-label">${i}:00</span>`;
+        }
+        heatmapHTML += '</div>';
+
+
+        // Render Cells
         for (let i = 0; i < 16; i++) {
             const avgWorked = hourlyStats[i].count > 0 ? hourlyStats[i].totalWorked / hourlyStats[i].count : 0;
             const hour = 8 + i;
@@ -2572,28 +2665,29 @@
             const ratio = avgWorked / maxWorked;
             
             let color = 'var(--heatmap-low)'; 
-            if (ratio > 0.66) {
-                 color = `rgba(${getRGB(ratio, 168, 85, 247).join(',')}, 1)`; // High (Primary)
-            } else if (ratio > 0.33) {
-                 color = `rgba(${getRGB(ratio, 251, 191, 36).join(',')}, 0.8)`; // Mid (Warn)
-            } else if (ratio > 0.05) {
-                 color = `rgba(${getRGB(ratio, 100, 116, 139).join(',')}, 0.6)`; // Low-Mid (Muted)
-            } else if (ratio > 0) {
-                 color = 'rgba(255,255,255, 0.05)';
-            }
             
             // Generate a color gradient helper function (simple linear interpolation)
             function getRGB(ratio, r, g, b) {
-                // Skaliert die Farbe basierend auf dem Verhältnis (ratio) zur Max-Farbe
                 const alpha = 0.4 + (ratio * 0.6); // Mindest-Alpha 0.4
                 return [r, g, b, alpha.toFixed(2)];
+            }
+            
+            if (ratio > 0) {
+                 const baseR = 168, baseG = 85, baseB = 247; // Primary Color RGB
+                 const r = Math.round(baseR * (0.3 + ratio * 0.7));
+                 const g = Math.round(baseG * (0.3 + ratio * 0.7));
+                 const b = Math.round(baseB * (0.3 + ratio * 0.7));
+
+                 color = `rgba(168, 85, 247, ${0.1 + ratio * 0.8})`; 
+            } else {
+                 color = 'rgba(255,255,255, 0.03)';
             }
             
             const displayValue = avgWorked > 0 ? avgWorked.toFixed(1) + 'h' : '---';
 
             heatmapHTML += `
                 <div class="heatmap-cell" style="background-color: ${color};" title="Ø ${displayValue} gearbeitet ab ${hour}:00">
-                    ${hour}:00
+                    
                 </div>
             `;
         }
@@ -2848,6 +2942,10 @@
         document.getElementById('confBreakMin').value = data.settings.break.min;
         for(let i=1; i<=5; i++) document.getElementById('h'+i).value = data.settings.hours[i];
         
+        // Urlaub: Pro-rata Anspruch berechnen und anzeigen
+        const proRata = calculateProRataVacation(30); // 30 Tage Basis
+        document.getElementById('vacationProRata').innerText = proRata;
+        
         document.getElementById('confVacationTotal').value = data.settings.vacation.total || 30;
         document.getElementById('confVacationUsedManual').value = data.settings.vacation.usedManual || 0;
         document.getElementById('vacationRemaining').innerText = (data.settings.vacation.total - data.settings.vacation.used).toFixed(0);
@@ -2862,7 +2960,10 @@
              data.settings.hours[i] = parseFloat(document.getElementById('h'+i).value);
         }
         
-        data.settings.vacation.total = parseFloat(document.getElementById('confVacationTotal').value);
+        // Urlaub: Den totalen Anspruch auf den Pro-Rata-Wert aktualisieren
+        const newTotalVacation = calculateProRataVacation(30); 
+        data.settings.vacation.total = newTotalVacation;
+        
         data.settings.vacation.usedManual = parseFloat(document.getElementById('confVacationUsedManual').value);
         recalculateVacationUsed();
         
