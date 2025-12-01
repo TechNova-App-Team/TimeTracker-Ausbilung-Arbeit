@@ -1192,7 +1192,7 @@
                         <div class="ihk-metric-label" style="font-size:0.7rem;">Erwartete Soll-Zeit bis Ende</div>
                     </div>
                     <div class="ihk-secondary-kpi">
-                        <div class="ihk-metric-label">FEHLZEIT WARNUNG</div>
+                        <div class="ihk-metric-label">FEHLZEIT WARNUNG (Max. 10%)</div>
                         <div class="ihk-metric-value" id="ihkMissedTimeWarning" style="font-size:1.5rem;">Daten fehlen</div>
                         <div class="ihk-metric-label" style="font-size:0.7rem;">Ø Fehltage in % der Laufzeit</div>
                     </div>
@@ -1214,7 +1214,7 @@
             </div>
             
             <div class="card">
-                <h4 style="margin-bottom:10px;">Noten- & Countdown-Übersicht</h4>
+                <h4 style="margin-bottom:10px;">Noten Übersicht</h4>
                 <div class="ihk-note-group">
                     <div class="ihk-note-card card" style="border-left: 5px solid var(--ihk);">
                         <div class="ihk-metric-label">Zwischenprüfung Note:</div>
@@ -1630,11 +1630,13 @@
         }
         if(!data.settings.vacation) data.settings.vacation = {total:30, used:0, usedManual:0};
         
-        if(!data.settings.ihk || !data.settings.ihk.note_zwischen) {
+        // IHK-Daten werden beibehalten, nur falls komplett leer, Default setzen
+        if(!data.settings.ihk) {
              data.settings.ihk = {start: '', end: '', exam_zwischen: '', note_zwischen: '', note_abschluss: ''};
         }
         
-        if(!data.settings.school || !data.settings.school.grades) {
+        // Berufsschul-Daten beibehalten, nur Struktur sichern falls komplett fehlt
+        if(!data.settings.school) {
              data.settings.school = {
                 grades: {
                     'Kernprozesse': [],
@@ -1642,6 +1644,14 @@
                     'IT-Systeme': [],
                     'Deutsch/Kommunikation': [],
                 }
+             };
+        } else if(!data.settings.school.grades) {
+             // Falls grades fehlt, aber school existiert
+             data.settings.school.grades = {
+                'Kernprozesse': [],
+                'Wirtschaftslehre': [],
+                'IT-Systeme': [],
+                'Deutsch/Kommunikation': [],
              };
         }
         
@@ -1739,6 +1749,7 @@
     function save() { 
         localStorage.setItem('tg_pro_data', JSON.stringify(data)); 
         localStorage.setItem('tg_last_save', Date.now()); 
+        console.log('✅ Daten gespeichert (inkl. IHK, Berufsschule, Ziele):', data.settings);
         updateUI(); 
     }
     function saveTimerState() { 
@@ -4184,9 +4195,9 @@
              data.settings.hours[i] = parseFloat(document.getElementById('h'+i).value);
         }
         
-        // Urlaub: Den totalen Anspruch auf den Pro-Rata-Wert aktualisieren
-        const newTotalVacation = calculateProRataVacation(30); 
-        data.settings.vacation.total = newTotalVacation;
+        // Urlaub: Den eingegebenen Anspruch direkt speichern
+        const inputVacationTotal = parseFloat(document.getElementById('confVacationTotal').value);
+        data.settings.vacation.total = isNaN(inputVacationTotal) ? 30 : inputVacationTotal;
         
         data.settings.vacation.usedManual = parseFloat(document.getElementById('confVacationUsedManual').value);
         recalculateVacationUsed();
