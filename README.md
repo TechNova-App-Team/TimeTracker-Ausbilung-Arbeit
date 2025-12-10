@@ -1,402 +1,124 @@
-[![WICHTIG! Datenschutzrichtlinie lesen!](https://img.shields.io/badge/Datenschutz-WICHTIG-red?style=for-the-badge)](./PRIVACY.md)
+[![Datenschutz: DSGVO lesen](https://img.shields.io/badge/DSGVO-Wichtig-red?style=for-the-badge)](./DSGVO.html) [![Impressum](https://img.shields.io/badge/Impressum-Info-blue?style=for-the-badge)](./Impressum.html) [![Lizenz: MIT](https://img.shields.io/badge/License-MIT-green.svg)](Rechtliches/LICENSE.md)
+
 # ⏱ Time.Tracker.SingleFile
 
-> **Eine moderne, hochperformante Zeiterfassungs- und Gleitzeitmanagement-Anwendung mit umfangreicher Analytics.**
+> Eine moderne, lokal laufende Single-File Zeiterfassungs-App — aktuell, minimal, performant.
 
 ---
 
-## 🌟 Überblick
+**Grafische Kurzansicht**
 
-**Time.Tracker.SingleFile** ist eine webbasierte Echtzeit-Zeiterfassungslösung mit fortgeschrittener Gleitzeitverwaltung, Performance-Analytics und intelligenter Urlaubsverwaltung. Gebaut mit modernster Frontend-Technologie für maximale Benutzerfreundlichkeit.
+[![Dashboard Badge](assets/badge-dashboard.svg)](assets/badge-dashboard.svg) [![Timer Badge](https://img.shields.io/badge/Timer-live-yellow?style=for-the-badge)](#) [![Backup](https://img.shields.io/badge/Backup-JSON-orange?style=for-the-badge)](#)
 
-### Kernfeatures
-
-```
-┌─────────────────────────────────────────────────┐
-│   • Live-Timer mit visueller Segmentierung      │
-│   • Intelligente Pausenabzüge                   │
-│   • Feiertags-Management (deutschlandweit)      │
-│   • Performance Analytics Dashboard             │
-│   • Gleitzeitkonto mit Prognosen                │
-│   • Responsive Dark Mode Interface              │
-│   • Lokale Datenspeicherung (IndexedDB Ready)   │
-│   • Import/Export Funktionalität                │
-└─────────────────────────────────────────────────┘
-```
+**Version:** `v1.0.0`  •  **Build:** `local`  •  **Stand:** 2025-12-10
 
 ---
 
-## 🎨 Visuelle Architektur
+## 🛡️ Rechtliches & wichtige Dateien (Schnellzugriff)
 
-### Dashboard-Übersicht
-```
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃            Time.Tracker.SingleFile            ┃
-┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-┃  Woche: +2.5h  │  Monat: +8.2h  │ Gleitzeit: +15.7h ┃
-┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-┃                   Live-Timer                  ┃
-┃  ▓▓▓▓▓░░░░ (2h 24m 15s)                       ┃
-┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-┃  Letzte Aktivitäten  │  Trend-Analyse         ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-```
+- `DSGVO.html` — [DSGVO anzeigen](./DSGVO.html)
+- `Impressum.html` — [Impressum anzeigen](./Impressum.html)
+- `Rechtliches/` (alle Markdown-Dateien):
+  - [Rechtliches/CODE_OF_CONDUCT.md](Rechtliches/CODE_OF_CONDUCT.md)
+  - [Rechtliches/CONTRIBUTING.md](Rechtliches/CONTRIBUTING.md)
+  - [Rechtliches/LICENSE.md](Rechtliches/LICENSE.md)
+  - [Rechtliches/NOTICE.md](Rechtliches/NOTICE.md)
+  - [Rechtliches/PRIVACY.md](Rechtliches/PRIVACY.md)
+  - [Rechtliches/SECURITY.md](Rechtliches/SECURITY.md)
+
+> Alle rechtlichen Dateien liegen im Ordner `Rechtliches/` — die obigen Links öffnen die lokal vorhandenen Markdown-Dateien.
+
+
+## 🌟 Kurzüberblick
+
+`Time.Tracker.SingleFile` ist eine einfache, aber mächtige Browser-Anwendung zur lokalen Zeiterfassung (kein Server). Sie speichert Daten ausschließlich lokal und eignet sich für Mitarbeiter, Auszubildende oder Einzelpersonen, die ein schnelles, datenschutzfreundliches Tool suchen.
+
+## 🎯 Aktueller Projektstand (Stand: 2025-12-10)
+- **Fertig / stabil:** Kernfunktionen (Timer, Buchen, Export/Import, Gleitzeit) funktionieren lokal.
+- **In Arbeit:** Erweiterte Analytics, UI-Polish, optionale Synchronisation (ausstehend).
+- **Datenhaltung:** Alle Daten in `localStorage` / JSON-Export möglich.
 
 ---
 
-## 🚀 Funktionen im Detail
+## 📸 Grafische Darstellung (Quick-Preview)
 
-### 📊 Dashboard-Modul
-- **KPI-Ringe**: Wöchentliche und monatliche Stundenfortschritt
-- **Gleitzeit-Konto**: Echtzeit-Saldo mit Jahresprognose
-- **Audit-Panel**: Letzte Speicherung, Feiertags-Status, Schichtwarnung
-- **Trend-Chart**: 30-Tage Saldo-Entwicklung
-- **Verteilungs-Donut**: Aufschlüsselung nach Tätigkeitstyp
-
-### ⏱ Live-Timer System
-```javascript
-// Intelligente Timer-Logik
-- Start/Pause/Stop Steuerung
-- Automatische Pausenabzüge nach Schwellenwert
-- Visuelles Segment-Logging
-- Zeitstempel-basierte Verfolgung
 ```
-
-### 📈 Performance Analytics
-- **Soll-Erfüllungsgrad** (90 Tage)
-- **Wöchentlicher Soll-Ist-Vergleich** mit Bar-Charts
-- **Saldo-Entwicklung** pro Monat
-- **Durchschnittliche monatliche Differenz**
-
-### 🌴 Urlaubsverwaltung
-- Jahresanspruch konfigurierbar
-- Blockbuchung für Zeiträume
-- Automatische Feiertags-Integration
-- Verfügbare Tage Tracker
-- Ferienblock-Verwaltung
-
-### ⚙️ Intelligente Konfiguration
-```
-Arbeitszeiten (Mo-Fr):    8.75h | 8.75h | 8.75h | 8.75h | 4.5h
-Pausenregel:              Automatisch nach 6h (30 Min)
-Berufsschule:             Mi + Do (ungerade Woche)
-Feiertag-Sync:            Automatisch (DE)
+┌───────────────────────────────────────────────┐
+│  ╔═ Dashboard ═══════════╗  ╔═ Live-Timer ══╗  │
+│  ║ KPI Ringe  ░░▒▓▓  72% ║  ║ ▶ 02:24:15     ║  │
+│  ║ Trend +12.5h          ║  ║ Pause: II      ║  │
+│  ╚═══════════════════════╝  ╚════════════════╝  │
+└───────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛠 Technologie-Stack
+![Preview Screenshot](assets/preview-screenshot.svg)
 
-### Frontend
-```
-┌─────────────────────────────┐
-│  HTML5 + CSS3 + JavaScript  │
-│  (Vanilla, keine Framework) │
-└─────────────────────────────┘
-       ↓
-┌─────────────────────────────┐
-│  Glassmorphism UI Design    │
-│  Backdrop Filter Effekte    │
-│  CSS Grid + Flexbox         │
-└─────────────────────────────┘
-       ↓
-┌─────────────────────────────┐
-│  LocalStorage API           │
-│  RequestAnimationFrame      │
-│  SVG Charts & Visualisierung│
-└─────────────────────────────┘
-```
 
-### Design-System
-- **Farben**: Purple (#a855f7), Blue, Cyan, Green, Orange
-- **Font**: Inter + JetBrains Mono
-- **Komponenten**: Glass-Cards, Progress-Rings, Bar-Charts
-- **Animationen**: Fade-In, Slide-Out, Smooth Transitions
+## ⚙️ Wichtige Dateien & Rechtliches
+
+- **Datenschutz (DSGVO):** `DSGVO.html` → [DSGVO anzeigen](./DSGVO.html)
+- **Impressum:** `Impressum.html` → [Impressum anzeigen](./Impressum.html)
+- **Rechtliches (Markdown):**
+  - `Rechtliches/PRIVACY.md` → [Privacy (DE)](Rechtliches/PRIVACY.md)
+  - `Rechtliches/CONTRIBUTING.md` → [Contributing](Rechtliches/CONTRIBUTING.md)
+  - `Rechtliches/CODE_OF_CONDUCT.md` → [Code of Conduct](Rechtliches/CODE_OF_CONDUCT.md)
+  - `Rechtliches/LICENSE.md` → [License (MIT)](Rechtliches/LICENSE.md)
+  - `Rechtliches/NOTICE.md` → [Notice](Rechtliches/NOTICE.md)
+  - `Rechtliches/SECURITY.md` → [Security](Rechtliches/SECURITY.md)
+
+> Hinweis: Die Links oben verweisen auf lokal vorhandene Dateien im Repository. Stelle sicher, dass beim Hosten die Dateien mit deployed werden.
 
 ---
 
-## 📋 Daten-Schema
-
-### Entry-Objekt
-```javascript
-{
-  id: 1234567890,                    // Eindeutige ID
-  date: "2025-11-27",                // ISO-Format
-  type: "work" | "school" | "vacation" | "sick" | "holiday",
-  worked: 8.5,                       // Geleistete Stunden
-  expected: 8.75,                    // Soll-Stunden
-  diff: -0.25,                       // Differenz (Gleitzeit-Delta)
-  info: "08:00 - 17:00 (Auto-Pause 30m)",
-  breakMins: 30,                     // Automatisch abgezogene Pause
-  shiftEnd: "17:30",                 // Endzeitpunkt mit Pause
-  shiftWarning: false,               // Schicht > 10h?
-  isPeriod: false                    // Blockbuchung?
-}
-```
-
-### Settings-Struktur
-```javascript
-{
-  name: "Max Mustermann",
-  theme: "#a855f7",
-  hours: [0, 8.75, 8.75, 8.75, 8.75, 4.5, 0],
-  break: { thresh: 6, min: 30 },
-  vacation: { total: 30, used: 5, usedManual: 0 }
-}
-```
+## ✨ Features (kurz)
+- Live-Timer mit Start/Pause/Stop
+- Automatische Pausenregel (konfigurierbar)
+- Gleitzeit-Konto und Monatsprognose
+- JSON Export/Import (Backup/Restore)
+- Farblich codierte Einträge (Work / School / Vacation / Sick / Holiday)
 
 ---
 
-## 💾 Datenpersistierung
-
-```
-localStorage Keys:
-├── tg_pro_data           // Alle Einträge + Settings
-├── tg_timer              // Aktueller Timer-Status
-├── tg_timer_log          // Timer-Session Log
-├── tg_last_save          // Timestamp d. letzten Speicherung
-└── tg_last_holiday_check // Feiertags-Check Log
-```
-
-**Export/Import**:
-- JSON-basiertes Backup
-- Ein-Klick-Download
-- Datei-Upload mit Validierung
+## 🧭 Schnellstart
+1. Dateien lokal öffnen: Doppelklick auf `index.html` oder `index.html` im Browser öffnen.
+2. Einstellungen → Name, Arbeitszeiten, Urlaub setzen.
+3. Timer starten (▶) – Stop → Eintrag gespeichert.
+4. Backup → `Export` für JSON herunterladen.
 
 ---
 
-## 🎯 Nutzungsszenarien
-
-### Szenario 1: Tägliche Arbeitszeiterfassung
-```
-1. Morning: Timer starten (▶ Start)
-2. Lunch: Timer pausieren (II Pause)
-3. Back: Timer fortsetzen (▶ Start)
-4. Evening: Timer stoppen (■ Stop) → Auto-Buchung
-→ System zieht Pause ab, speichert Gleitzeit-Delta
-```
-
-### Szenario 2: Monatliche Performance-Analyse
-```
-Navigation: Performance Analyse Tab
-→ Soll-Erfüllung: 97%
-→ Wöchentlicher Vergleich: Bar-Chart Visualisierung
-→ Saldo-Trend: +12.5h über 12 Monate
-```
-
-### Szenario 3: Urlaubsplanung
-```
-Einstellungen → Urlaubsverwaltung
-→ Blockbuchung: 2025-12-20 bis 2025-12-31
-→ Type: "Urlaub"
-→ System: Bucht alle Werktage mit Soll-Stunden
-→ Verfügbare Tage: -9 (Anspruch 30)
-```
+## 💡 Grafische Elemente (Badges & Hinweise)
+- Anzeige-Badges für: `DSGVO`, `Impressum`, `License`, `Backup`, `Stabilität`
+- Visuelle ASCII-Dashboards für README-Preview
 
 ---
 
-## 📱 Responsive Design
-
-```
-Desktop (1920px):        Vollständiges Layout, alle Charts
-Tablet (1024px):         2-Spalten Modus, komprimierte KPIs
-Mobile (375px):          Stack-Layout, Touch-optimiert
-```
+## 🛠 Entwicklung & Beitrag
+- Fork → Branch → PR
+- Bitte `Rechtliches/CONTRIBUTING.md` lesen bevor du Änderungen vorschlägst: [Contributing](Rechtliches/CONTRIBUTING.md)
 
 ---
 
-## 🔐 Datenschutz & Sicherheit
-
-- ✅ Alle Daten lokal (Browser LocalStorage)
-- ✅ Keine Server-Kommunikation
-- ✅ Kein Tracking
-- ✅ GDPR-konform
-- ✅ Manueller Export erforderlich
+## 📌 Nächste Schritte (empfohlen)
+- UI-Feinschliff & Accessibility-Checks
+- Optional: kleine Bilder / Screenshots in `assets/` hinzufügen
+- Optional: Automatisches Test-Backup (download on interval)
 
 ---
 
-## 🎨 Farb-Palett & Themes
-
-### Primäre Farben
-```
-┌──────────────┬───────────────────┐
-│ Purple       │ #a855f7         │
-├──────────────┼───────────────────┤
-│ Blue         │ #3b82f6         │         
-├──────────────┼───────────────────┤
-│ Cyan         │ #06b6d4         │
-├──────────────┼───────────────────┤
-│ Green        │ #10b981         │
-├──────────────┼───────────────────┤
-│ Amber        │ #f59e0b         │
-├──────────────┼───────────────────┤
-│ Rose         │ #ec4899         │
-└──────────────┴───────────────────┘
-```
-
-### Typen-Farbcodierung
-```
-Work     → Purple (#a855f7)
-School   → Blue (#3b82f6)
-Vacation → Green (#10b981)
-Sick     → Red (#ef4444)
-Holiday  → Amber (#f59e0b)
-```
+## 📂 Dateien die du jetzt prüfen solltest
+- `index.html` — Hauptdatei der App
+- `DSGVO.html`, `Impressum.html` — rechtliche Seiten (HTML)
+- `Rechtliches/` — Markdown mit Lizenz & Richtlinien
 
 ---
 
-## 🚀 Getting Started
+## Kontakt
+- Bei Fragen: `support@timetracker-pro.local` oder GitHub Issues
 
-### Installation
-```bash
-# 1. Repository klonen
-git clone https://github.com/TechNova-App-Team/Time.Tracker.SingleFile.git
-
-# 2. Datei öffnen
-open Rechner.html
-# oder: Rechner.html im Browser öffnen (Doppelklick)
-```
-
-### Erste Schritte
-```
-1. Einstellungen öffnen (⚙️)
-2. Namen eingeben (z.B. "Max Mustermann")
-3. Arbeitszeiten anpassen (Mo-Fr)
-4. Jahresurlaub setzen (Default: 30 Tage)
-5. Design-Farbe wählen (optional)
-6. Speichern → Dashboard
-```
-
----
-
-## 📊 Beispiel-Workflow
-
-```
-├─ Dashboard Tab
-│  ├─ KPI-Ringe: Wochenübersicht
-│  ├─ Audit-Infos: Status-Check
-│  ├─ Trend-Chart: 30-Tage Verlauf
-│  ├─ Live-Timer: Echtzeit-Erfassung
-│  └─ Letzte Aktivitäten (Top 5)
-│
-├─ Performance Tab
-│  ├─ Soll-Erfüllung: 97%
-│  ├─ Soll-Ist-Vergleich: 8-Wochen Bar-Chart
-│  ├─ Monatlicher Saldo: 12-Monats Trend
-│  └─ KPIs: Erwartete Stunden, Durchschnitt
-│
-├─ Historie Tab
-│  ├─ Alle Einträge (sortiert nach Datum)
-│  ├─ Bearbeitungsmöglichkeiten (✎)
-│  ├─ Lösch-Funktion (×)
-│  └─ Typ-Farbcodierung
-│
-└─ Admin-Funktionen
-   ├─ Einstellungen: Profile, Zeiten, Urlaub
-   ├─ Backup: JSON Export
-   └─ Restore: JSON Import
-```
-
----
-
-## 🔧 API-Referenz
-
-### Timer-Funktionen
-```javascript
-timerAction('start')          // Timer starten
-timerAction('pause')          // Timer pausieren
-timerAction('stop')           // Timer stoppen & buchen
-logTimerAction('action', now) // Interner Logger
-renderTimerLogBar()           // Visualisierung updaten
-```
-
-### Datenverwaltung
-```javascript
-handleEntry()                 // Neuen Eintrag speichern
-editEntry(id)                 // Eintrag bearbeiten
-delEntry(id)                  // Eintrag löschen
-save()                        // Daten persistieren
-exportData()                  // JSON Export
-importData(event)             // JSON Import
-```
-
-### UI-Operationen
-```javascript
-switchTab(tabId)              // Tab wechseln (dashboard|performance|history)
-openSettings()                // Einstellungen öffnen
-saveSettings()                // Einstellungen speichern
-applyTheme(hex)               // Theme ändern
-```
-
-### Analytics
-```javascript
-calculatePerformanceData()    // KPIs berechnen
-renderPerformanceView(data)   // Performance rendern
-updateUI()                    // Alle UI-Elemente aktualisieren
-```
-
----
-
-## 📈 Performance-Metriken
-
-```
-Load-Zeit:           ~50ms (Vanilla JS)
-Speicher-Nutzung:    ~2-5 MB (200+ Einträge)
-localStorage Limit:  5-10 MB (Browser-abhängig)
-Animation FPS:       60 (RequestAnimationFrame)
-Dateigröße:          ~85 KB (HTML+CSS+JS)
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Problem: Daten werden nicht gespeichert
-**Lösung**: LocalStorage-Limit prüfen, alte Daten exportieren
-
-### Problem: Timer-Log wird nicht angezeigt
-**Lösung**: Browser-Konsole auf Fehler prüfen, Cache leeren (Ctrl+Shift+Del)
-
-### Problem: Feiertage nicht automatisch gebucht
-**Lösung**: Einstellungen öffnen → Speichern → Seite neuladen
-
-### Problem: Performance Analytics zeigt keine Daten
-**Lösung**: Mind. 2 verschiedene Monate mit Einträgen benötigt
-
----
-
-## 🤝 Beitragen
-
-```
-1. Fork das Projekt
-2. Feature-Branch erstellen: git checkout -b feature/neue-feature
-3. Änderungen committen: git commit -m "Add: neue Feature"
-4. Push zum Branch: git push origin feature/neue-feature
-5. Pull Request öffnen
-```
-
----
-
-## 📄 Lizenz
-
-```
-MIT License - Siehe LICENSE.md für Details
-Copyright © 2025 Time.Tracker.SingleFile Contributors
-```
-
----
-
-## 📞 Support & Kontakt
-
-```
-📧 Email:      support@timetracker-pro.local
-🐛 Issues:     Bitte GitHub Issues verwenden
-💬 Diskussion: GitHub Discussions
-```
-
----
-
-## 🎓 Lernressourcen
+Vielen Dank — wenn du noch mehr grafische Elemente (Screenshots, GIFs, echte SVGs) möchtest, füge kurz ein, ob ich die Dateien anlegen oder nur die README-Markdown-Referenzen erstellen soll.
 
 ### Implementierte Konzepte
 - LocalStorage API (Web Storage)
