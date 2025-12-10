@@ -234,6 +234,15 @@
 
         /* --- KPI GRID --- */
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .kpi-grid.edit-mode .kpi-card { cursor: grab; }
+        .kpi-grid.edit-mode .kpi-card.dragging { opacity: 0.6; background-color: rgba(var(--primary-rgb), 0.15); }
+        
+        /* Dashboard Grid Container */
+        .dashboard-grid { display: flex; flex-direction: column; gap: 2rem; }
+        .dashboard-grid.edit-mode .dashboard-item { cursor: grab; border: 1px dashed rgba(var(--primary-rgb), 0.5); padding: 0.5rem; border-radius: var(--radius); position: relative; }
+        .dashboard-grid.edit-mode .dashboard-item::before { content: '⋮⋮'; position: absolute; top: 5px; left: 8px; opacity: 0.5; font-size: 0.9rem; pointer-events: none; }
+        .dashboard-grid.edit-mode .dashboard-item.dragging { opacity: 0.6; background-color: rgba(var(--primary-rgb), 0.1); box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.2); }
+        .dashboard-item { transition: all 0.2s ease; }
         
         .kpi-card {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1189,212 +1198,237 @@
         </header>
 
         <div id="view-dashboard" class="view-section active">
-            
-            <div class="kpi-grid">
-                <div class="card kpi-card" onclick="openCorrection('week')">
-                    <div class="progress-ring">
-                        <svg width="100" height="100">
-                            <circle class="ring-bg" cx="50" cy="50" r="44"></circle>
-                            <circle id="ringWeek" class="ring-val" cx="50" cy="50" r="44" stroke-dasharray="276" stroke-dashoffset="276"></circle>
-                        </svg>
-                        <div class="ring-center">
-                            <div class="ring-num" id="valWeek">0</div>
-                            <div class="ring-lbl">Woche</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card kpi-card" onclick="openCorrection('month')">
-                    <div class="progress-ring">
-                        <svg width="100" height="100">
-                            <circle class="ring-bg" cx="50" cy="50" r="44"></circle>
-                            <circle id="ringMonth" class="ring-val" cx="50" cy="50" r="44" stroke-dasharray="276" stroke-dashoffset="276"></circle>
-                        </svg>
-                        <div class="ring-center">
-                            <div class="ring-num" id="valMonth">0</div>
-                            <div class="ring-lbl">Monat</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
-                    <div class="ring-lbl">GLEITZEIT KONTO</div>
-                    <div style="font-size:2.8rem; font-weight:800; color:var(--primary); margin:10px 0; font-family:var(--font-mono); letter-spacing:-2px;" id="valTotal">+0.0h</div>
-                    <div style="font-size:0.8rem; color:var(--text-muted);">Prognose: <span id="valProjected" style="color:#fff">0h</span></div>
-                </div>
-                <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
-                    <div class="ring-lbl">Ø TÄGLICH</div>
-                    <div style="font-size:2rem; font-weight:800; color:#fff; margin:5px 0; font-family:var(--font-mono);" id="valAvg">0.0h</div>
-                    <div style="margin-top:auto; width:100%;">
-                        <div class="ring-lbl" style="margin-bottom:5px; display:flex; justify-content:space-between;">
-                            <span>Urlaubstage</span>
-                            <span id="valVacationUsed">0 / 30</span>
-                        </div>
-                        <div style="height:4px; background:rgba(255,255,255,0.1); border-radius:2px;"><div id="vacationProgressBar" style="width:0%; background:var(--success); height:100%;"></div></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="quick-actions">
-                <button onclick="openCorrection('month')">± Saldo korrigieren</button>
-                <button onclick="openSettings()">⚙️ Einstellungen</button>
-                <button onclick="checkAndBookHolidays()">🏖️ Feiertage prüfen</button>
-            </div>
-            
-            <div class="audit-grid">
-                <div class="card audit-card" id="auditHoliday">
-                    <div class="audit-label">Feiertag Check</div>
-                    <div class="audit-value" style="color:var(--holiday);" id="auditHolidayValue">Wird geladen...</div>
-                </div>
-                <div class="card audit-card" id="auditShift">
-                    <div class="audit-label">Letzte Schichtwarnung</div>
-                    <div class="audit-value" id="auditShiftValue">Keine Warnung</div>
-                </div>
-                <div class="card audit-card success" id="auditSave">
-                    <div class="audit-label">Letzter Autosave</div>
-                    <div class="audit-value" id="auditSaveValue">Vor Sekunden</div>
-                </div>
-            </div>
-
-            <div class="card" style="background:linear-gradient(90deg, rgba(168,85,247,0.08) 0%, rgba(16,185,129,0.08) 100%); border:1px solid rgba(168,85,247,0.15); padding:1rem;">
-                <div style="display:flex; align-items:center; gap:12px; justify-content:space-between;">
-                    <div style="display:flex; align-items:center; gap:6px; flex:1;">
-                        <span style="font-size:1rem;">📅</span>
-                        <h5 style="margin:0; color:var(--text-main); font-size:0.9rem;">Heute: <span id="todayWorked" style="color:var(--primary);">0.0h</span> | <span id="todayEntries" style="color:var(--text-muted);">0 Eintr.</span></h5>
-                    </div>
-                    <div style="border-left:1px solid rgba(255,255,255,0.1); padding-left:12px; display:flex; align-items:center; gap:6px;">
-                        <span style="font-size:1rem;" id="streakEmoji">🔥</span>
-                        <h5 style="margin:0; color:var(--text-main); font-size:0.9rem;">Streak: <span id="streakCount" style="color:var(--success); font-weight:800;">0</span> | <span style="font-size:0.75rem; color:var(--text-muted);" id="streakBest">Best: 0</span></h5>
-                    </div>
-                </div>
-                <div id="quickTicker" style="margin-top:8px; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted); overflow:hidden; white-space:nowrap;">
-                    <!-- Ticker wird per JS gefüllt -->
-                    <div id="quickTickerInner" style="display:inline-block; padding-left:100%; animation: tickerScroll 12s linear infinite;">&nbsp;</div>
-                </div>
-                <style>
-                    @keyframes tickerScroll {
-                        0% { transform: translateX(0%); }
-                        100% { transform: translateX(-100%); }
-                    }
-                </style>
-            </div>
-
-            <div class="card" style="background:linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(239,68,68,0.05) 100%); border:1px solid rgba(239,68,68,0.2); display:none;" id="pomodoroCard">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:1.5rem;">🍅</span>
-                        <h4 style="margin:0; color:#ef4444;">Pomodoro Timer</h4>
-                    </div>
-                    <button style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; padding:4px 12px; cursor:pointer; font-size:0.75rem;" onclick="togglePomodoroMode()">Aktivieren</button>
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.9rem; color:var(--text-muted);">
-                    <div>📊 <strong>25 Min</strong> Arbeitsphase</div>
-                    <div>☕ <strong>5 Min</strong> Pausenphase</div>
-                </div>
-            </div>
-
-            <div class="charts-row">
-                <div class="card">
-                    <div class="chart-header">
-                        <div>
-                            <div class="chart-title">Saldo Trend</div>
-                            <div class="chart-sub">Entwicklung der letzten 30 Tage</div>
-                        </div>
-                    </div>
-                    <div class="trend-container" id="trendChart">
-                        </div>
-                </div>
-
-                <div class="card">
-                    <div class="chart-header">
-                        <div class="chart-title">Verteilung</div>
-                    </div>
-                    <div class="donut-container">
-                        <svg width="150" height="150" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="rgba(255,255,255,0.05)" stroke-width="12"></circle>
-                            <circle id="donutSick" cx="50" cy="50" r="40" fill="transparent" stroke="var(--danger)" stroke-width="12" stroke-dasharray="0 251"></circle>
-                            <circle id="donutVac" cx="50" cy="50" r="40" fill="transparent" stroke="var(--success)" stroke-width="12" stroke-dasharray="0 251"></circle>
-                            <circle id="donutSchool" cx="50" cy="50" r="40" fill="transparent" stroke="var(--school)" stroke-width="12" stroke-dasharray="0 251"></circle>
-                            <circle id="donutHoliday" cx="50" cy="50" r="40" fill="transparent" stroke="var(--holiday)" stroke-width="12" stroke-dasharray="0 251"></circle>
-                            <circle id="donutWork" cx="50" cy="50" r="40" fill="transparent" stroke="var(--primary)" stroke-width="12" stroke-dasharray="0 251"></circle>
-                        </svg>
-                    </div>
-                    <div class="donut-legend">
-                        <div class="legend-item"><div class="dot" style="background:var(--primary)"></div> Arbeit</div>
-                        <div class="legend-item"><div class="dot" style="background:var(--school)"></div> Schule</div>
-                        <div class="legend-item"><div class="dot" style="background:var(--success)"></div> Urlaub</div>
-                        <div class="legend-item"><div class="dot" style="background:var(--danger)"></div> Krank</div>
-                        <div class="legend-item"><div class="dot" style="background:var(--holiday)"></div> Feiertag</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card input-wrapper">
-                <div style="display:flex; flex-direction:column; gap:1.25rem;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <h3 style="font-size:1.1rem; margin:0;">Eintrag erfassen</h3>
-                        <button class="help-slim" title="Hilfe" onclick="openQuickHelp('entry')">?</button>
-                    </div>
-                    <div style="display:flex; gap:15px;">
-                        <input type="date" id="inpDate" class="glass-input">
-                        <select type="date" id="inpType" class="glass-select" onchange="toggleTimeInputs()">
-                            <option value="work">💼 Arbeit</option>
-                            <option value="school">📚 Berufsschule</option>
-                            <option value="vacation">🌴 Urlaub</option>
-                            <option value="sick">💊 Krank</option>
-                        </select>
-                    </div>
-                    
-                    <input type="text" id="inpProject" class="glass-input" placeholder="Projekt / Kunde (z.B. Alpha-Migration)">
-                    
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <div style="display:flex; gap:8px; align-items:center;">
-                            <input type="time" id="inpStart" class="glass-input" placeholder="Start">
-                            <button id="btnNowStart" class="btn btn-ghost" style="padding:8px 10px; font-size:0.8rem;">Jetzt</button>
-                        </div>
-                        <div style="display:flex; gap:8px; align-items:center;">
-                            <input type="time" id="inpEnd" class="glass-input" placeholder="Ende">
-                            <button id="btnNowEnd" class="btn btn-ghost" style="padding:8px 10px; font-size:0.8rem;">Jetzt</button>
-                        </div>
-                    </div>
-                    <input type="number" id="inpHours" class="glass-input" step="0.25" placeholder="Stunden manuell...">
-                    
-                    <input type="text" id="inpNotes" class="glass-input" placeholder="Notizen (z.B. Bugfix in Modul X)">
-
-                    <div style="display:flex; gap:15px; margin-top:auto;">
-                        <button id="mainBtn" class="btn btn-primary" onclick="handleEntry()">Eintrag speichern</button>
-                        <button id="cancelBtn" class="btn" style="background:#222; display:none; flex:1;" onclick="resetEdit()">Abbrechen</button>
-                    </div>
-                    <div id="draftNotice" style="display:none; margin-top:10px; gap:8px; align-items:center;">
-                        <span id="draftBadge" class="tag" style="display:none;">Entwurf gespeichert</span>
-                        <button class="btn btn-ghost" onclick="restoreDraft()" id="btnRestoreDraft" style="display:none">Wiederherstellen</button>
-                        <button class="btn" onclick="deleteDraft()" id="btnDeleteDraft" style="display:none; background:#333">Entwurf löschen</button>
-                    </div>
-                    
-                </div>
-
-                <div class="timer-box" id="timerBox">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <span style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Live Tracker</span>
-                            <button class="help-slim" title="Hilfe" onclick="openQuickHelp('timer')">?</button>
-                        </div>
-                    <div class="timer-display" id="timerDisplay">00:00:00</div>
-                    
-                    <div class="timer-log">
-                        <div class="timer-log-status" id="timerStatus">STOP</div>
-                        <div class="timer-log-bar" id="timerLogBar">
+            <div id="dashboardContainer" class="dashboard-grid">
+                <!-- KPI Cards (Woche, Monat, Gleitzeit, Ø Täglich) -->
+                <div class="dashboard-item" data-item-id="kpi-cards">
+                    <div class="kpi-grid" id="dashboardGrid">
+                        <div class="card kpi-card" onclick="openCorrection('week')">
+                            <div class="progress-ring">
+                                <svg width="100" height="100">
+                                    <circle class="ring-bg" cx="50" cy="50" r="44"></circle>
+                                    <circle id="ringWeek" class="ring-val" cx="50" cy="50" r="44" stroke-dasharray="276" stroke-dashoffset="276"></circle>
+                                </svg>
+                                <div class="ring-center">
+                                    <div class="ring-num" id="valWeek">0</div>
+                                    <div class="ring-lbl">Woche</div>
+                                </div>
                             </div>
-                    </div>
-                    
-                    <div class="btn-icon-row">
-                        <button class="btn btn-ghost" onclick="timerAction('start')" style="color:var(--success)">▶ Start</button>
-                        <button class="btn btn-ghost" onclick="timerAction('pause')" style="color:#fbbf24">II Pause</button>
-                        <button class="btn btn-ghost" onclick="timerAction('stop')" style="color:var(--danger)">■ Stop</button>
+                        </div>
+                        <div class="card kpi-card" onclick="openCorrection('month')">
+                            <div class="progress-ring">
+                                <svg width="100" height="100">
+                                    <circle class="ring-bg" cx="50" cy="50" r="44"></circle>
+                                    <circle id="ringMonth" class="ring-val" cx="50" cy="50" r="44" stroke-dasharray="276" stroke-dashoffset="276"></circle>
+                                </svg>
+                                <div class="ring-center">
+                                    <div class="ring-num" id="valMonth">0</div>
+                                    <div class="ring-lbl">Monat</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
+                            <div class="ring-lbl">GLEITZEIT KONTO</div>
+                            <div style="font-size:2.8rem; font-weight:800; color:var(--primary); margin:10px 0; font-family:var(--font-mono); letter-spacing:-2px;" id="valTotal">+0.0h</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">Prognose: <span id="valProjected" style="color:#fff">0h</span></div>
+                        </div>
+                        <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
+                            <div class="ring-lbl">Ø TÄGLICH</div>
+                            <div style="font-size:2rem; font-weight:800; color:#fff; margin:5px 0; font-family:var(--font-mono);" id="valAvg">0.0h</div>
+                            <div style="margin-top:auto; width:100%;">
+                                <div class="ring-lbl" style="margin-bottom:5px; display:flex; justify-content:space-between;">
+                                    <span>Urlaubstage</span>
+                                    <span id="valVacationUsed">0 / 30</span>
+                                </div>
+                                <div style="height:4px; background:rgba(255,255,255,0.1); border-radius:2px;"><div id="vacationProgressBar" style="width:0%; background:var(--success); height:100%;"></div></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="card">
-                <div class="list-header">Letzte Aktivitäten</div>
-                <div id="entryListShort"></div>
+                <!-- Quick Actions -->
+                <div class="dashboard-item" data-item-id="quick-actions">
+                    <div class="quick-actions">
+                        <button onclick="openCorrection('month')">± Saldo korrigieren</button>
+                        <button onclick="openSettings()">⚙️ Einstellungen</button>
+                        <button onclick="checkAndBookHolidays()">🏖️ Feiertage prüfen</button>
+                    </div>
+                </div>
+
+                <!-- Audit Cards -->
+                <div class="dashboard-item" data-item-id="audit-cards">
+                    <div class="audit-grid">
+                        <div class="card audit-card" id="auditHoliday">
+                            <div class="audit-label">Feiertag Check</div>
+                            <div class="audit-value" style="color:var(--holiday);" id="auditHolidayValue">Wird geladen...</div>
+                        </div>
+                        <div class="card audit-card" id="auditShift">
+                            <div class="audit-label">Letzte Schichtwarnung</div>
+                            <div class="audit-value" id="auditShiftValue">Keine Warnung</div>
+                        </div>
+                        <div class="card audit-card success" id="auditSave">
+                            <div class="audit-label">Letzter Autosave</div>
+                            <div class="audit-value" id="auditSaveValue">Vor Sekunden</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heute / Streak / Quick Ticker -->
+                <div class="dashboard-item" data-item-id="daily-summary">
+                    <div class="card" style="background:linear-gradient(90deg, rgba(168,85,247,0.08) 0%, rgba(16,185,129,0.08) 100%); border:1px solid rgba(168,85,247,0.15); padding:1rem;">
+                        <div style="display:flex; align-items:center; gap:12px; justify-content:space-between;">
+                            <div style="display:flex; align-items:center; gap:6px; flex:1;">
+                                <span style="font-size:1rem;">📅</span>
+                                <h5 style="margin:0; color:var(--text-main); font-size:0.9rem;">Heute: <span id="todayWorked" style="color:var(--primary);">0.0h</span> | <span id="todayEntries" style="color:var(--text-muted);">0 Eintr.</span></h5>
+                            </div>
+                            <div style="border-left:1px solid rgba(255,255,255,0.1); padding-left:12px; display:flex; align-items:center; gap:6px;">
+                                <span style="font-size:1rem;" id="streakEmoji">🔥</span>
+                                <h5 style="margin:0; color:var(--text-main); font-size:0.9rem;">Streak: <span id="streakCount" style="color:var(--success); font-weight:800;">0</span> | <span style="font-size:0.75rem; color:var(--text-muted);" id="streakBest">Best: 0</span></h5>
+                            </div>
+                        </div>
+                        <div id="quickTicker" style="margin-top:8px; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted); overflow:hidden; white-space:nowrap;">
+                            <!-- Ticker wird per JS gefüllt -->
+                            <div id="quickTickerInner" style="display:inline-block; padding-left:100%; animation: tickerScroll 12s linear infinite;">&nbsp;</div>
+                        </div>
+                        <style>
+                            @keyframes tickerScroll {
+                                0% { transform: translateX(0%); }
+                                100% { transform: translateX(-100%); }
+                            }
+                        </style>
+                    </div>
+                </div>
+
+                <!-- Pomodoro Timer -->
+                <div class="dashboard-item" data-item-id="pomodoro-card">
+                    <div class="card" style="background:linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(239,68,68,0.05) 100%); border:1px solid rgba(239,68,68,0.2); display:none;" id="pomodoroCard">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:1.5rem;">🍅</span>
+                                <h4 style="margin:0; color:#ef4444;">Pomodoro Timer</h4>
+                            </div>
+                            <button style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; padding:4px 12px; cursor:pointer; font-size:0.75rem;" onclick="togglePomodoroMode()">Aktivieren</button>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.9rem; color:var(--text-muted);">
+                            <div>📊 <strong>25 Min</strong> Arbeitsphase</div>
+                            <div>☕ <strong>5 Min</strong> Pausenphase</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row (Saldo Trend + Verteilung) -->
+                <div class="dashboard-item" data-item-id="charts">
+                    <div class="charts-row">
+                        <div class="card">
+                            <div class="chart-header">
+                                <div>
+                                    <div class="chart-title">Saldo Trend</div>
+                                    <div class="chart-sub">Entwicklung der letzten 30 Tage</div>
+                                </div>
+                            </div>
+                            <div class="trend-container" id="trendChart">
+                                </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="chart-header">
+                                <div class="chart-title">Verteilung</div>
+                            </div>
+                            <div class="donut-container">
+                                <svg width="150" height="150" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="rgba(255,255,255,0.05)" stroke-width="12"></circle>
+                                    <circle id="donutSick" cx="50" cy="50" r="40" fill="transparent" stroke="var(--danger)" stroke-width="12" stroke-dasharray="0 251"></circle>
+                                    <circle id="donutVac" cx="50" cy="50" r="40" fill="transparent" stroke="var(--success)" stroke-width="12" stroke-dasharray="0 251"></circle>
+                                    <circle id="donutSchool" cx="50" cy="50" r="40" fill="transparent" stroke="var(--school)" stroke-width="12" stroke-dasharray="0 251"></circle>
+                                    <circle id="donutHoliday" cx="50" cy="50" r="40" fill="transparent" stroke="var(--holiday)" stroke-width="12" stroke-dasharray="0 251"></circle>
+                                    <circle id="donutWork" cx="50" cy="50" r="40" fill="transparent" stroke="var(--primary)" stroke-width="12" stroke-dasharray="0 251"></circle>
+                                </svg>
+                            </div>
+                            <div class="donut-legend">
+                                <div class="legend-item"><div class="dot" style="background:var(--primary)"></div> Arbeit</div>
+                                <div class="legend-item"><div class="dot" style="background:var(--school)"></div> Schule</div>
+                                <div class="legend-item"><div class="dot" style="background:var(--success)"></div> Urlaub</div>
+                                <div class="legend-item"><div class="dot" style="background:var(--danger)"></div> Krank</div>
+                                <div class="legend-item"><div class="dot" style="background:var(--holiday)"></div> Feiertag</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entry Form -->
+                <div class="dashboard-item" data-item-id="entry-form">
+                    <div class="card input-wrapper">
+                        <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <h3 style="font-size:1.1rem; margin:0;">Eintrag erfassen</h3>
+                                <button class="help-slim" title="Hilfe" onclick="openQuickHelp('entry')">?</button>
+                            </div>
+                            <div style="display:flex; gap:15px;">
+                                <input type="date" id="inpDate" class="glass-input">
+                                <select type="date" id="inpType" class="glass-select" onchange="toggleTimeInputs()">
+                                    <option value="work">💼 Arbeit</option>
+                                    <option value="school">📚 Berufsschule</option>
+                                    <option value="vacation">🌴 Urlaub</option>
+                                    <option value="sick">💊 Krank</option>
+                                </select>
+                            </div>
+                            
+                            <input type="text" id="inpProject" class="glass-input" placeholder="Projekt / Kunde (z.B. Alpha-Migration)">
+                            
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <input type="time" id="inpStart" class="glass-input" placeholder="Start">
+                                    <button id="btnNowStart" class="btn btn-ghost" style="padding:8px 10px; font-size:0.8rem;">Jetzt</button>
+                                </div>
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <input type="time" id="inpEnd" class="glass-input" placeholder="Ende">
+                                    <button id="btnNowEnd" class="btn btn-ghost" style="padding:8px 10px; font-size:0.8rem;">Jetzt</button>
+                                </div>
+                            </div>
+                            <input type="number" id="inpHours" class="glass-input" step="0.25" placeholder="Stunden manuell...">
+                            
+                            <input type="text" id="inpNotes" class="glass-input" placeholder="Notizen (z.B. Bugfix in Modul X)">
+
+                            <div style="display:flex; gap:15px; margin-top:auto;">
+                                <button id="mainBtn" class="btn btn-primary" onclick="handleEntry()">Eintrag speichern</button>
+                                <button id="cancelBtn" class="btn" style="background:#222; display:none; flex:1;" onclick="resetEdit()">Abbrechen</button>
+                            </div>
+                            <div id="draftNotice" style="display:none; margin-top:10px; gap:8px; align-items:center;">
+                                <span id="draftBadge" class="tag" style="display:none;">Entwurf gespeichert</span>
+                                <button class="btn btn-ghost" onclick="restoreDraft()" id="btnRestoreDraft" style="display:none">Wiederherstellen</button>
+                                <button class="btn" onclick="deleteDraft()" id="btnDeleteDraft" style="display:none; background:#333">Entwurf löschen</button>
+                            </div>
+                            
+                        </div>
+
+                        <div class="timer-box" id="timerBox">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Live Tracker</span>
+                                    <button class="help-slim" title="Hilfe" onclick="openQuickHelp('timer')">?</button>
+                                </div>
+                            <div class="timer-display" id="timerDisplay">00:00:00</div>
+                            
+                            <div class="timer-log">
+                                <div class="timer-log-status" id="timerStatus">STOP</div>
+                                <div class="timer-log-bar" id="timerLogBar">
+                                    </div>
+                            </div>
+                            
+                            <div class="btn-icon-row">
+                                <button class="btn btn-ghost" onclick="timerAction('start')" style="color:var(--success)">▶ Start</button>
+                                <button class="btn btn-ghost" onclick="timerAction('pause')" style="color:#fbbf24">II Pause</button>
+                                <button class="btn btn-ghost" onclick="timerAction('stop')" style="color:var(--danger)">■ Stop</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Last Activities -->
+                <div class="dashboard-item" data-item-id="last-activities">
+                    <div class="card">
+                        <div class="list-header">Letzte Aktivitäten</div>
+                        <div id="entryListShort"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -2354,6 +2388,17 @@
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:1.5rem;">
                         <button class="btn btn-primary" onclick="applyCustomColor()" style="background:var(--primary); padding:14px;">💾 Speichern</button>
                         <button class="btn" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); padding:14px;" onclick="resetColorPicker()">↺ Reset</button>
+                    </div>
+
+                    <!-- Dashboard Layout Control -->
+                    <div style="margin-top:3rem; padding-top:2rem; border-top:1px solid var(--border);">
+                        <h4 style="color:var(--primary); margin-bottom:15px; font-size:1rem;">📐 Dashboard Layout</h4>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">Passe die Reihenfolge aller Dashboard-Elemente an. Drag & Drop zum Verschieben!</p>
+                        <div style="display:flex; gap:10px;">
+                            <button id="btnEditLayout" class="btn-primary" style="padding:10px 16px; font-size:0.9rem;" onclick="toggleDashboardEditMode()" title="Layout anpassen">🔧 Layout editieren</button>
+                            <button id="btnResetLayout" class="btn-secondary" style="padding:10px 16px; font-size:0.9rem; display:none;" onclick="resetDashboardLayout()" title="Standard-Layout wiederherstellen">↺ Zurücksetzen</button>
+                        </div>
+                        <small id="editModeStatus" style="color:var(--text-muted); display:block; margin-top:8px; opacity:0; transition:opacity 0.3s;">📍 Layout-Bearbeitungsmodus AKTIV</small>
                     </div>
 
                     <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:10px; font-weight:600; margin-top:2rem;">Design Modus:</label>
@@ -8539,6 +8584,138 @@ TIPPS:
         updateUI();
         
         console.log('✅ App initialized with Smart Alerts enabled');
+        
+        // Initialize dashboard layout
+        loadDashboardLayout();
+    }
+
+    // ============================================
+    // DASHBOARD LAYOUT MANAGEMENT (FULL REDESIGN)
+    // ============================================
+    
+    function toggleDashboardEditMode() {
+        const container = document.getElementById('dashboardContainer');
+        const btnEdit = document.getElementById('btnEditLayout');
+        const btnReset = document.getElementById('btnResetLayout');
+        const statusEl = document.getElementById('editModeStatus');
+        
+        if (!container) return;
+        
+        container.classList.toggle('edit-mode');
+        
+        if (container.classList.contains('edit-mode')) {
+            btnEdit.textContent = '✓ Layout speichern';
+            btnEdit.classList.add('btn-success');
+            btnEdit.classList.remove('btn-primary');
+            btnReset.style.display = 'inline-block';
+            if (statusEl) statusEl.style.opacity = '1';
+            setupDashboardDragDrop();
+        } else {
+            btnEdit.textContent = '🔧 Layout editieren';
+            btnEdit.classList.add('btn-primary');
+            btnEdit.classList.remove('btn-success');
+            btnReset.style.display = 'none';
+            if (statusEl) statusEl.style.opacity = '0';
+            saveDashboardLayout();
+        }
+    }
+    
+    function resetDashboardLayout() {
+        localStorage.removeItem('tt_dashboard_layout');
+        // Reload the page to reset layout
+        location.reload();
+    }
+    
+    function setupDashboardDragDrop() {
+        const container = document.getElementById('dashboardContainer');
+        if (!container) return;
+        
+        const items = container.querySelectorAll('.dashboard-item');
+        items.forEach(item => {
+            item.draggable = true;
+            
+            item.addEventListener('dragstart', (e) => {
+                item.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', item.getAttribute('data-item-id'));
+            });
+            
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+            
+            item.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                const afterElement = getDragAfterElement(container, e.clientY);
+                if (afterElement == null) {
+                    container.appendChild(item);
+                } else {
+                    container.insertBefore(item, afterElement);
+                }
+            });
+            
+            item.addEventListener('drop', (e) => {
+                e.preventDefault();
+            });
+        });
+    }
+    
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.dashboard-item:not(.dragging)')];
+        
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+    
+    function saveDashboardLayout() {
+        const container = document.getElementById('dashboardContainer');
+        if (!container) return;
+        
+        const order = Array.from(container.querySelectorAll('.dashboard-item')).map(item => {
+            return item.getAttribute('data-item-id');
+        }).filter(Boolean);
+        
+        if (order.length > 0) {
+            localStorage.setItem('tt_dashboard_layout', JSON.stringify(order));
+            console.log('✅ Dashboard layout saved:', order);
+        }
+    }
+    
+    function loadDashboardLayout() {
+        const container = document.getElementById('dashboardContainer');
+        if (!container) return;
+        
+        // Wait a tick for DOM to be ready
+        setTimeout(() => {
+            const savedOrder = localStorage.getItem('tt_dashboard_layout');
+            if (savedOrder) {
+                try {
+                    const order = JSON.parse(savedOrder);
+                    const items = Array.from(container.querySelectorAll('.dashboard-item'));
+                    
+                    // Reorder items based on saved order
+                    order.forEach(itemId => {
+                        const item = items.find(el => el.getAttribute('data-item-id') === itemId);
+                        if (item) {
+                            container.appendChild(item);
+                        }
+                    });
+                    console.log('✅ Dashboard layout loaded');
+                } catch (e) {
+                    console.error('Failed to load dashboard layout:', e);
+                }
+            }
+        }, 100);
     }
 
     // ============================================
