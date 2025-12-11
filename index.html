@@ -3,11 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TimeTracker V2.0.4-1</title>
-<script src="icons.js"></script>
-<script src="shortcuts.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/simple-peer@9/simplepeer.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<title>TimeTracker V2.0.8-1</title>
+<!-- Local Scripts (defer für korrektes Laden) -->
+<script defer src="icons.js"></script>
+<script defer src="shortcuts.js"></script>
+<!-- Preload External CDN Resources (für bessere Performance) -->
+<link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/simple-peer@9/simplepeer.min.js">
+<link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+<script async src="https://cdn.jsdelivr.net/npm/simple-peer@9/simplepeer.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script async src="https://plausible.io/js/pa-jiUWAYasLo3v5kIOac5C3.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
     <style>
         /* --- CORE VARIABLES --- */
         :root {
@@ -189,6 +198,184 @@
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* --- LOADING SPINNER & SKELETON --- */
+        .loading-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(var(--primary-rgb), 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(3, 3, 5, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner-container {
+            text-align: center;
+        }
+        .loading-spinner-container h2 {
+            color: var(--text-main);
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Skeleton Loader */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.2) 50%, rgba(var(--primary-rgb), 0.1) 100%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 8px;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .skeleton-line {
+            height: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.2) 50%, rgba(var(--primary-rgb), 0.1) 100%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        .skeleton-line.full { width: 100%; }
+        .skeleton-line.half { width: 60%; }
+        
+
+        /* --- PRINT STYLESHEET --- */
+        @media print {
+            /* Hide UI elements nicht nötig beim Drucken */
+            .sidebar, .nav-item, .btn, .search-box, input[type="button"], button { display: none !important; }
+            
+            /* Optimale Seitenformat */
+            body {
+                background: white;
+                color: black;
+                margin: 0;
+                padding: 1cm;
+            }
+
+            .main {
+                width: 100%;
+                margin-left: 0;
+                padding: 0;
+                max-height: 100%;
+            }
+
+            .main.full-width {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            /* Karten für Druck optimieren */
+            .card, .view-section {
+                page-break-inside: avoid;
+                background: white;
+                border: 1px solid #ccc;
+                box-shadow: none;
+                margin-bottom: 1.5rem;
+                padding: 1.5rem;
+            }
+
+            h1, h2, h3 { 
+                page-break-after: avoid;
+                color: #000;
+                font-weight: bold;
+                margin-top: 1.5rem;
+            }
+
+            /* Tabellen für Druck */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                page-break-inside: avoid;
+            }
+
+            table th {
+                background: #f0f0f0;
+                color: #000;
+                font-weight: bold;
+                border-bottom: 2px solid #333;
+                padding: 0.75rem;
+                text-align: left;
+            }
+
+            table td {
+                border-bottom: 1px solid #ccc;
+                padding: 0.75rem;
+                color: #000;
+            }
+
+            table tr:last-child td {
+                border-bottom: 2px solid #333;
+            }
+
+            /* Links sichtbar machen */
+            a {
+                color: #0066cc;
+                text-decoration: underline;
+            }
+
+            /* QR-Codes und Bilder */
+            img {
+                max-width: 100%;
+                height: auto;
+                page-break-inside: avoid;
+            }
+
+            /* Hintergründe entfernen */
+            * {
+                background: transparent !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
+            /* Loading Spinner beim Druck verstecken */
+            .loading-overlay, .loading-spinner { display: none !important; }
+
+            /* Seitengröße und Ausrichtung */
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+
+            /* Print-Button Helper */
+            .print-only { display: block !important; }
+            .no-print { display: none !important; }
+        }
+
         /* --- GLASS CARDS (Refined) --- */
         .card {
             background: var(--bg-glass);
@@ -239,6 +426,7 @@
         
         /* Dashboard Grid Container */
         .dashboard-grid { display: flex; flex-direction: column; gap: 2rem; }
+        .dashboard-grid.edit-mode { outline: 2px dashed rgba(var(--primary-rgb), 0.3); padding: 1rem; border-radius: var(--radius); }
         .dashboard-grid.edit-mode .dashboard-item { cursor: grab; border: 1px dashed rgba(var(--primary-rgb), 0.5); padding: 0.5rem; border-radius: var(--radius); position: relative; }
         .dashboard-grid.edit-mode .dashboard-item::before { content: '⋮⋮'; position: absolute; top: 5px; left: 8px; opacity: 0.5; font-size: 0.9rem; pointer-events: none; }
         .dashboard-grid.edit-mode .dashboard-item.dragging { opacity: 0.6; background-color: rgba(var(--primary-rgb), 0.1); box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.2); }
@@ -279,6 +467,16 @@
         .donut-legend { margin-top: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.8rem; }
         .legend-item { display: flex; align-items: center; color: var(--text-muted); gap: 8px; }
         .dot { width: 8px; height: 8px; border-radius: 2px; }
+
+        /* --- TRASH / PAPERKORB STYLES --- */
+        .trash-item { transition: all 0.18s ease; }
+        .trash-item:hover { background: rgba(var(--primary-rgb), 0.06); transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.45); }
+        .trash-empty { display:flex; flex-direction:column; align-items:center; gap:8px; padding:2.5rem; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid var(--border); }
+        .trash-empty h4 { margin:0; color:var(--text-main); font-size:1.1rem; }
+        .trash-empty p { margin:0; color:var(--text-muted); font-size:0.95rem; }
+        .modal-close-x { position:absolute; top:10px; right:12px; background:transparent; border:none; font-size:1.25rem; color:var(--text-muted); cursor:pointer; padding:6px; border-radius:8px; }
+        .modal-close-x:hover { background: rgba(255,255,255,0.03); color:var(--text-main); box-shadow: 0 4px 14px rgba(0,0,0,0.45); }
+        .modal-close-x:focus { outline: none; box-shadow: 0 0 0 3px rgba(var(--primary-rgb),0.12); }
 
         /* --- INPUTS --- */
         .input-wrapper { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; }
@@ -418,7 +616,7 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
         .modal.active { display: flex; animation: fadeIn 0.2s ease; }
         /* Modal Box für Einstellungen ist breiter für das Urlaubs-Dashboard */
-        .modal-box { background: #121215; border: 1px solid var(--border); width: 680px; padding: 0; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); overflow-y: auto; max-height: 85vh; }
+        .modal-box { background: #121215; border: 1px solid var(--border); width: 680px; padding: 0; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); overflow-y: auto; max-height: 85vh; position: relative; }
         
         .modal-box::-webkit-scrollbar {
             width: 10px;
@@ -1198,6 +1396,9 @@
         </header>
 
         <div id="view-dashboard" class="view-section active">
+            <div id="dashboardEditControls" style="display:flex; gap:10px; margin-bottom:1.5rem; opacity:0; pointer-events:none; transition:opacity 0.3s;">
+                <button id="dashboardCancelBtn" class="btn" style="padding:8px 16px; font-size:0.9rem; background:#d97706; display:none;" onclick="cancelDashboardEditMode()" title="Änderungen verwerfen">✕ Abbrechen</button>
+            </div>
             <div id="dashboardContainer" class="dashboard-grid">
                 <!-- KPI Cards (Woche, Monat, Gleitzeit, Ø Täglich) -->
                 <div class="dashboard-item" data-item-id="kpi-cards">
@@ -1251,6 +1452,7 @@
                         <button onclick="openCorrection('month')">± Saldo korrigieren</button>
                         <button onclick="openSettings()">⚙️ Einstellungen</button>
                         <button onclick="checkAndBookHolidays()">🏖️ Feiertage prüfen</button>
+                        <button onclick="openVacationModal()">🌴 Urlaub</button>
                     </div>
                 </div>
 
@@ -2091,6 +2293,7 @@
                 <div style="display:flex; gap:15px; margin-bottom: 1.5rem;">
                     <button class="btn btn-primary" onclick="exportHistoryData('csv')" style="flex:1;">CSV Export (Gefiltert)</button>
                     <button class="btn btn-primary" onclick="exportHistoryData('json')" style="flex:1; background:var(--school);">JSON Export (Gefiltert)</button>
+                    <button class="btn" onclick="openTrashModal()" style="background:rgba(255,255,255,0.05); border:1px solid var(--border);">🗑️ Papierkorb <span id="trashCountBadge" style="background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:999px; margin-left:8px; font-size:0.85rem; color:var(--text-muted);">0</span></button>
                 </div>
 
                 <div id="entryListFull">
@@ -2307,7 +2510,6 @@
             <div style="display:flex; gap:5px; padding:10px 20px; border-bottom:1px solid var(--border); overflow-x:auto; flex-shrink:0;">
                 <button class="settings-tab active" onclick="switchSettingsTab('profile')" style="padding:10px 15px; border:none; background:none; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:0.2s;">👤 Profil</button>
                 <button class="settings-tab" onclick="switchSettingsTab('work')" style="padding:10px 15px; border:none; background:none; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:0.2s;">⏱️ Arbeitszeiten</button>
-                <button class="settings-tab" onclick="switchSettingsTab('vacation')" style="padding:10px 15px; border:none; background:none; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:0.2s;">🌴 Urlaub</button>
                 <button class="settings-tab" onclick="switchSettingsTab('school')" style="padding:10px 15px; border:none; background:none; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:0.2s;">🏫 Berufsschule</button>
                 <button class="settings-tab" onclick="switchSettingsTab('shortcuts')" style="padding:10px 15px; border:none; background:none; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:0.2s;">⌨️ Shortcuts</button>
                 <button class="settings-tab" onclick="switchSettingsTab('team')" style="padding:10px 15px; border:none; background:none; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:0.2s;">🤝 Team</button>
@@ -2322,12 +2524,6 @@
                     
                     <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Dein Name:</label>
                     <input type="text" id="confName" class="glass-input" style="margin-bottom:2rem;" placeholder="z.B. Sven">
-
-                        <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:8px; font-weight:600;">Tastenkürzel aktivieren:</label>
-                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:1.5rem;">
-                            <input type="checkbox" id="confShortcuts" />
-                            <small style="color:var(--text-muted);">Ermöglicht S/P/E und Ctrl/Cmd+Enter Shortcuts</small>
-                        </div>
 
                     <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:10px; font-weight:600;">Design Accent Farbe:</label>
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(45px, 1fr)); gap:12px; margin-bottom:2rem;">
@@ -2471,46 +2667,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Tab: Urlaub -->
-                <div id="settings-tab-vacation" class="settings-tab-content" style="display:none;">
-                    <h4 style="color:var(--primary); margin-bottom:15px; font-size:1rem;">🌴 Urlaubsverwaltung</h4>
-                    
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:2rem;">
-                        <div>
-                            <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Jahresanspruch (Tage):</label>
-                            <input type="number" id="confVacationTotal" class="glass-input" value="30">
-                        </div>
-                        <div>
-                            <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Manuell hinzugefügt:</label>
-                            <input type="number" id="confVacationUsedManual" class="glass-input" value="0">
-                        </div>
-                    </div>
-                    
-                    <div style="background:rgba(16,185,129,0.1); padding:12px; border-radius:8px; border-left:4px solid var(--success); margin-bottom:2rem;">
-                        <p style="font-size:0.8rem; color:var(--text-muted); margin:0 0 8px 0;">Aktueller anteiliger Anspruch (basierend auf IHK-Start):</p>
-                        <p style="font-size:1.2rem; font-weight:700; color:var(--success); margin:0;"><span id="vacationProRata">0</span> Tage noch verfügbar</p>
-                    </div>
-
-                    <div style="background:rgba(168,85,247,0.1); padding:15px; border-radius:12px; border:1px solid rgba(168,85,247,0.3); margin-bottom:2rem;">
-                        <h5 style="margin-top:0; color:var(--primary);">📅 Blockbuchung</h5>
-                        
-                        <select id="periodType" class="glass-select" style="margin-bottom:12px;">
-                            <option value="vacation">🌴 Urlaub</option>
-                            <option value="holiday">🏖️ Firmen-Frei/Feiertag</option>
-                        </select>
-                        
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
-                            <input type="date" id="periodStart" class="glass-input" placeholder="Startdatum">
-                            <input type="date" id="periodEnd" class="glass-input" placeholder="Enddatum">
-                        </div>
-                        
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                            <button class="btn btn-primary" onclick="bookPeriod()" style="background:var(--success);">✓ Buchen</button>
-                            <button class="btn btn-primary" onclick="deletePeriod()" style="background:var(--danger);">✕ Löschen</button>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Tab: Berufsschule Einstellungen (Neu) -->
                 <div id="settings-tab-school" class="settings-tab-content" style="display:none;">
@@ -2545,31 +2701,56 @@
                     <div style="font-size:0.85rem; color:var(--text-muted);">Hinweis: Feiertage und gebuchte Urlaube werden berücksichtigt. Wenn der aktuelle Tag als Berufsschultag erkannt wird, bekommst du eine Eintrag‑Vorschlag.</div>
                 </div>
 
+                <div style="display:flex; gap:12px; align-items:center; margin-bottom:1.5rem;">
+                    <label style="font-weight:700;">Papierkorb Auto‑Leerung (Tage)</label>
+                    <input id="confTrashAutoEmptyDays" type="number" min="0" style="width:80px; padding:8px; border-radius:8px; background:transparent; border:1px solid var(--border); color:var(--text-main);" />
+                    <small style="color:var(--text-muted);">0 = deaktiviert</small>
+                </div>
+
                 <!-- Tab: Keyboard Shortcuts (NEU) -->
                 <div id="settings-tab-shortcuts" class="settings-tab-content" style="display:none;">
                     <h4 style="color:var(--primary); margin-bottom:15px; font-size:1rem;">⌨️ Tastenkürzel</h4>
                     
-                    <div style="background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:1.5rem; margin-bottom:2rem;">
-                        <p style="color:var(--text-main); margin:0; line-height:1.6;">
-                            Passe deine Tastenkürzel an, um schneller durch die App zu navigieren. Klicke auf einen Shortcut, um ihn zu ändern.
-                        </p>
+                    <div style="background:linear-gradient(135deg, rgba(168,85,247,0.1), rgba(168,85,247,0.05)); border:1px solid rgba(168,85,247,0.2); border-radius:12px; padding:1.5rem; margin-bottom:2rem; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <label style="font-size:0.9rem; color:var(--text-main); font-weight:600; display:block; margin-bottom:6px; cursor:pointer;">⌨️ Tastenkürzel aktivieren</label>
+                            <small style="color:var(--text-muted);">Schneller navigieren mit S/P/E und Ctrl/Cmd+Enter</small>
+                        </div>
+                        <label style="position:relative; display:inline-block; width:60px; height:32px;">
+                            <input type="checkbox" id="confShortcuts" style="opacity:0; width:0; height:0;" />
+                            <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#2a2a3e; transition:0.4s; border-radius:16px; border:1px solid rgba(255,255,255,0.1);"></span>
+                            <span style="position:absolute; cursor:pointer; content:''; height:26px; width:26px; left:3px; bottom:3px; background-color:white; transition:0.4s; border-radius:13px; box-shadow:0 2px 4px rgba(0,0,0,0.3);"></span>
+                            <style>
+                                #confShortcuts:checked + span { background-color:#a855f7; box-shadow:0 0 12px rgba(168,85,247,0.4); }
+                                #confShortcuts:checked + span + span { transform:translateX(28px); background-color:#fff; box-shadow:0 2px 6px rgba(168,85,247,0.3); }
+                            </style>
+                        </label>
                     </div>
+                    
+                    <!-- Shortcuts Panel (wird versteckt wenn deaktiviert) -->
+                    <div id="shortcutsPanel" style="transition:opacity 0.3s ease;">
+                        <div style="background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:1.5rem; margin-bottom:2rem;">
+                            <p style="color:var(--text-main); margin:0; line-height:1.6;">
+                                Passe deine Tastenkürzel an, um schneller durch die App zu navigieren. Klicke auf einen Shortcut, um ihn zu ändern.
+                            </p>
+                        </div>
 
-                    <!-- Shortcuts List -->
-                    <div id="shortcutsContainer" style="display:grid; gap:10px; margin-bottom:2rem;">
-                        <!-- wird durch JavaScript gefüllt -->
-                    </div>
+                        <!-- Shortcuts List -->
+                        <div id="shortcutsContainer" style="display:grid; gap:10px; margin-bottom:2rem;">
+                            <!-- wird durch JavaScript gefüllt -->
+                        </div>
 
-                    <!-- Conflict Warning -->
-                    <div id="shortcutConflictWarning" style="display:none; background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.3); border-radius:12px; padding:1.5rem; margin-bottom:2rem; border-left:4px solid #ef4444;">
-                        <p style="margin:0; color:#ef4444; font-weight:600;">⚠️ Shortcut-Konflikt erkannt!</p>
-                        <p id="conflictMessage" style="margin:0.5rem 0 0 0; color:var(--text-muted); font-size:0.9rem;"></p>
-                    </div>
+                        <!-- Conflict Warning -->
+                        <div id="shortcutConflictWarning" style="display:none; background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.3); border-radius:12px; padding:1.5rem; margin-bottom:2rem; border-left:4px solid #ef4444;">
+                            <p style="margin:0; color:#ef4444; font-weight:600;">⚠️ Shortcut-Konflikt erkannt!</p>
+                            <p id="conflictMessage" style="margin:0.5rem 0 0 0; color:var(--text-muted); font-size:0.9rem;"></p>
+                        </div>
 
-                    <!-- Action Buttons -->
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                        <button class="btn btn-primary" onclick="saveAllShortcuts()" style="background:var(--primary); padding:12px;">💾 Speichern</button>
-                        <button class="btn" onclick="resetShortcutsToDefaults()" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); padding:12px;">↺ Standard wiederherstellen</button>
+                        <!-- Action Buttons -->
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                            <button class="btn btn-primary" onclick="saveAllShortcuts()" style="background:var(--primary); padding:12px;">💾 Speichern</button>
+                            <button class="btn" onclick="resetShortcutsToDefaults()" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); padding:12px;">↺ Standard wiederherstellen</button>
+                        </div>
                     </div>
                 </div>
 
@@ -2667,13 +2848,66 @@
     </div>
 
     <div class="modal" id="corrModal">
-        <div class="modal-box" style="width:400px;">
-            <h3>Korrektur buchen</h3>
+        <div class="modal-box" style="width:500px; padding:2rem;">
+            <h3 style="margin-top:0; margin-bottom:1rem;">Korrektur buchen</h3>
             <p style="color:var(--text-muted); margin-bottom:1.5rem; font-size:0.9rem;">Manuelle Buchung auf das Gleitzeitkonto.</p>
             <select id="corrSelect" class="glass-select" style="margin-bottom:15px;"></select>
             <input type="number" id="corrVal" class="glass-input" placeholder="Stunden (+/-)" step="0.1" style="margin-bottom:2rem;">
-            <button class="btn btn-primary" onclick="saveCorrection()">Buchen</button>
-            <button class="btn" style="width:100%; margin-top:10px; background:transparent; border:1px solid var(--border);" onclick="document.getElementById('corrModal').classList.remove('active')">Abbrechen</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-primary" onclick="saveCorrection()" style="flex:1;">Buchen</button>
+                <button class="btn" style="flex:1; background:transparent; border:1px solid var(--border);" onclick="document.getElementById('corrModal').classList.remove('active')">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VACATION MODAL -->
+    <div class="modal" id="vacationModal">
+        <div class="modal-box" style="width:700px; display:flex; flex-direction:column; max-height:90vh; padding:2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border);">
+                <h2 style="margin:0;">🌴 Urlaubsverwaltung</h2>
+                <button onclick="closeVacationModal()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            
+            <div style="flex:1; overflow-y:auto; padding-right:1rem;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:2rem;">
+                    <div>
+                        <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Jahresanspruch (Tage):</label>
+                        <input type="number" id="vacationModalTotal" class="glass-input" value="30">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Manuell hinzugefügt:</label>
+                        <input type="number" id="vacationModalUsedManual" class="glass-input" value="0">
+                    </div>
+                </div>
+                
+                <div style="background:rgba(var(--primary-rgb), 0.08); padding:12px; border-radius:8px; border-left:4px solid var(--primary); margin-bottom:2rem;">
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin:0 0 8px 0;">Aktueller anteiliger Anspruch (basierend auf IHK-Start):</p>
+                    <p style="font-size:1.2rem; font-weight:700; color:var(--primary); margin:0;"><span id="vacationModalProRata">0</span> Tage noch verfügbar</p>
+                </div>
+
+                <div style="background:rgba(var(--primary-rgb), 0.1); padding:15px; border-radius:12px; border:1px solid rgba(var(--primary-rgb), 0.3);">
+                    <h5 style="margin-top:0; color:var(--primary);">📅 Blockbuchung</h5>
+                    
+                    <select id="vacationModalPeriodType" class="glass-select" style="margin-bottom:12px;">
+                        <option value="vacation">🌴 Urlaub</option>
+                        <option value="holiday">🏖️ Firmen-Frei/Feiertag</option>
+                    </select>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+                        <input type="date" id="vacationModalPeriodStart" class="glass-input" placeholder="Startdatum">
+                        <input type="date" id="vacationModalPeriodEnd" class="glass-input" placeholder="Enddatum">
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <button class="btn btn-primary" onclick="saveVacationPeriod()" style="background:var(--primary);">✓ Buchen</button>
+                        <button class="btn btn-primary" onclick="deleteVacationPeriod()" style="background:var(--danger);">✕ Löschen</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+                <button class="btn" style="flex:1; background:transparent; border:1px solid var(--border);" onclick="closeVacationModal()">Schließen</button>
+            </div>
         </div>
     </div>
 
@@ -2901,27 +3135,63 @@
         </div>
     </div>
 
+    <!-- TRASH / PAPERKORB MODAL -->
+    <div class="modal" id="trashModal" style="display:none;">
+        <div class="modal-box" style="width:90%; max-width:920px; padding:1.25rem 1.5rem; background:var(--bg-glass); backdrop-filter: blur(20px); border:1px solid rgba(168,85,247,0.12); border-radius:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 style="margin:0; color:var(--primary);">🗑️ Papierkorb</h3>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <button class="btn btn-ghost" onclick="closeTrashModal()">Schließen</button>
+                    <button class="btn btn-danger" onclick="emptyTrashConfirm()">Papierkorb leeren</button>
+                </div>
+            </div>
+
+                <div style="display:flex; gap:12px; margin-top:1rem; margin-bottom:12px; align-items:center;">
+                <div style="display:flex; gap:8px; align-items:center; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px;">
+                    <div style="font-weight:700; color:var(--text-main);">Gesamt:</div>
+                    <div id="trashCountHeader" style="font-weight:700; color:var(--primary);">0</div>
+                </div>
+                <div style="flex:1; color:var(--text-muted);">Auto‑Leerung nach (Tagen)</div>
+                <input id="trashAutoDaysInput" type="number" value="30" min="0" style="width:120px; padding:8px; border-radius:8px; background:transparent; border:1px solid var(--border); color:var(--text-main);" />
+                <button class="btn" onclick="saveTrashAutoDays()">Speichern</button>
+            </div>
+
+            <div id="trashList" style="display:flex; flex-direction:column; gap:10px; max-height:56vh; overflow:auto; padding-right:6px;">
+                <!-- Items filled by JS -->
+            </div>
+            <button class="modal-close-x" aria-label="Schließen" onclick="closeTrashModal()" title="Schließen">×</button>
+
+            <div style="display:flex; justify-content:space-between; margin-top:1rem;">
+                <div>
+                    <input type="checkbox" id="trashSelectAll" onchange="trashSelectAll(this)" /> <label for="trashSelectAll">Alle auswählen</label>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn" onclick="trashBulkRestore()">Wiederherstellen (Markierte)</button>
+                    <button class="btn btn-danger" onclick="trashBulkDeleteConfirm()">Löschen (Markierte)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
     // --- STATE & CONFIG ---
     let data = { 
         entries: [], 
+        trash: [],
         settings: { 
             name:'User', 
             theme:'#a855f7', 
             hours:[0,8.75,8.75,8.75,8.75,4.5,0], 
-            break:{thresh:6, min:[0, 15, 30, 30, 30, 30, 0]}, // Pro Wochentag unterschiedliche Pausenzeiten (So-Sa)
+            break:{thresh:6, min:[0, 15, 30, 30, 30, 30, 0]},
             vacation:{total:30, used:0, usedManual:0},
-            // IHK Einstellungen (ERWEITERT)
             ihk: {
                 start: '',
                 end: '',
                 exam_zwischen: '',
-                note_zwischen: '', // Note Zwischenprüfung
-                note_abschluss: '' // Note Abschlussprüfung
+                note_zwischen: '',
+                note_abschluss: ''
             },
-            // NEUE SCHUL-EINSTELLUNGEN
             school: {
-                // Noten werden als Objekt gespeichert: { Fachname: [Note1, Note2, ...], ... }
                 grades: {
                     'Kernprozesse': [],
                     'Wirtschaftslehre': [],
@@ -2929,17 +3199,14 @@
                     'Deutsch/Kommunikation': [],
                 }
             },
-            // NEUE ZIEL-DEFINITIONEN
             goals: [],
-            // NEU: Prognose Plan
-            prognosePlan: {} // Speichert den Plan: { '2025-12-01': 'vacation', ... }
+            prognosePlan: {}
         } 
     };
-    let timer = { id:null, start:0, paused:0, running:false, log:[], breakTime: 0 }; // breakTime für präzise Pausenmessung
+    let timer = { id:null, start:0, paused:0, running:false, log:[], breakTime: 0 };
     let editId = null;
-    let isSidebarOpen = true; // Für Desktop standardmäßig offen
+    let isSidebarOpen = true;
 
-    // --- CUSTOM MODAL SYSTEM (Glassmorphism) ---
     let customModalCallback = null;
     let customModalResolve = null;
 
@@ -2953,7 +3220,6 @@
         titleEl.innerText = title;
         contentEl.innerText = message;
         
-        // Styling je nach Nachrichtentyp
         if (type === 'error') {
             titleEl.style.color = 'var(--danger)';
             confirmBtn.style.background = 'var(--danger)';
@@ -3042,14 +3308,12 @@
             return;
         }
 
-        // Eintrag aktualisieren
         entry.date = newDate;
         entry.type = newType;
         entry.worked = newWorked;
         entry.project = newProject || undefined;
         entry.info = newInfo || undefined;
 
-        // Soll-Zeit und Differenz neu berechnen
         const dayIndex = new Date(newDate).getDay();
         entry.expected = data.settings.hours[dayIndex] || 0;
         entry.diff = entry.worked - entry.expected;
@@ -3057,7 +3321,6 @@
         save();
         closeEditModal();
         
-        // Aktive View neu rendern
         if (document.getElementById('view-history').classList.contains('active')) {
             renderHistoryView();
         }
@@ -3070,22 +3333,20 @@
     window.onload = () => {
         if(localStorage.getItem('tg_pro_data')) data = JSON.parse(localStorage.getItem('tg_pro_data'));
         
-        // Structure ensuring checks
         if(!data.settings.break) data.settings.break = {thresh:6, min:[0, 30, 30, 30, 30, 30, 0]};
+        if(!Array.isArray(data.trash)) data.trash = [];
+        if (!data.settings.trashAutoEmptyDays && data.settings.trashAutoEmptyDays !== 0) data.settings.trashAutoEmptyDays = 30;
         
-        // MIGRATION: Wenn break.min noch ein einfacher Wert ist (alte Daten), konvertieren
         if(!Array.isArray(data.settings.break.min)) {
             const oldBreakMin = data.settings.break.min || 30;
             data.settings.break.min = [0, oldBreakMin, oldBreakMin, oldBreakMin, oldBreakMin, 15, 0]; // 15 Min Pause für Freitag
         }
         if(!data.settings.vacation) data.settings.vacation = {total:30, used:0, usedManual:0};
         
-        // IHK-Daten werden beibehalten, nur falls komplett leer, Default setzen
         if(!data.settings.ihk) {
              data.settings.ihk = {start: '', end: '', exam_zwischen: '', note_zwischen: '', note_abschluss: ''};
         }
         
-        // Berufsschul-Daten beibehalten, nur Struktur sichern falls komplett fehlt
         if(!data.settings.school) {
              data.settings.school = {
                 grades: {
@@ -3096,7 +3357,6 @@
                 }
              };
         } else if(!data.settings.school.grades) {
-             // Falls grades fehlt, aber school existiert
              data.settings.school.grades = {
                 'Kernprozesse': [],
                 'Wirtschaftslehre': [],
@@ -3105,9 +3365,8 @@
              };
         }
         
-        if(!data.settings.goals) data.settings.goals = []; // NEU
-        if(!data.settings.prognosePlan) data.settings.prognosePlan = {}; // NEU
-        // Shortcuts enabled by default
+        if(!data.settings.goals) data.settings.goals = [];
+        if(!data.settings.prognosePlan) data.settings.prognosePlan = {};
         if (typeof data.settings.shortcutsEnabled === 'undefined') data.settings.shortcutsEnabled = true;
         
         if (data.settings.ihk.exam) { 
@@ -3115,7 +3374,6 @@
              delete data.settings.ihk.exam;
         }
 
-        // Mobile View Initialisierung
         if (window.innerWidth < 1024) {
              isSidebarOpen = false;
              document.getElementById('sidebar').classList.add('hidden');
@@ -3125,12 +3383,14 @@
 
         applyTheme(data.settings.theme);
         updateUI();
+
+        // Auto-Leerung des Papierkorbs beim Start und einmal täglich
+        try { autoEmptyTrash(); } catch(e) { console.warn('autoEmptyTrash error', e); }
+        setInterval(() => { try { autoEmptyTrash(); } catch(e) {} }, 24*3600*1000);
         
         setTimeout(checkAndBookHolidays, 500);
-        // Render school rules UI and check today's vocational-school status (only suggests today)
         try { renderSchoolRules(); checkTodayVocSchool(); } catch(e) { console.warn('School check init error', e); }
 
-        // Timer Check und Log laden
         const savedTimer = localStorage.getItem('tg_timer');
         if(savedTimer) {
             const t = JSON.parse(savedTimer);
@@ -3154,7 +3414,6 @@
         }, 1000);
         document.getElementById('inpDate').valueAsDate = new Date();
 
-        // Listener für den neuen Schul-View
         if (document.getElementById('schoolGradesInputGrid')) {
              renderSchoolGradesInputs();
         }
@@ -3175,12 +3434,10 @@
              renderPrognoseView();
         }
         
-        // Initiales Laden der IHK-Felder, da sie nicht direkt in window.onload gesetzt wurden
         if (document.getElementById('view-ihk').classList.contains('active')) {
              renderIHKView();
         }
 
-        // Zeige Privacy Modal beim ersten Besuch
         if (!localStorage.getItem('privacy_acknowledged')) {
             showPrivacyModal();
         }
@@ -3202,11 +3459,9 @@
                 modal.style.display = 'none';
             }, 300);
         }
-        // Speichere, dass Nutzer das Modal gesehen hat
         localStorage.setItem('privacy_acknowledged', 'true');
     }
 
-    // Schließe Modal bei ESC-Taste
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             const privacyModal = document.getElementById('privacyModal');
@@ -3222,12 +3477,10 @@
         const overlay = document.querySelector('.sidebar-overlay');
         
         if (window.innerWidth < 1024) {
-             // Mobile Toggle
              isSidebarOpen = !isSidebarOpen;
              sidebar.classList.toggle('hidden', !isSidebarOpen);
              overlay.classList.toggle('active', isSidebarOpen);
         } else {
-             // Desktop Toggle
              isSidebarOpen = !isSidebarOpen;
              sidebar.classList.toggle('hidden', !isSidebarOpen);
              main.classList.toggle('full-width', !isSidebarOpen);
@@ -3239,8 +3492,200 @@
         localStorage.setItem('tg_pro_data', JSON.stringify(data)); 
         localStorage.setItem('tg_last_save', Date.now()); 
         console.log('✅ Daten gespeichert (inkl. IHK, Berufsschule, Ziele):', data.settings);
-        checkAlertsThresholds(); // Alert System überprüfen
+        checkAlertsThresholds();
         updateUI(); 
+    }
+    
+    // --- Trash Functions ---
+    function openTrashModal() {
+        const modal = document.getElementById('trashModal');
+        if (!modal) return;
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+        renderTrashModal();
+        // Accessibility: set role and aria
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        const modalBox = modal.querySelector('.modal-box');
+        if (modalBox) modalBox.setAttribute('tabindex', '-1');
+        // Close on click outside content
+        modal._overlayClick = function overlayClick(e) { if (e.target === modal) { closeTrashModal(); } };
+        modal.addEventListener('click', modal._overlayClick);
+        // focus first actionable element (close button)
+        const closeBtn = modal.querySelector('.modal-close-x');
+        if (closeBtn) closeBtn.focus();
+        // Add escape listener to close
+        modal._escHandler = (e) => { if (e.key === 'Escape') closeTrashModal(); };
+        document.addEventListener('keydown', modal._escHandler);
+    }
+
+    function closeTrashModal() {
+        const modal = document.getElementById('trashModal');
+        if (!modal) return;
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 200);
+        if (modal._escHandler) { document.removeEventListener('keydown', modal._escHandler); modal._escHandler = null; }
+        if (modal._overlayClick) { modal.removeEventListener('click', modal._overlayClick); modal._overlayClick = null; }
+    }
+
+    function renderTrashModal() {
+        const list = document.getElementById('trashList');
+        if (!list) return;
+        list.innerHTML = '';
+
+        if (!Array.isArray(data.trash) || data.trash.length === 0) {
+            list.innerHTML = `
+                <div class="trash-empty">
+                    <div style="font-size:2.25rem;">🧹</div>
+                    <h4>Papierkorb ist leer</h4>
+                    <p>Keine kürzlichen Löschungen. Gelöschte Einträge erscheinen hier und können wiederhergestellt werden.</p>
+                    <div style="display:flex; gap:10px; margin-top:8px;">
+                        <button class="btn" onclick="closeTrashModal()">Schließen</button>
+                        <button class="btn btn-ghost" onclick="switchTab('history'); closeTrashModal();">Zur Chronik</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('trashCountBadge').textContent = '0';
+            const hdr = document.getElementById('trashCountHeader'); if (hdr) hdr.textContent = '0';
+            return;
+        }
+
+        document.getElementById('trashCountBadge').textContent = data.trash.length;
+        const hdr = document.getElementById('trashCountHeader'); if (hdr) hdr.textContent = data.trash.length;
+        const autoInput = document.getElementById('trashAutoDaysInput');
+        if (autoInput) autoInput.value = data.settings.trashAutoEmptyDays || 0;
+
+        data.trash.slice().reverse().forEach((t, idx) => {
+            const deletedAt = new Date(t.deletedAt || Date.now());
+            const ageDays = Math.floor((Date.now() - deletedAt.getTime()) / 86400000);
+            const entry = t.entry;
+            const row = document.createElement('div');
+            row.className = 'trash-item';
+            row.style.cssText = 'display:flex; gap:12px; align-items:center; background:transparent; padding:8px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.02);';
+
+            const typeIcon = document.createElement('div');
+            typeIcon.style.cssText = 'width:48px; height:48px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; background:linear-gradient(135deg, rgba(168,85,247,0.06), rgba(168,85,247,0.03)); border:1px solid rgba(168,85,247,0.12);';
+            typeIcon.innerText = getTypeEmoji(entry.type || 'work');
+
+            const body = document.createElement('div');
+            body.style.flex = '1';
+            body.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                    <div style="font-weight:700; color:var(--text-main);">${entry.date} · ${entry.type} · ${entry.worked}h</div>
+                    <div style="color:var(--text-muted); font-size:0.9rem;">${ageDays}d</div>
+                </div>
+                <div style="color:var(--text-muted); font-size:0.85rem; margin-top:6px;">${entry.project ? '<strong style="color:var(--primary);">' + entry.project + '</strong> · ' : ''}${entry.info ? entry.info : ''}</div>
+            `;
+
+            const actions = document.createElement('div');
+            actions.style.display = 'flex';
+            actions.style.gap = '8px';
+            actions.style.alignItems = 'center';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.dataset.trashIndex = (data.trash.length - 1 - idx);
+
+            const restoreBtn = document.createElement('button');
+            restoreBtn.className = 'btn btn-ghost';
+            restoreBtn.textContent = '↩️';
+            restoreBtn.title = 'Wiederherstellen';
+            restoreBtn.onclick = () => { restoreSingleTrash(parseInt(checkbox.dataset.trashIndex)); };
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn btn-danger';
+            delBtn.textContent = '🗑️';
+            delBtn.title = 'Löschen';
+            delBtn.onclick = () => { trashDeleteConfirm(parseInt(checkbox.dataset.trashIndex)); };
+
+            actions.appendChild(checkbox);
+            actions.appendChild(restoreBtn);
+            actions.appendChild(delBtn);
+
+            row.appendChild(typeIcon);
+            row.appendChild(body);
+            row.appendChild(actions);
+            list.appendChild(row);
+        });
+    }
+
+    function restoreSingleTrash(trashIndex) {
+        if (!data.trash || data.trash.length === 0) return;
+        const t = data.trash[trashIndex];
+        if (!t) return;
+        const restored = t.entry;
+        const idx = (t.originalIndex != null) ? Math.min(t.originalIndex, data.entries.length) : data.entries.length;
+        data.entries.splice(idx, 0, restored);
+        // Remove from trash
+        data.trash.splice(trashIndex, 1);
+        save();
+        renderTrashModal();
+        if (document.getElementById('view-history').classList.contains('active')) renderHistoryView();
+        showCustomMessage('↩️ Wiederhergestellt', 'Eintrag wurde wiederhergestellt.', 'success');
+    }
+
+    function trashDeleteConfirm(trashIndex) {
+        showCustomConfirm('🗑️ Eintrag endgültig löschen?', 'Dieser Eintrag wird unwiderruflich gelöscht. Fortfahren?', () => {
+            data.trash.splice(trashIndex, 1);
+            save();
+            renderTrashModal();
+            showCustomMessage('✅ Gelöscht', 'Eintrag wurde dauerhaft entfernt.', 'success');
+        }, null);
+    }
+
+    function trashSelectAll(el) {
+        const list = document.getElementById('trashList');
+        if (!list) return;
+        const checkboxes = list.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = el.checked);
+    }
+
+    function trashBulkRestore() {
+        const list = document.getElementById('trashList');
+        if (!list) return;
+        const checkboxes = Array.from(list.querySelectorAll('input[type="checkbox"]')).filter(cb => cb.checked);
+        if (!checkboxes.length) { showCustomMessage('ℹ️ Keine Auswahl', 'Bitte markiere Einträge zum Wiederherstellen.', 'info'); return; }
+        // Sort by index ascending to restore correctly (smallest index first)
+        const indexes = checkboxes.map(cb => parseInt(cb.dataset.trashIndex)).sort((a,b)=>a-b);
+        for (const i of indexes) {
+            const t = data.trash[i];
+            if (!t) continue;
+            const restored = t.entry; const idx = (t.originalIndex != null) ? Math.min(t.originalIndex, data.entries.length) : data.entries.length;
+            data.entries.splice(idx, 0, restored);
+        }
+        // Remove restored indexes from trash (reverse order to avoid index shift)
+        for (const i of indexes.sort((a,b)=>b-a)) { data.trash.splice(i,1); }
+        save(); renderTrashModal(); if (document.getElementById('view-history').classList.contains('active')) renderHistoryView(); showCustomMessage('✅ Wiederherstellt', 'Markierte Einträge wiederhergestellt.', 'success');
+    }
+
+    function trashBulkDeleteConfirm() {
+        showCustomConfirm('🗑️ Markierte Einträge löschen?', 'Markierte Einträge werden unwiderruflich gelöscht. Fortfahren?', () => {
+            const list = document.getElementById('trashList'); if (!list) return; const checkboxes = Array.from(list.querySelectorAll('input[type="checkbox"]')).filter(cb => cb.checked);
+            const indexes = checkboxes.map(cb => parseInt(cb.dataset.trashIndex)).sort((a,b)=>b-a);
+            for (const i of indexes) data.trash.splice(i,1);
+            save(); renderTrashModal(); showCustomMessage('✅ Gelöscht', 'Markierte Einträge wurden gelöscht.', 'success');
+        }, null);
+    }
+
+    function emptyTrashConfirm() {
+        showCustomConfirm('🧹 Papierkorb jetzt leeren?', 'Alle Einträge im Papierkorb werden dauerhaft gelöscht. Fortfahren?', () => {
+            data.trash = [];
+            save(); renderTrashModal(); showCustomMessage('✅ Papierkorb geleert', 'Alle Einträge wurden gelöscht.', 'success');
+        }, null);
+    }
+
+    function saveTrashAutoDays() {
+        const v = parseInt(document.getElementById('trashAutoDaysInput').value,10) || 0;
+        data.settings.trashAutoEmptyDays = v; save(); showCustomMessage('✅ Gespeichert', `Auto-Leerung nach ${v} Tagen eingestellt.`, 'success');
+    }
+
+    function autoEmptyTrash() {
+        const days = data.settings.trashAutoEmptyDays || 0;
+        if (!days || days <= 0) return;
+        const now = Date.now(); const ms = days * 86400000;
+        const before = data.trash.length;
+        data.trash = data.trash.filter(t => (now - (t.deletedAt || 0)) <= ms);
+        if (data.trash.length !== before) { save(); }
     }
     function saveTimerState() { 
         localStorage.setItem('tg_timer', JSON.stringify({
@@ -4203,6 +4648,13 @@
         const statusEl = document.getElementById('timerStatus');
         logBar.innerHTML = '';
         
+        // Sicherheitscheck: Falls timer.log undefined ist
+        if (!timer.log) {
+            statusEl.innerText = 'STOP';
+            statusEl.classList.remove('running', 'paused', 'max');
+            return;
+        }
+        
         // Filtere Log, um nur Start/Pause zu behalten (Stop ist der Endpunkt)
         const relevantLog = timer.log.filter(l => l.action !== 'stop');
         
@@ -4548,6 +5000,8 @@
     // --- UI UPDATES (Dashboard) ---
     function updateUI() {
         document.getElementById('userGreeting').innerText = `Hallo, ${data.settings.name}`;
+        const trashBadge = document.getElementById('trashCountBadge');
+        if (trashBadge) trashBadge.textContent = (Array.isArray(data.trash) ? data.trash.length : 0);
         
         const now = new Date();
         let week=0, month=0, total=0, totalWorked=0, countDays=0;
@@ -5811,19 +6265,175 @@ TIPPS:
     function delEntry(id) {
         showCustomConfirm(
             '🗑️ Eintrag löschen?',
-            'Möchtest du diesen Eintrag wirklich unwiderruflich löschen?',
+            'Möchtest du diesen Eintrag löschen? Du kannst ihn kurz rückgängig machen (Ctrl+Z).',
             () => {
-                data.entries = data.entries.filter(e => e.id !== id);
+                const idx = data.entries.findIndex(e => e.id === id);
+                if (idx === -1) return;
+                const entry = data.entries[idx];
+
+                // Entferne aus Einträgen und schiebe in den Papierkorb (trash)
+                data.entries.splice(idx, 1);
+                data.trash = data.trash || [];
+                data.trash.push({ entry: entry, originalIndex: idx, deletedAt: Date.now() });
+
                 recalculateVacationUsed(); 
                 save();
                 if (document.getElementById('view-history').classList.contains('active')) {
                      renderHistoryView();
                 }
+
+                // Zeige kurz die Undo-Toast-Nachricht
+                showUndoToast();
             },
             null
         );
     }
+
+    function showUndoToast() {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-sidebar);
+            padding: 12px 16px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 2001;
+            display:flex;
+            gap:12px;
+            align-items:center;
+            max-width: 90%;
+        `;
+
+        toast.innerHTML = `
+            <div style="flex:1; color:var(--text-main); font-weight:600;">Eintrag gelöscht</div>
+            <button id="undoBtn" style="background:transparent; border:1px solid rgba(255,255,255,0.08); color:var(--primary); padding:6px 10px; border-radius:8px; cursor:pointer;">Rückgängig</button>
+        `;
+
+        document.body.appendChild(toast);
+
+        const removeToast = () => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 240);
+        };
+
+        // Undo on click
+        toast.querySelector('#undoBtn').addEventListener('click', () => {
+            undoDelete();
+            removeToast();
+        });
+
+        // Auto entfernen nach 8 Sekunden
+        setTimeout(removeToast, 8000);
+    }
+
+    function undoDelete() {
+        data.trash = data.trash || [];
+        if (!data.trash.length) {
+            showCustomMessage('ℹ️ Nichts zu rückgängig machen', 'Es gibt keine kürzliche Löschung.', 'info');
+            return;
+        }
+
+        const last = data.trash.pop();
+        const restored = last.entry;
+        const idx = last.originalIndex != null ? last.originalIndex : data.entries.length;
+        // Füge wieder an der ursprünglichen Position ein (oder hinten)
+        data.entries.splice(Math.min(idx, data.entries.length), 0, restored);
+        recalculateVacationUsed();
+        save();
+        if (document.getElementById('view-history').classList.contains('active')) {
+            renderHistoryView();
+        }
+
+        showCustomMessage('↩️ Wiederhergestellt', 'Eintrag wurde wiederhergestellt.', 'success');
+    }
     
+    function openVacationModal() {
+        const modal = document.getElementById('vacationModal');
+        modal.classList.add('active');
+        // Load vacation data when opening
+        const proRata = calculateProRataVacation(data.settings.vacation.total || 30);
+        document.getElementById('vacationModalProRata').innerText = proRata;
+        document.getElementById('vacationModalTotal').value = data.settings.vacation.total || 30;
+        document.getElementById('vacationModalUsedManual').value = data.settings.vacation.usedManual || 0;
+    }
+    
+    function closeVacationModal() {
+        const modal = document.getElementById('vacationModal');
+        modal.classList.remove('active');
+    }
+    
+    function saveVacationPeriod() {
+        const periodType = document.getElementById('vacationModalPeriodType').value;
+        const periodStart = document.getElementById('vacationModalPeriodStart').value;
+        const periodEnd = document.getElementById('vacationModalPeriodEnd').value;
+        
+        if (!periodStart || !periodEnd) {
+            alert('Bitte Start- und Enddatum auswählen');
+            return;
+        }
+        
+        // Call the existing bookPeriod function with modal values
+        const oldPeriodType = document.getElementById('periodType');
+        const oldPeriodStart = document.getElementById('periodStart');
+        const oldPeriodEnd = document.getElementById('periodEnd');
+        
+        // Temporarily set the original inputs
+        if (oldPeriodType) oldPeriodType.value = periodType;
+        if (oldPeriodStart) oldPeriodStart.value = periodStart;
+        if (oldPeriodEnd) oldPeriodEnd.value = periodEnd;
+        
+        // Call bookPeriod if it exists
+        if (typeof bookPeriod === 'function') {
+            bookPeriod();
+        }
+        
+        closeVacationModal();
+    }
+    
+    function deleteVacationPeriod() {
+        const periodStart = document.getElementById('vacationModalPeriodStart').value;
+        const periodEnd = document.getElementById('vacationModalPeriodEnd').value;
+        
+        if (!periodStart || !periodEnd) {
+            alert('Bitte Start- und Enddatum auswählen');
+            return;
+        }
+        
+        // Call the existing deletePeriod function with modal values
+        const oldPeriodStart = document.getElementById('periodStart');
+        const oldPeriodEnd = document.getElementById('periodEnd');
+        
+        // Temporarily set the original inputs
+        if (oldPeriodStart) oldPeriodStart.value = periodStart;
+        if (oldPeriodEnd) oldPeriodEnd.value = periodEnd;
+        
+        // Call deletePeriod if it exists
+        if (typeof deletePeriod === 'function') {
+            deletePeriod();
+        }
+        
+        closeVacationModal();
+    }
+
+    function toggleVacationPanel() {
+        const vacationPanel = document.getElementById('vacationPanelCard');
+        if (vacationPanel) {
+            if (vacationPanel.style.display === 'none') {
+                vacationPanel.style.display = 'block';
+                // Load vacation data when opening
+                const proRata = calculateProRataVacation(data.settings.vacation.total || 30);
+                document.getElementById('vacationProRata').innerText = proRata;
+                document.getElementById('confVacationTotal').value = data.settings.vacation.total || 30;
+                document.getElementById('confVacationUsedManual').value = data.settings.vacation.usedManual || 0;
+            } else {
+                vacationPanel.style.display = 'none';
+            }
+        }
+    }
+
     function openCorrection(type) {
         const modal = document.getElementById('corrModal');
         const sel = document.getElementById('corrSelect');
@@ -5900,6 +6510,25 @@ TIPPS:
 
     function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
     
+    function updateShortcutsPanelVisibility() {
+        const panel = document.getElementById('shortcutsPanel');
+        const isEnabled = data.settings.shortcutsEnabled !== false;
+        
+        if (panel) {
+            if (isEnabled) {
+                panel.style.display = 'block';
+                panel.style.opacity = '1';
+                panel.style.pointerEvents = 'auto';
+                // Render shortcuts wenn Panel sichtbar wird
+                renderShortcutsPanel();
+            } else {
+                panel.style.display = 'none';
+                panel.style.opacity = '0';
+                panel.style.pointerEvents = 'none';
+            }
+        }
+    }
+    
     // ============================================
     // SHORTCUT MANAGEMENT FUNCTIONS
     // ============================================
@@ -5933,8 +6562,11 @@ TIPPS:
                             <div style="color:var(--text-main); font-weight:500; font-size:0.95rem;">${shortcut.name}</div>
                             <div style="color:var(--text-muted); font-size:0.8rem; margin-top:4px;">${shortcut.action}${shortcut.args ? ' (' + shortcut.args.join(', ') + ')' : ''}</div>
                         </div>
-                        <div class="shortcut-keys" style="background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.3); border-radius:8px; padding:8px 12px; font-family:var(--font-mono); font-size:0.85rem; font-weight:600; color:var(--primary); white-space:nowrap; cursor:pointer;" onclick="editShortcut('${id}', event)">
-                            ${displayKeys}
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <div class="shortcut-keys" style="background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.3); border-radius:8px; padding:8px 12px; font-family:var(--font-mono); font-size:0.85rem; font-weight:600; color:var(--primary); white-space:nowrap; cursor:pointer;" onclick="editShortcut('${id}', event)">
+                                ${displayKeys}
+                            </div>
+                            <div style="font-size:0.72rem; color:var(--text-muted); padding:4px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.03);">${shortcut.allowInInput ? 'In Eingabefeldern' : 'nicht in Eingaben'}</div>
                         </div>
                     </div>
                 `;
@@ -6004,6 +6636,12 @@ TIPPS:
                 <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:8px;">Drücke die gewünschte Tastenkombination:</div>
                 <div id="recordedKeys" style="color:var(--primary); font-size:1.3rem; font-weight:600; font-family:var(--font-mono); min-height:30px;">...</div>
             </div>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+                <label style="display:flex; align-items:center; gap:8px; font-size:0.9rem; color:var(--text-main);">
+                    <input type="checkbox" id="allowInInputCheckbox" style="width:16px; height:16px;" ${shortcut.allowInInput ? 'checked' : ''} />
+                    Shortcut in Eingabefeldern erlauben
+                </label>
+            </div>
             
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text-main); padding:10px; border-radius:8px; cursor:pointer; font-weight:500;">Abbrechen</button>
@@ -6021,7 +6659,7 @@ TIPPS:
         
         const keydownHandler = (e) => {
             e.preventDefault();
-            recordedKeys = [];
+            recordedKeys.length = 0; // clear existing array to keep reference
             
             if (e.ctrlKey) recordedKeys.push('ctrl');
             if (e.altKey) recordedKeys.push('alt');
@@ -6053,10 +6691,15 @@ TIPPS:
     }
     
     function saveEditedShortcut(id) {
-        const recordedKeys = window.recordedKeys;
+        let recordedKeys = window.recordedKeys;
         if (!recordedKeys || recordedKeys.length === 0) {
-            alert('Bitte drücke eine Tastenkombination');
-            return;
+            // Wenn keine neue Kombination eingegeben wurde, behalte die bestehende
+            if (shortcutManager && shortcutManager.shortcuts[id] && Array.isArray(shortcutManager.shortcuts[id].keys)) {
+                recordedKeys = shortcutManager.shortcuts[id].keys;
+            } else {
+                alert('Bitte drücke eine Tastenkombination');
+                return;
+            }
         }
         
         // Entferne Keydown Listener
@@ -6066,6 +6709,15 @@ TIPPS:
         
         // Speichere den neuen Shortcut
         const result = shortcutManager.updateShortcut(id, recordedKeys);
+
+        // Speichere auch die "allowInInput" Einstellung aus dem Modal
+        try {
+            const chk = document.getElementById('allowInInputCheckbox');
+            if (chk && shortcutManager && shortcutManager.shortcuts[id]) {
+                shortcutManager.shortcuts[id].allowInInput = !!chk.checked;
+                shortcutManager.saveShortcuts();
+            }
+        } catch (e) { console.warn('Fehler beim Speichern von allowInInput', e); }
         
         if (result.conflicts && result.conflicts.length > 0) {
             alert('⚠️ Warnung: Diese Tastenkombination ist bereits belegt!');
@@ -6126,7 +6778,17 @@ TIPPS:
         
         document.getElementById('confName').value = data.settings.name;
         // Shortcuts checkbox
-        const confShortcutsEl = document.getElementById('confShortcuts'); if (confShortcutsEl) confShortcutsEl.checked = (data.settings.shortcutsEnabled !== false);
+        const confShortcutsEl = document.getElementById('confShortcuts'); 
+        if (confShortcutsEl) {
+            confShortcutsEl.checked = (data.settings.shortcutsEnabled !== false);
+            // Echtzeit-Update wenn sich das Häkchen ändert
+            confShortcutsEl.addEventListener('change', (e) => {
+                data.settings.shortcutsEnabled = !!e.target.checked;
+                updateShortcutsPanelVisibility();
+            });
+            // Initiale Sichtbarkeit setzen
+            updateShortcutsPanelVisibility();
+        }
         document.getElementById('confBreakThresh').value = data.settings.break.thresh;
         
         // Lade Pausenzeiten pro Wochentag
@@ -6137,14 +6799,23 @@ TIPPS:
             if(el) el.value = Array.isArray(breakMins) ? breakMins[i] : 30;
         }
         
-        for(let i=1; i<=5; i++) document.getElementById('h'+i).value = data.settings.hours[i];
+        for(let i=1; i<=5; i++) {
+            const el = document.getElementById('h'+i);
+            if(el) el.value = data.settings.hours[i];
+        }
         
         // Urlaub: Pro-rata Anspruch berechnen und anzeigen
         const proRata = calculateProRataVacation(30); // 30 Tage Basis
-        document.getElementById('vacationProRata').innerText = proRata;
+        const vacProEl = document.getElementById('vacationProRata');
+        if(vacProEl) vacProEl.innerText = proRata;
         
-        document.getElementById('confVacationTotal').value = data.settings.vacation.total || 30;
-        document.getElementById('confVacationUsedManual').value = data.settings.vacation.usedManual || 0;
+        const confVacTotalEl = document.getElementById('confVacationTotal');
+        if(confVacTotalEl) confVacTotalEl.value = data.settings.vacation.total || 30;
+        const confVacUsedEl = document.getElementById('confVacationUsedManual');
+        if(confVacUsedEl) confVacUsedEl.value = data.settings.vacation.usedManual || 0;
+        // Load trashAutoEmptyDays setting
+        const confTrashEl = document.getElementById('confTrashAutoEmptyDays');
+        if(confTrashEl) confTrashEl.value = data.settings.trashAutoEmptyDays || 30;
 
         // Render school rules UI
         try { renderSchoolRules(); } catch(e) { console.warn('renderSchoolRules error', e); }
@@ -6175,15 +6846,22 @@ TIPPS:
         
         // Sollstunden speichern (Index 1 bis 5 für Mo-Fr)
         for(let i=1; i<=5; i++) {
-             data.settings.hours[i] = parseFloat(document.getElementById('h'+i).value);
+            const el = document.getElementById('h'+i);
+            if(el) data.settings.hours[i] = parseFloat(el.value);
         }
         
         // Urlaub: Den eingegebenen Anspruch direkt speichern
-        const inputVacationTotal = parseFloat(document.getElementById('confVacationTotal').value);
+        const confVacTotalEl2 = document.getElementById('confVacationTotal');
+        const inputVacationTotal = confVacTotalEl2 ? parseFloat(confVacTotalEl2.value) : NaN;
         data.settings.vacation.total = isNaN(inputVacationTotal) ? 30 : inputVacationTotal;
         
-        data.settings.vacation.usedManual = parseFloat(document.getElementById('confVacationUsedManual').value);
+        const confVacUsedEl2 = document.getElementById('confVacationUsedManual');
+        const inputVacUsed = confVacUsedEl2 ? parseFloat(confVacUsedEl2.value) : 0;
+        data.settings.vacation.usedManual = inputVacUsed;
         recalculateVacationUsed();
+        // Papierkorb Auto-Leerung Tage
+        const trashDaysEl = document.getElementById('confTrashAutoEmptyDays');
+        if (trashDaysEl) data.settings.trashAutoEmptyDays = parseInt(trashDaysEl.value, 10) || 0;
         
         // School rules save
         try { saveSchoolSettingsToData(); } catch(e) { console.warn('saveSchoolSettingsToData error', e); }
@@ -6900,28 +7578,40 @@ TIPPS:
         const holidays = getGermanHolidays(year).concat(getGermanHolidays(year+1));
         if(holidays.find(h => h.date === dateISO)) return { isVocSchool:false, reason:'public-holiday' };
 
-        // 3) Weekly rules
-        if(Array.isArray(rules.weeklyDays) && rules.weeklyDays.includes(dayIndex)) {
-            // Only consider weekdays with expected hours > 0
-            const expected = data.settings.hours[dayIndex] || 0;
-            if(expected > 0) return { isVocSchool:true, reason:'weekly' };
-        }
-
-        // 4) Biweekly / multi-week rules
+        // 3) First check Biweekly / multi-week rules (they take priority!)
         for(const r of (rules.biweekly||[])) {
             const wd = parseInt(r.weekday);
-            const interval = parseInt(r.interval) || 2;
             if(wd !== dayIndex) continue;
+            
+            const interval = parseInt(r.interval) || 2;
             if(!r.startDate) continue;
-            const start = new Date(r.startDate);
-            // normalize to midnight
-            const daysDiff = Math.floor((date - start) / 86400000);
-            if(daysDiff < 0) continue;
+            
+            // Parse startDate as local time (not UTC)
+            const [year, month, day] = r.startDate.split('-').map(Number);
+            const start = new Date(year, month - 1, day);
+            // normalize both dates to midnight
+            const dateNorm = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const daysDiff = Math.floor((dateNorm - start) / 86400000);
+            
+            if(daysDiff < 0) continue; // before start date
+            
             const weeks = Math.floor(daysDiff / 7);
             if((weeks % interval) === 0) {
                 const expected = data.settings.hours[dayIndex] || 0;
                 if(expected > 0) return { isVocSchool:true, reason:'biweekly', matchedRule: r };
+            } else {
+                // This day matches the weekday but NOT the week pattern
+                // So even if it's in weeklyDays, we should skip it
+                return { isVocSchool:false, reason:'not-in-biweekly-cycle' };
             }
+        }
+
+        // 4) Only check weekly rules if there are no biweekly rules for this weekday
+        const hasBiweeklyForDay = rules.biweekly && rules.biweekly.some(r => parseInt(r.weekday) === dayIndex);
+        if(!hasBiweeklyForDay && Array.isArray(rules.weeklyDays) && rules.weeklyDays.includes(dayIndex)) {
+            // Only consider weekdays with expected hours > 0
+            const expected = data.settings.hours[dayIndex] || 0;
+            if(expected > 0) return { isVocSchool:true, reason:'weekly' };
         }
 
         return { isVocSchool:false, reason:'none' };
@@ -7326,7 +8016,7 @@ TIPPS:
                 html = `
                     <p style="margin:0 0 8px 0;">Der Live-Tracker misst deine Arbeitszeit:</p>
                     <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
-                        <li><strong>S</strong> startet den Timer, <strong>P</strong> pausiert, <strong>E</strong> stoppt.</li>
+                        <li><strong>Ctrl + Space</strong> Timer starten/pausieren, <strong>Ctrl + Shift + Space</strong> Timer stoppen & speichern</li>
                         <li>Beim Stoppen kannst du die gemessene Zeit als Eintrag speichern.</li>
                         <li>Pausen werden automatisch erfasst und ggf. Mindestpausen abgezogen.</li>
                     </ul>
@@ -8597,6 +9287,8 @@ TIPPS:
         const container = document.getElementById('dashboardContainer');
         const btnEdit = document.getElementById('btnEditLayout');
         const btnReset = document.getElementById('btnResetLayout');
+        const btnCancel = document.getElementById('dashboardCancelBtn');
+        const editControls = document.getElementById('dashboardEditControls');
         const statusEl = document.getElementById('editModeStatus');
         
         if (!container) return;
@@ -8608,6 +9300,9 @@ TIPPS:
             btnEdit.classList.add('btn-success');
             btnEdit.classList.remove('btn-primary');
             btnReset.style.display = 'inline-block';
+            if (btnCancel) btnCancel.style.display = 'inline-block';
+            if (editControls) editControls.style.opacity = '1';
+            if (editControls) editControls.style.pointerEvents = 'auto';
             if (statusEl) statusEl.style.opacity = '1';
             setupDashboardDragDrop();
         } else {
@@ -8615,9 +9310,21 @@ TIPPS:
             btnEdit.classList.add('btn-primary');
             btnEdit.classList.remove('btn-success');
             btnReset.style.display = 'none';
+            if (btnCancel) btnCancel.style.display = 'none';
+            if (editControls) editControls.style.opacity = '0';
+            if (editControls) editControls.style.pointerEvents = 'none';
             if (statusEl) statusEl.style.opacity = '0';
             saveDashboardLayout();
         }
+    }
+    
+    function cancelDashboardEditMode() {
+        const container = document.getElementById('dashboardContainer');
+        if (!container || !container.classList.contains('edit-mode')) return;
+        
+        // Reload layout from localStorage to discard changes
+        loadDashboardLayout();
+        toggleDashboardEditMode();
     }
     
     function resetDashboardLayout() {
@@ -8631,16 +9338,20 @@ TIPPS:
         if (!container) return;
         
         const items = container.querySelectorAll('.dashboard-item');
+        let draggedItem = null;
+        
         items.forEach(item => {
             item.draggable = true;
             
             item.addEventListener('dragstart', (e) => {
+                draggedItem = item;
                 item.classList.add('dragging');
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', item.getAttribute('data-item-id'));
             });
             
             item.addEventListener('dragend', () => {
+                draggedItem = null;
                 item.classList.remove('dragging');
             });
             
@@ -8648,17 +9359,20 @@ TIPPS:
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 
+                if (!draggedItem) return;
+                
                 const afterElement = getDragAfterElement(container, e.clientY);
                 if (afterElement == null) {
-                    container.appendChild(item);
+                    container.appendChild(draggedItem);
                 } else {
-                    container.insertBefore(item, afterElement);
+                    container.insertBefore(draggedItem, afterElement);
                 }
             });
-            
-            item.addEventListener('drop', (e) => {
-                e.preventDefault();
-            });
+        });
+        
+        // Also handle drop on container
+        container.addEventListener('drop', (e) => {
+            e.preventDefault();
         });
     }
     
@@ -9178,6 +9892,67 @@ TIPPS:
 
     // Auch sofort einmal prüfen
     checkSmartNotifications();
+
+    // ===== ERROR BOUNDARY / FALLBACK UI =====
+    window.addEventListener('error', function(event) {
+        console.error('🔴 Global Error:', event.message, event.filename, event.lineno);
+        const mainDiv = document.querySelector('.main') || document.body;
+        if (!mainDiv.querySelector('.error-fallback')) {
+            const errorUI = document.createElement('div');
+            errorUI.className = 'error-fallback';
+            errorUI.innerHTML = `
+                <div style="background: var(--bg-glass); border: 1px solid var(--danger); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; text-align: center;">
+                    <h2 style="color: var(--danger); margin-bottom: 1rem;">⚠️ Oops! Etwas ist schief gelaufen</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Die App hat einen Fehler entdeckt. Bitte versuche die Seite zu aktualisieren.</p>
+                    <button onclick="location.reload()" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">🔄 Seite aktualisieren</button>
+                </div>
+            `;
+            mainDiv.insertBefore(errorUI, mainDiv.firstChild);
+        }
+    });
+
+    window.addEventListener('unhandledrejection', function(event) {
+        console.error('🔴 Unhandled Promise Rejection:', event.reason);
+        event.preventDefault();
+    });
+
+    // ===== LOADING SPINNER HELPERS =====
+    function showLoadingSpinner(message = 'Lädt...') {
+        let overlay = document.querySelector('.loading-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <div class="loading-spinner-container">
+                    <div class="loading-spinner"></div>
+                    <h2>${message}</h2>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        overlay.classList.remove('hidden');
+        return overlay;
+    }
+
+    function hideLoadingSpinner() {
+        const overlay = document.querySelector('.loading-overlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+            setTimeout(() => overlay.remove(), 300);
+        }
+    }
+
+    // Zeige Spinner beim Start
+    showLoadingSpinner('⏳ TimeTracker wird geladen...');
+
+    // Verstecke Spinner wenn alles geladen ist
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(hideLoadingSpinner, 300);
+        });
+    } else {
+        setTimeout(hideLoadingSpinner, 300);
+    }
 
     // Call initialization on load
     if (document.readyState === 'loading') {
