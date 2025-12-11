@@ -374,14 +374,18 @@
             transition: color 0.18s ease, opacity 0.18s ease;
         }
         .external-link::after {
-            content: "↗";
-            font-size: 0.73em;
+            content: "";
+            display: inline-block;
+            width: 0.95em;
+            height: 0.95em;
             margin-left: 6px;
             vertical-align: text-bottom;
-            opacity: 0.9;
-            display: inline-block;
-            transform: translateY(-1px);
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+            opacity: 0.95;
             pointer-events: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M7 17L17 7'/><path d='M7 7h10v10'/></svg>");
         }
         .external-link:hover { color: var(--primary); opacity: 0.95; }
     </style>
