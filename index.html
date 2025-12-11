@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TimeTracker V2.0.8-1</title>
+<title>TimeTracker V2.0.9</title>
 <!-- Local Scripts (defer für korrektes Laden) -->
 <script defer src="icons.js"></script>
 <script defer src="shortcuts.js"></script>
+<script defer src="touch-mobile-optimizations.js"></script>
 <!-- Preload External CDN Resources (für bessere Performance) -->
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/simple-peer@9/simplepeer.min.js">
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
@@ -1244,55 +1245,410 @@
 
 
         /* --- MOBILE RESPONSIVENESS --- */
-        @media (max-width: 1024px) {
+        /* ============ RESPONSIVE DESIGN - MOBILE FIRST ============ */
+        
+        /* ===== TABLET (768px - 1024px) ===== */
+        @media (min-width: 768px) and (max-width: 1023px) {
             .sidebar {
-                width: 300px;
-                transform: translateX(0);
+                width: 240px;
                 position: fixed;
+                transform: translateX(0);
                 box-shadow: 2px 0 10px rgba(0,0,0,0.5);
                 z-index: 200;
             }
-            .sidebar.hidden {
-                transform: translateX(-300px);
-            }
             .main {
-                margin-left: 0;
-                width: 100%;
-                padding: 1rem;
-            }
-            .main .header {
-                 padding-left: 60px; /* Platz für den Toggle */
+                margin-left: 240px;
+                padding: 1.5rem;
             }
             #mobileMenuToggle {
                 display: block;
             }
             .kpi-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
             }
             .charts-row {
                 grid-template-columns: 1fr;
             }
+            .modal-box {
+                width: 90vw !important;
+                max-width: 600px !important;
+                max-height: 90vh !important;
+            }
+            .page-title {
+                font-size: 1.5rem;
+            }
+            .quick-actions {
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+            .quick-actions button {
+                flex: 1 1 calc(50% - 0.375rem);
+                padding: 12px 8px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* ===== MOBILE (< 768px) ===== */
+        @media (max-width: 767px) {
+            /* ===== LAYOUT ===== */
+            body {
+                font-size: 14px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-width: 280px;
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 200;
+                padding: 1.5rem 1rem;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+                box-shadow: 2px 0 15px rgba(0,0,0,0.7);
+            }
+            
+            .sidebar-overlay {
+                display: none;
+            }
+            
+            .sidebar-overlay.active {
+                display: block !important;
+            }
+            
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem 0.75rem;
+            }
+            
+            .main .header {
+                padding-left: 60px;
+                margin-bottom: 1.5rem;
+            }
+            
+            #mobileMenuToggle {
+                display: block;
+                position: fixed;
+                top: 16px;
+                left: 12px;
+                z-index: 201;
+                padding: 10px 12px;
+                font-size: 1.1rem;
+            }
+            
+            /* ===== TYPOGRAPHY ===== */
+            .page-title {
+                font-size: 1.25rem;
+                letter-spacing: 0;
+            }
+            
+            .greeting {
+                font-size: 0.7rem;
+            }
+            
+            h1 { font-size: 1.5rem; }
+            h2 { font-size: 1.25rem; }
+            h3 { font-size: 1.1rem; }
+            h4 { font-size: 0.95rem; }
+            
+            small { font-size: 0.75rem; }
+            
+            /* ===== DASHBOARD GRID ===== */
+            .kpi-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+                margin-bottom: 1rem;
+            }
+            
+            .kpi-card {
+                padding: 1.25rem 0.75rem;
+            }
+            
+            .dashboard-grid {
+                gap: 1.25rem;
+            }
+            
+            .dashboard-item {
+                width: 100%;
+            }
+            
+            /* ===== QUICK ACTIONS ===== */
+            .quick-actions {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .quick-actions button {
+                width: 100%;
+                padding: 14px;
+                font-size: 0.9rem;
+                border-radius: 12px;
+                min-height: 48px;
+                touch-action: manipulation;
+            }
+            
+            /* ===== AUDIT GRID ===== */
+            .audit-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .audit-card {
+                padding: 1rem;
+            }
+            
+            /* ===== CHARTS ===== */
+            .charts-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
             .chart-deep-row {
                 grid-template-columns: 1fr;
             }
+            
             .chart-deep-row > div {
                 border-right: none !important;
                 border-bottom: 1px solid var(--border);
-                padding-bottom: 1.5rem;
+                padding-bottom: 1.5rem !important;
                 padding-right: 0 !important;
-                padding-left: 0 !important;
             }
+            
+            .donut-container {
+                display: flex;
+                justify-content: center;
+                padding: 1rem 0;
+            }
+            
+            .donut-legend {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+                font-size: 0.8rem;
+            }
+            
+            /* ===== HEATMAP ===== */
             .heatmap-grid {
-                grid-template-columns: repeat(8, 1fr); /* Auf 8 Spalten reduzieren */
-                gap: 8px;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
             }
-            .heatmap-grid > span:nth-child(n+9) {
-                 display: none; /* Nur 8 Labels anzeigen */
+            
+            .heatmap-grid > span:nth-child(n+5) {
+                display: none;
             }
+            
+            /* ===== INPUT WRAPPER (FORM) ===== */
             .input-wrapper {
-                 grid-template-columns: 1fr;
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .glass-input,
+            .glass-select {
+                width: 100%;
+                padding: 14px 12px;
+                font-size: 16px;
+                border-radius: 10px;
+                min-height: 48px;
+            }
+            
+            .input-wrapper input[type="date"],
+            .input-wrapper input[type="time"],
+            .input-wrapper input[type="number"],
+            .input-wrapper input[type="text"],
+            .input-wrapper select {
+                font-size: 16px !important;
+            }
+            
+            .timer-box {
+                grid-column: 1;
+            }
+            
+            /* ===== MODALS ===== */
+            .modal {
+                padding: 1rem;
+            }
+            
+            .modal-box {
+                width: 100vw !important;
+                max-width: calc(100vw - 2rem) !important;
+                height: auto;
+                max-height: 90vh !important;
+                border-radius: 16px 16px 0 0;
+            }
+            
+            .modal-box {
+                animation: slideUp 0.3s ease !important;
+            }
+            
+            @keyframes slideUp {
+                from { transform: translateY(100%); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            
+            /* ===== SETTINGS TABS ===== */
+            .settings-tab {
+                padding: 10px 12px !important;
+                font-size: 0.8rem;
+                white-space: nowrap;
+                border-bottom: 2px solid transparent;
+            }
+            
+            .settings-tab.active {
+                border-bottom-color: var(--primary) !important;
+            }
+            
+            .settings-tab-content {
+                padding: 1rem !important;
+            }
+            
+            /* ===== BUTTONS ===== */
+            .btn {
+                padding: 12px 16px;
+                min-height: 44px;
+                font-size: 0.9rem;
+                border-radius: 10px;
+                touch-action: manipulation;
+            }
+            
+            .btn-icon-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            /* ===== CARDS ===== */
+            .card {
+                padding: 1rem;
+                border-radius: 12px;
+            }
+            
+            /* ===== LIST ===== */
+            .entry-item {
+                padding: 1rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            /* ===== HISTORY/TABLES ===== */
+            .list-item {
+                padding: 1rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            /* ===== ANIMATIONS ===== */
+            @keyframes slideInRight {
+                from { opacity: 0; transform: translateX(100%); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            
+            /* ===== SIDEBAR BRAND ===== */
+            .brand {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+            
+            .sidebar-nav {
+                gap: 0.5rem;
+            }
+            
+            .sidebar-nav button {
+                padding: 12px;
+                font-size: 0.85rem;
+                justify-content: flex-start;
+                gap: 10px;
+            }
+            
+            /* ===== DATE BADGE ===== */
+            .date-badge {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                border-radius: 20px;
+            }
+            
+            /* ===== SCROLLABLE CONTAINERS ===== */
+            .sidebar::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .modal-box::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            /* ===== PREVENT ZOOM ON INPUT ===== */
+            input[type="text"],
+            input[type="date"],
+            input[type="time"],
+            input[type="number"],
+            select,
+            textarea {
+                font-size: 16px !important;
+            }
+            
+            /* ===== FOOTER & SPACING ===== */
+            .onboarding-footer {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            
+            /* ===== COLOR DOTS ===== */
+            .color-dot {
+                min-width: 40px;
+                min-height: 40px;
             }
         }
+        
+        /* ===== LANDSCAPE MOBILE (< 768px & landscape) ===== */
+        @media (max-height: 600px) and (min-width: 600px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main {
+                margin-left: 0;
+            }
+            
+            .page-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .modal-box {
+                max-height: 95vh;
+            }
+        }
+        
+        /* ===== SMALL PHONES (< 360px) ===== */
+        @media (max-width: 359px) {
+            .sidebar {
+                max-width: 240px;
+            }
+            
+            .page-title {
+                font-size: 1.1rem;
+            }
+            
+            .kpi-grid {
+                gap: 0.5rem;
+            }
+            
+            .quick-actions button {
+                padding: 12px;
+                font-size: 0.8rem;
+            }
+            
+            .btn {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+        }
+        
         /* Mobile Overlay für Sidebar */
         .sidebar-overlay {
             display: none;
@@ -9962,6 +10318,21 @@ TIPPS:
     }
 
 </script>
+<!-- Ensure touch-mobile-optimizations is loaded as a fallback -->
+<script>
+    (function(){
+        try {
+            if (!window.initializeTouchOptimizations) {
+                var s = document.createElement('script');
+                s.src = 'touch-mobile-optimizations.js';
+                s.defer = true;
+                s.onload = function(){ if (window.initializeTouchOptimizations) window.initializeTouchOptimizations(); };
+                document.head.appendChild(s);
+            } else {
+                // already available
+                window.initializeTouchOptimizations && window.initializeTouchOptimizations();
+            }
+        } catch(e) { console.warn('Touch init failed', e); }
+    })();
+</script>
 </body>
-
-</html>
