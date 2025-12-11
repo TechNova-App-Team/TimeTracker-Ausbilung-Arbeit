@@ -366,6 +366,24 @@
                 font-size: 1.05rem;
             }
         }
+        /* External link style: small "open in new tab" icon */
+        .external-link {
+            color: inherit;
+            text-decoration: underline dotted rgba(255,255,255,0.08);
+            text-underline-offset: 3px;
+            transition: color 0.18s ease, opacity 0.18s ease;
+        }
+        .external-link::after {
+            content: "↗";
+            font-size: 0.73em;
+            margin-left: 6px;
+            vertical-align: text-bottom;
+            opacity: 0.9;
+            display: inline-block;
+            transform: translateY(-1px);
+            pointer-events: none;
+        }
+        .external-link:hover { color: var(--primary); opacity: 0.95; }
     </style>
 </head>
 <body>
@@ -663,5 +681,8 @@
             }
         });
     </script>
+    <div class="site-footer" style="text-align:center; padding:1rem 0; color:var(--text-muted); font-size:0.95rem;">
+        <a href="DSGVO.html" class="external-link" target="_blank" rel="noopener noreferrer" aria-label="DSGVO — Informationen zur Datenerfassung (öffnet in neuem Tab)" title="Öffnet in neuem Tab">DSGVO — Datenschutzinformationen</a>
+    </div>
 </body>
 </html>

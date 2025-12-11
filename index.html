@@ -99,6 +99,25 @@
             scrollbar-width: thin;
         }
 
+        /* External link style: small "open in new tab" icon */
+        .external-link {
+            color: inherit;
+            text-decoration: underline dotted rgba(255,255,255,0.08);
+            text-underline-offset: 3px;
+            transition: color 0.18s ease, opacity 0.18s ease;
+        }
+        .external-link::after {
+            content: "↗";
+            font-size: 0.73em;
+            margin-left: 6px;
+            vertical-align: text-bottom;
+            opacity: 0.9;
+            display: inline-block;
+            transform: translateY(-1px);
+            pointer-events: none;
+        }
+        .external-link:hover { color: var(--primary); opacity: 0.95; }
+
         /* --- SIDEBAR --- */
         .sidebar {
             width: var(--sidebar-width);
@@ -1731,7 +1750,7 @@
         <a href="Impressum.html" class="nav-item" style="text-decoration:none; cursor:pointer;">
             <span>ℹ️</span> Impressum
         </a>
-        <a href="DSGVO.html" class="nav-item" style="text-decoration:none; cursor:pointer;">
+        <a href="DSGVO.html" class="nav-item external-link" style="text-decoration:none; cursor:pointer;" target="_blank" rel="noopener noreferrer" aria-label="DSGVO — Informationen zur Datenerfassung (öffnet in neuem Tab)" title="Öffnet in neuem Tab">
             <span>ℹ️</span> DSGVO
         </a>
     </nav>
@@ -2799,7 +2818,7 @@
                 <ul style="color:var(--text-muted); font-size:0.9rem; list-style:none; padding:0; margin:0; line-height:1.8;">
                     <li>🔒 <strong>Keine externen Server:</strong> Alle Daten werden nur in deinem Browser gespeichert (LocalStorage)</li>
                     <li>🚫 <strong>Keine Cookies:</strong> Wir setzen keine Tracking- oder Werbe-Cookies</li>
-                    <li>👤 <strong>"Keine" Datensammlung:</strong> Wir tracken dich nicht und sammeln keine persönlichen Daten — es werden nur Seitenaufrufe erfasst.<a href="DSGVO.html">DSGVO</a>.</li>
+                    <li>👤 <strong>"Keine" Datensammlung:</strong> Wir tracken dich nicht und sammeln keine persönlichen Daten — es werden nur Seitenaufrufe erfasst. Mehr dazu: <a href="DSGVO.html" class="external-link" target="_blank" rel="noopener noreferrer" aria-label="DSGVO — Informationen zur Datenerfassung (öffnet in neuem Tab)" title="Öffnet in neuem Tab">DSGVO</a>.</li>
                     <li>📊 <strong>Keine Analytics:</strong> Keine Auswertungen, Analysen oder Drittanbieter</li>
                     <li>🔄 <strong>Nur du:</strong> Du bestimmst was mit deinen Daten passiert - nur du hast Zugriff</li>
                 </ul>
