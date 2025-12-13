@@ -46,3 +46,11 @@ junit.xml
 # Lock files (optional - uncomment if you want to exclude them)
 # package-lock.json
 # yarn.lock
+
+# Test files and directories
+tests/
+TESTING.md
+*.test.js
+jest.config.js
+
+
