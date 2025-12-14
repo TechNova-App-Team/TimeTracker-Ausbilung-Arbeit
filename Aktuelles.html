@@ -865,19 +865,34 @@
             if (lastCheckMinutes > 5) lastCheckMinutes = 0; // Reset for demo
         }, 60000);
 
-        // Load updates from localStorage
-        function loadUpdates() {
+        // Load updates: prefer DB/updates.json (repo), fall back to localStorage
+        async function fetchUpdatesFromDB() {
+            try{
+                const res = await fetch('DB/updates.json', {cache: 'no-store'});
+                if(!res.ok) throw new Error('no db');
+                const data = await res.json();
+                return data.sort((a,b)=> new Date(b.date)-new Date(a.date));
+            }catch(e){ return null; }
+        }
+
+        function loadUpdatesLocal() {
             const updates = JSON.parse(localStorage.getItem('timetracker_updates') || '[]');
             return updates.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
+        async function loadUpdates() {
+            const db = await fetchUpdatesFromDB();
+            if(db) return db;
+            return loadUpdatesLocal();
+        }
+
         // Render timeline
-        function renderTimeline() {
-            const updates = loadUpdates();
+        async function renderTimeline() {
+            const updates = await loadUpdates();
             const timeline = document.getElementById('updatesTimeline');
             timeline.innerHTML = '';
 
-            if (updates.length === 0) {
+            if (!updates || updates.length === 0) {
                 timeline.innerHTML = '<p style="color: var(--text-muted);">Noch keine Updates vorhanden.</p>';
                 return;
             }
@@ -907,20 +922,35 @@
             });
         }
 
-        // Load maintenance from localStorage
-        function loadMaintenance() {
+        // Load maintenance: prefer DB/maintenance.json (repo), fall back to localStorage
+        async function fetchMaintenanceFromDB(){
+            try{
+                const res = await fetch('DB/maintenance.json', {cache: 'no-store'});
+                if(!res.ok) throw new Error('no db');
+                const data = await res.json();
+                return data.sort((a,b)=> new Date(a.date + ' ' + a.startTime) - new Date(b.date + ' ' + b.startTime));
+            }catch(e){ return null; }
+        }
+
+        function loadMaintenanceLocal(){
             const maintenance = JSON.parse(localStorage.getItem('timetracker_maintenance') || '[]');
             return maintenance.sort((a, b) => new Date(a.date + ' ' + a.startTime) - new Date(b.date + ' ' + b.startTime));
         }
 
+        async function loadMaintenance(){
+            const db = await fetchMaintenanceFromDB();
+            if(db) return db;
+            return loadMaintenanceLocal();
+        }
+
         // Render maintenance
-        function renderMaintenance() {
-            const maintenance = loadMaintenance();
+        async function renderMaintenance() {
+            const maintenance = await loadMaintenance();
             const container = document.getElementById('maintenanceContainer');
             const noMessage = document.getElementById('noMaintenanceMessage');
             container.innerHTML = '';
 
-            if (maintenance.length === 0) {
+            if (!maintenance || maintenance.length === 0) {
                 noMessage.style.display = 'block';
                 return;
             }
@@ -951,8 +981,8 @@
             });
         }
 
-        // Initialize maintenance on page load
-        renderMaintenance();
+        // Initialize maintenance and timeline on page load
+        (async ()=>{ await renderTimeline(); await renderMaintenance(); })();
     </script>
 </body>
 </html>

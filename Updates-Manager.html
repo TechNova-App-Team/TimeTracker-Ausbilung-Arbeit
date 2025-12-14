@@ -317,15 +317,22 @@
 
     <div class="container" style="max-width:1400px; margin: 0 auto 1rem;">
         <div class="card">
-            <div class="card-header"><div class="card-title"><span>🔗</span><span>GitHub PR erstellen</span></div></div>
+            <div class="card-header"><div class="card-title"><span>🔗</span><span>GitHub PR / Commit</span></div></div>
             <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap">
                 <input id="ghRepo" class="form-input" placeholder="owner/repo" style="max-width:260px">
-                <input id="ghBranch" class="form-input" placeholder="branch (optional)" style="max-width:160px">
+                <input id="ghBranch" class="form-input" placeholder="branch (optional; PR/commit branch)" style="max-width:160px">
                 <input id="ghFilename" class="form-input" placeholder="Datei (z. B. DB/updates.json)" style="max-width:260px" value="DB/updates.json">
                 <button id="proposePrBtn" class="btn btn-primary">Propose PR (GitHub)</button>
                 <button id="showPushBtn" class="btn btn-secondary">Show Push Commands</button>
-                <small style="color:var(--text-muted); margin-left:8px">Erstellt eine vorbefüllte Datei/Commit im GitHub-Webeditor; nur Besitzer können final committen.</small>
+                <small style="color:var(--text-muted); margin-left:8px; flex-basis:100%">Erstellt eine vorbefüllte Datei/Commit im GitHub-Webeditor; nur Besitzer können final committen. Oder verwende unten dein GitHub Token, um direkt zu committen.</small>
                 <div id="proposePrResult" style="margin-top:8px; color:var(--text-muted); font-size:0.9rem"></div>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center; margin-top:0.75rem; flex-wrap:wrap">
+                <input id="ghToken" class="form-input" placeholder="GitHub Token (repo scope)" style="max-width:360px" type="password">
+                <button id="saveTokenBtn" class="btn btn-secondary">Use Token for Session</button>
+                <button id="commitUpdatesBtn" class="btn btn-primary">Commit Updates (DB/updates.json)</button>
+                <button id="commitMaintenanceBtn" class="btn btn-primary">Commit Maintenance (DB/maintenance.json)</button>
+                <div id="commitResult" style="margin-top:8px; color:var(--text-muted); font-size:0.9rem; width:100%"></div>
             </div>
         </div>
     </div>
