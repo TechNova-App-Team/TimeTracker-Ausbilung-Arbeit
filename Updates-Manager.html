@@ -302,6 +302,51 @@
         </div>
     </div>
 
+    <div class="container" style="max-width:1400px; margin: 0 auto 1rem;">
+        <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+            <div style="font-weight:600">Bearbeitungsmodus</div>
+            <div style="display:flex; gap:0.5rem; align-items:center">
+                <button id="setPassBtn" class="btn btn-secondary">Admin einrichten (Konsole)</button>
+                <button id="unlockBtn" class="btn btn-primary">Entsperren</button>
+                <button id="logoutBtn" class="btn btn-secondary" style="display:none">Abmelden</button>
+                <button id="exportBtn" class="btn btn-secondary">Export JSON</button>
+                <button id="importBtn" class="btn btn-secondary">Import Token</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="max-width:1400px; margin: 0 auto 1rem;">
+        <div class="card">
+            <div class="card-header"><div class="card-title"><span>🔗</span><span>GitHub PR erstellen</span></div></div>
+            <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap">
+                <input id="ghRepo" class="form-input" placeholder="owner/repo" style="max-width:260px">
+                <input id="ghBranch" class="form-input" placeholder="branch (optional)" style="max-width:160px">
+                <input id="ghFilename" class="form-input" placeholder="Datei (z. B. DB/updates.json)" style="max-width:260px" value="DB/updates.json">
+                <button id="proposePrBtn" class="btn btn-primary">Propose PR (GitHub)</button>
+                <small style="color:var(--text-muted); margin-left:8px">Erstellt eine vorbefüllte Datei/Commit im GitHub-Webeditor; nur Besitzer können final committen.</small>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="max-width:1400px; margin: 0 auto 1rem;">
+        <div class="card">
+            <div class="card-header"><div class="card-title"><span>🔐</span><span>Admin / Binding Status</span></div></div>
+            <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap">
+                <div id="adminStatus" style="font-weight:600">Admin: nicht gesetzt</div>
+                <div id="bindingStatus" style="font-weight:600">Binding: nicht vorhanden</div>
+                <button id="bindDeviceBtn" class="btn btn-secondary">Bind this device (generate JSON)</button>
+                <small style="color:var(--text-muted)">Führe das JSON auf deinem privaten Gerät in die Datei <em>DB/admin_binding.json</em> ein und committe. Danach ist nur dieses Gerät berechtigt.</small>
+            </div>
+            <div style="margin-top:1rem; color:var(--text-muted)">
+                <strong>Kurzanleitung:</strong> Auf deinem privaten Gerät öffne die Entwicklertools → Konsole, klicke <em>Admin einrichten (Konsole)</em> und führe den angezeigten Snippet aus. Kopiere die ausgegebenen JSONs in dein Repo:
+                <ul style="margin-top:0.5rem; margin-bottom:0.25rem">
+                    <li><em>DB/admin_token.json</em> — enthält Salt+Hash des Tokens.</li>
+                    <li><em>DB/admin_binding.json</em> — optional; bindet das Token an dieses Gerät (empfohlen).</li>
+                </ul>
+                Danach lade diese Seite neu, klicke <em>Entsperren</em> und gib das Token (aus der Konsole erzeugt) ein. Wenn Binding existiert, funktioniert nur das gebundene Gerät.
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="card">
             <div class="card-header">
@@ -427,6 +472,7 @@
 
         // Delete update
         function deleteUpdate(id) {
+            if (!sessionStorage.getItem('updates_admin_session')) { alert('Nur Admin kann Updates löschen.'); return; }
             if (confirm('Update wirklich löschen?')) {
                 const updates = loadUpdates().filter(update => update.id !== id);
                 saveUpdates(updates);
@@ -436,6 +482,7 @@
 
         // Delete maintenance
         function deleteMaintenance(id) {
+            if (!sessionStorage.getItem('updates_admin_session')) { alert('Nur Admin kann Wartungen löschen.'); return; }
             if (confirm('Wartung wirklich löschen?')) {
                 const maintenance = loadMaintenance().filter(item => item.id !== id);
                 saveMaintenance(maintenance);
@@ -518,6 +565,8 @@
         document.getElementById('maintenanceForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
+            if (!sessionStorage.getItem('updates_admin_session')) { alert('Nur Admin kann Wartungen hinzufügen.'); return; }
+
             const date = document.getElementById('maintenanceDate').value;
             const title = document.getElementById('maintenanceTitle').value;
             const startTime = document.getElementById('maintenanceStart').value;
@@ -547,6 +596,265 @@
             alert('Wartung erfolgreich hinzugefügt! Sie erscheint jetzt in Aktuelles.html');
         });
 
+        // Handle update form submission
+        document.getElementById('updateForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!sessionStorage.getItem('updates_admin_session')) { alert('Nur Admin kann Updates erstellen.'); return; }
+
+            const date = document.getElementById('updateDate').value;
+            const title = document.getElementById('updateTitle').value;
+            const content = document.getElementById('updateContent').value;
+            const tags = Array.from(this.querySelectorAll('input[type="checkbox"]:checked')).map(i => i.value);
+
+            if (!date || !title || !content) { alert('Bitte fülle alle Felder aus.'); return; }
+
+            const updates = loadUpdates();
+            updates.push({ id: Date.now(), date, title, content, tags });
+            saveUpdates(updates);
+            renderTimeline();
+            this.reset();
+            alert('Update erfolgreich angelegt!');
+        });
+
+        // --- Admin helpers (CLIENT-ONLY; protects only against casual access)
+        // Loads token and binding JSON from DB/*. If you want device-only unlock, create both files in your repo:
+        // DB/admin_token.json -> { "salt": "...", "hash": "..." }
+        // DB/admin_binding.json -> { "salt": "...", "binding": "..." }
+        // Generate those JSONs using the console snippet (button "Admin einrichten (Konsole)").
+
+        let storedToken = null; // { salt, hash }
+        let storedBinding = null; // { salt, binding }
+
+        function buf2hex(buffer) {
+            return Array.prototype.map.call(new Uint8Array(buffer), x=>('00'+x.toString(16)).slice(-2)).join('');
+        }
+
+        function b64ToUint8(b64){
+            return Uint8Array.from(atob(b64), c=>c.charCodeAt(0));
+        }
+
+        async function sha256Hex(str){
+            const enc = new TextEncoder();
+            const res = await crypto.subtle.digest('SHA-256', enc.encode(str));
+            return buf2hex(res);
+        }
+
+        async function canvasFingerprint(){
+            try{
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 200; canvas.height = 50;
+                ctx.fillStyle = '#f60'; ctx.fillRect(0,0,200,50);
+                ctx.fillStyle = '#069'; ctx.font = '20px Arial'; ctx.fillText('TimeTracker', 10, 30);
+                const data = canvas.toDataURL();
+                return await sha256Hex(data);
+            }catch(e){ return ''; }
+        }
+
+        async function getFingerprint(){
+            const info = {
+                ua: navigator.userAgent || '',
+                platform: navigator.platform || '',
+                lang: navigator.language || '',
+                hw: navigator.hardwareConcurrency || '',
+                screen: {w: screen.width, h: screen.height, d: screen.colorDepth},
+                tz: Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+            };
+            const cp = await canvasFingerprint();
+            return await sha256Hex(JSON.stringify(info) + '|' + cp);
+        }
+
+        function uint8ToB64(u8){
+            return btoa(String.fromCharCode.apply(null, Array.from(u8)));
+        }
+
+        async function deriveHash(password, saltB64){
+            const enc = new TextEncoder();
+            const salt = b64ToUint8(saltB64);
+            const key = await crypto.subtle.importKey('raw', enc.encode(password), {name: 'PBKDF2'}, false, ['deriveBits']);
+            const derived = await crypto.subtle.deriveBits({name:'PBKDF2', salt: salt, iterations: 100000, hash:'SHA-256'}, key, 256);
+            return buf2hex(derived);
+        }
+
+        // HMAC over fingerprint with token as key: used for device binding
+        async function computeBindingHmac(token, bindingSaltB64){
+            const enc = new TextEncoder();
+            const keyMat = await crypto.subtle.importKey('raw', enc.encode(token), {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
+            const fp = await getFingerprint();
+            const data = enc.encode(bindingSaltB64 + '|' + fp);
+            const sig = await crypto.subtle.sign('HMAC', keyMat, data);
+            return buf2hex(sig);
+        }
+
+        function isAdminSession() {
+            return sessionStorage.getItem('updates_admin_session') === '1';
+        }
+
+        function setAdminSession(val){
+            if(val) sessionStorage.setItem('updates_admin_session','1'); else sessionStorage.removeItem('updates_admin_session');
+            updateAdminUi();
+        }
+
+        function updateAdminUi(){
+            const locked = !isAdminSession();
+            document.querySelectorAll('form').forEach(form=>{
+                form.querySelectorAll('input, textarea, button[type="submit"]').forEach(el=> el.disabled = locked);
+            });
+            document.getElementById('unlockBtn').style.display = locked ? 'inline-block' : 'none';
+            document.getElementById('logoutBtn').style.display = locked ? 'none' : 'inline-block';
+        }
+
+        async function setPasswordFlow(){
+            // For security on a public static site we don't allow interactive password creation here.
+            // Instead: run the following snippet in the browser console on a trusted device to generate a token JSON,
+            // then use "Import Token" here to import it into the hosted page's localStorage.
+            const snippet = `(() => {
+  const pw = prompt('Admin PW (geheim):');
+  if(!pw) return;
+  (async ()=>{
+    function buf2hex(buffer){return Array.from(new Uint8Array(buffer)).map(x=>('00'+x.toString(16)).slice(-2)).join('');}
+    function uint8ToB64(u8){ return btoa(String.fromCharCode.apply(null, Array.from(u8))); }
+    function encstr(s){ return new TextEncoder().encode(s); }
+    function b64ToUint8(b64){ return Uint8Array.from(atob(b64), c=>c.charCodeAt(0)); }
+
+    // token
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const saltB64 = uint8ToB64(salt);
+    const key = await crypto.subtle.importKey('raw', encstr(pw), {name:'PBKDF2'}, false, ['deriveBits']);
+    const derived = await crypto.subtle.deriveBits({name:'PBKDF2', salt, iterations:100000, hash:'SHA-256'}, key, 256);
+    const hash = buf2hex(derived);
+    const tokenJson = { salt: saltB64, hash };
+
+    // binding (optional)
+    const doBind = confirm('Binding erzeugen für dieses Gerät? (empfohlen)');
+    let bindingJson = null;
+    if(doBind){
+      // generate fingerprint
+      const info = { ua:navigator.userAgent, platform:navigator.platform, lang:navigator.language, hw:navigator.hardwareConcurrency, screen:{w:screen.width,h:screen.height,d:screen.colorDepth}, tz:Intl.DateTimeFormat().resolvedOptions().timeZone };
+      const cv = document.createElement('canvas'); const ctx = cv.getContext('2d'); cv.width=200; cv.height=50; ctx.fillStyle='#f60'; ctx.fillRect(0,0,200,50); ctx.fillStyle='#069'; ctx.font='20px Arial'; ctx.fillText('TimeTracker',10,30); const data = cv.toDataURL();
+      const fpBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(info)+'|'+data));
+      const fpHex = Array.from(new Uint8Array(fpBuf)).map(x=>('00'+x.toString(16)).slice(-2)).join('');
+
+      const bindingSalt = crypto.getRandomValues(new Uint8Array(16));
+      const bindingSaltB64 = uint8ToB64(bindingSalt);
+      // HMAC
+      const keyMat = await crypto.subtle.importKey('raw', encstr(pw), {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
+      const dataStr = bindingSaltB64 + '|' + fpHex;
+      const sig = await crypto.subtle.sign('HMAC', keyMat, encstr(dataStr));
+      const bindingHex = Array.from(new Uint8Array(sig)).map(x=>('00'+x.toString(16)).slice(-2)).join('');
+      bindingJson = { salt: bindingSaltB64, binding: bindingHex };
+    }
+
+    console.log('TOKEN JSON (commit to DB/admin_token.json):');
+    console.log(JSON.stringify(tokenJson, null, 2));
+    if(bindingJson){ console.log('BINDING JSON (commit to DB/admin_binding.json):'); console.log(JSON.stringify(bindingJson, null, 2)); }
+    alert('Token and optional binding JSON printed to console. Commit them to your repo in DB/*.');
+  })();
+})();`;
+            alert('Zum Erstellen des Admin-Tokens: öffne die Entwicklertools (Konsole) auf deinem privaten Gerät und füge dort einen kurzen Generator-Snippet ein. Der Snippet wird das Token (+ optional Binding) in der Konsole ausgeben (JSON).\n\nSnippet wird jetzt in der Konsole angezeigt, kopiere/führe ihn dort aus.');
+            console.log('=== Admin token & binding generator snippet (paste and run in console) ===');
+            console.log(snippet);
+        }
+
+        async function unlockFlow(){
+            // First, ensure stored token JSON is loaded
+            await loadAdminFiles();
+            if(!storedToken){ alert('Kein Admin-Token auf der Seite vorhanden. Bitte lege DB/admin_token.json an.'); return; }
+            const p = prompt('Admin-Token: (sehr lang, aus sicherer Quelle)');
+            if(!p) return;
+            const h = await deriveHash(p, storedToken.salt);
+            if(h !== storedToken.hash){ alert('Falsches Token.'); return; }
+
+            // If binding exists, verify device binding
+            if(storedBinding){
+                const b = await computeBindingHmac(p, storedBinding.salt);
+                if(b !== storedBinding.binding){ alert('Binding mismatch: Dieses Gerät ist nicht berechtigt.'); return; }
+            }
+
+            setAdminSession(true);
+            alert('Entsperrt! (Admin-Session aktiv)');
+            updateAdminUi();
+        }
+
+        function logoutFlow(){
+            setAdminSession(false);
+            alert('Abgemeldet.');
+        }
+
+        function exportToken(){
+            const s = localStorage.getItem('updates_admin_salt');
+            const h = localStorage.getItem('updates_admin_hash');
+            if(!s||!h){ alert('Kein Token vorhanden.'); return; }
+            const blob = new Blob([JSON.stringify({salt:s,hash:h})], {type:'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'updates-admin-token.json'; a.click(); URL.revokeObjectURL(url);
+        }
+
+        // Bind this device: prompt for token again and generate a binding JSON you must commit
+        async function bindThisDevice(){
+            if(!confirm('Bind this device: du musst das erzeugte JSON in DB/admin_binding.json committen. Fortfahren?')) return;
+            const p = prompt('Admin-Token (zum Erzeugen der Binding JSON):');
+            if(!p) return;
+            // verify token matches stored token (if present)
+            if(storedToken){ const h = await deriveHash(p, storedToken.salt); if(h !== storedToken.hash){ alert('Falsches Token. Abbruch.'); return; } }
+            const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+            const saltB64 = uint8ToB64(saltBytes);
+            const binding = await computeBindingHmac(p, saltB64);
+            const out = { salt: saltB64, binding };
+            console.log('==== Binding JSON (copy this and commit to DB/admin_binding.json) ===');
+            console.log(JSON.stringify(out, null, 2));
+            alert('Binding JSON wurde in der Konsole ausgegeben. Committe die Datei DB/admin_binding.json in dein Repo.');
+        }
+
+        async function importToken(){
+            const txt = prompt('Füge hier den JSON-Inhalt des Tokens ein (oder cancel):');
+            if(!txt) return;
+            try{
+                const obj = JSON.parse(txt);
+                if(obj.salt && obj.hash){
+                    localStorage.setItem('updates_admin_salt', obj.salt);
+                    localStorage.setItem('updates_admin_hash', obj.hash);
+                    alert('Token importiert. Bitte nun auf "Entsperren" klicken und Token benutzen.');
+                } else alert('Ungültiges Format.');
+            }catch(e){ alert('Ungültiges JSON.'); }
+        }
+
+        // Load admin token & binding from repo if present (public JSON files under DB/)
+        async function loadAdminFiles(){
+            try{
+                const r = await fetch('DB/admin_token.json', {cache: 'no-store'});
+                if(r.ok){ storedToken = await r.json(); document.getElementById('adminStatus').textContent = 'Admin: gesetzt'; }
+                else { storedToken = null; document.getElementById('adminStatus').textContent = 'Admin: nicht gesetzt'; }
+            }catch(e){ storedToken = null; document.getElementById('adminStatus').textContent = 'Admin: nicht gesetzt'; }
+
+            try{
+                const r2 = await fetch('DB/admin_binding.json', {cache: 'no-store'});
+                if(r2.ok){ storedBinding = await r2.json(); document.getElementById('bindingStatus').textContent = 'Binding: vorhanden'; }
+                else { storedBinding = null; document.getElementById('bindingStatus').textContent = 'Binding: nicht vorhanden'; }
+            }catch(e){ storedBinding = null; document.getElementById('bindingStatus').textContent = 'Binding: nicht vorhanden'; }
+        }
+*** End Patch
+
+        // Export current updates JSON (for manual PR creation)
+        function exportUpdatesJSON(){
+            const data = loadUpdates();
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'updates.json'; a.click(); URL.revokeObjectURL(url);
+        }
+
+        // Open GitHub new-file editor with prefilled content (works for public GitHub web UI)
+        function proposePr(){
+            const repo = document.getElementById('ghRepo').value.trim();
+            if(!repo){ alert('Bitte owner/repo angeben.'); return; }
+            const branch = document.getElementById('ghBranch').value.trim() || 'main';
+            const filename = document.getElementById('ghFilename').value.trim() || 'DB/updates.json';
+            const content = JSON.stringify(loadUpdates(), null, 2);
+            const url = `https://github.com/${encodeURIComponent(repo)}/new/${encodeURIComponent(branch)}?filename=${encodeURIComponent(filename)}&value=${encodeURIComponent(content)}&message=${encodeURIComponent('Update: updates.json via Updates-Manager')}`;
+            window.open(url, '_blank');
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             // Set default date to today
@@ -556,6 +864,19 @@
 
             renderTimeline();
             renderMaintenance();
+
+            // wire admin UI
+            document.getElementById('setPassBtn').addEventListener('click', setPasswordFlow);
+            document.getElementById('unlockBtn').addEventListener('click', unlockFlow);
+            document.getElementById('logoutBtn').addEventListener('click', logoutFlow);
+            document.getElementById('exportBtn').addEventListener('click', exportUpdatesJSON);
+            document.getElementById('importBtn').addEventListener('click', importToken);
+            document.getElementById('proposePrBtn').addEventListener('click', proposePr);
+            document.getElementById('bindDeviceBtn').addEventListener('click', bindThisDevice);
+
+            updateAdminUi();
+            // initial load of token/binding files
+            loadAdminFiles();
         });
     </script>
 </body>
