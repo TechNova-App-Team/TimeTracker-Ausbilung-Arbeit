@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TimeTracker V2.2.3</title>
+<title>TimeTracker V2.2.4</title>
 <meta name="description" content="TimeTracker: Eine moderne, lokal laufende Single-File Zeiterfassungs-App. Kein Server, kein Cloud, nur deine Daten. Perfekt für Auszubildende und Mitarbeiter.">
 <meta name="theme-color" content="#a855f7">
 <meta name="author" content="TechNova App Team">
 <!-- OpenGraph Meta Tags (für Social Sharing) -->
-<meta property="og:title" content="TimeTracker V2.2.1 – Moderne Zeiterfassung">
+<meta property="og:title" content="TimeTracker V2.2.4 – Moderne Zeiterfassung">
 <meta property="og:description" content="Eine einfache, aber mächtige Browser-Anwendung zur lokalen Zeiterfassung. 100% Datenschutz, lokal gespeichert, keine Server.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://github.com/YourUsername/TimeTracker-Ausbildung-Arbeit">
@@ -16,7 +16,7 @@
 <meta property="og:locale" content="de_DE">
 <!-- Twitter Card Meta Tags -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="TimeTracker V2.2.1 – Moderne Zeiterfassung">
+<meta name="twitter:title" content="TimeTracker V2.2.4 – Moderne Zeiterfassung">
 <meta name="twitter:description" content="Lokal laufende Zeiterfassungs-App ohne Server. 100% Datenschutz, Backup/Export, Gleitzeit-Konto.">
 <meta name="twitter:image" content="https://img.shields.io/badge/TimeTracker-Modern%20&%20Local-purple?style=for-the-badge&logo=javascript">
 <meta name="twitter:creator" content="@YourTwitterHandle">
@@ -565,6 +565,31 @@
         .btn-ghost { background: rgba(255,255,255,0.05); color: #fff; flex: 1; padding: 10px; }
         .btn-ghost:hover { background: rgba(255,255,255,0.1); }
         .btn.active { background: var(--primary); color: #fff; }
+
+        /* Moderne Icon-Buttons für Bearbeiten und Löschen */
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+        .btn-icon:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .btn-icon.danger:hover {
+            background: var(--danger);
+            color: #fff;
+        }
 
         /* Very small slim help button that uses the theme color */
         .help-slim {
@@ -5831,9 +5856,9 @@
                     <div style="font-weight:700; width:60px; text-align:right; color:${e.diff>=0?'var(--success)':'var(--danger)'}">
                         ${e.diff>=0?'+':''}${e.diff.toFixed(2)}
                     </div>
-                    <div>
-                        <button class="btn-ghost" style="padding:5px;" onclick="editEntry(${e.id})">✎</button>
-                        <button class="btn-ghost" style="padding:5px; color:var(--danger)" onclick="delEntry(${e.id})">×</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-icon" onclick="editEntry(${e.id})" title="Bearbeiten">✏️</button>
+                        <button class="btn-icon danger" onclick="delEntry(${e.id})" title="Löschen">🗑️</button>
                     </div>
                 </div>
             </div>
@@ -6840,9 +6865,9 @@ TIPPS:
                     <div style="font-weight:700; width:60px; text-align:right; color:${e.diff>=0?'var(--success)':'var(--danger)'}">
                         ${e.diff>=0?'+':''}${e.diff.toFixed(2)}
                     </div>
-                    <div>
-                        <button class="btn-ghost" style="padding:5px;" onclick="editEntry(${e.id})">✎</button>
-                        <button class="btn-ghost" style="padding:5px; color:var(--danger)" onclick="delEntry(${e.id})">×</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-icon" onclick="editEntry(${e.id})" title="Bearbeiten">✏️</button>
+                        <button class="btn-icon danger" onclick="delEntry(${e.id})" title="Löschen">🗑️</button>
                     </div>
                 </div>
             </div>
