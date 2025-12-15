@@ -196,4 +196,4 @@ Vielen Dank — wenn du noch mehr grafische Elemente (Screenshots, GIFs, echte S
 
 ---
 
-                                   **TimeTracker-Ausbildung-Arbeit V2.1.3** | Gebaut mit modernstem Web-Standard | 🚀 Production Ready
+**TimeTracker-Ausbildung-Arbeit V2.1.3** | Gebaut mit modernstem Web-Standard | 🚀 Production Ready
