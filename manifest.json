@@ -2,8 +2,8 @@
   "name": "TimeTracker - Moderne Zeiterfassung",
   "short_name": "TimeTracker",
   "description": "My Work Log",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/MyWorkLog/",
+  "scope": "/MyWorkLog/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#a855f7",
@@ -48,7 +48,7 @@
       "name": "Timer starten",
       "short_name": "Start",
       "description": "Zeiterfassung sofort starten",
-      "url": "/?action=start",
+      "url": "/MyWorkLog/?action=start",
       "icons": [
         {
           "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%23a855f7' width='96' height='96' rx='24'/><text x='48' y='48' font-size='60' fill='%23fff' text-anchor='middle' dominant-baseline='middle'>▶️</text></svg>",
@@ -61,7 +61,7 @@
       "name": "Eintrag erstellen",
       "short_name": "Neu",
       "description": "Neuen Zeiteintrag erstellen",
-      "url": "/?action=new",
+      "url": "/MyWorkLog/?action=new",
       "icons": [
         {
           "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%2310b981' width='96' height='96' rx='24'/><text x='48' y='48' font-size='60' fill='%23fff' text-anchor='middle' dominant-baseline='middle'>➕</text></svg>",
@@ -74,7 +74,7 @@
       "name": "Backup",
       "short_name": "Backup",
       "description": "Daten exportieren/sichern",
-      "url": "/?action=backup",
+      "url": "/MyWorkLog/?action=backup",
       "icons": [
         {
           "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%2306b6d4' width='96' height='96' rx='24'/><text x='48' y='48' font-size='60' fill='%23fff' text-anchor='middle' dominant-baseline='middle'>💾</text></svg>",
