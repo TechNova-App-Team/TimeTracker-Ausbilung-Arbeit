@@ -1,6 +1,6 @@
 [![Datenschutz: DSGVO lesen](https://img.shields.io/badge/DSGVO-Wichtig-red?style=for-the-badge)](./DSGVO.html) [![Impressum](https://img.shields.io/badge/Impressum-Info-blue?style=for-the-badge)](./Impressum.html) [![Lizenz: MIT](https://img.shields.io/badge/License-MIT-green.svg)](Rechtliches/LICENSE.md)
 
-# ⏱ Time.Tracker.SingleFile
+# ⏱ MyWorkLog
 
 > Eine moderne, lokal laufende Single-File Zeiterfassungs-App — aktuell, minimal, performant.
 https://technova-app-team.github.io/MyWorkLog/
@@ -11,7 +11,7 @@ https://technova-app-team.github.io/MyWorkLog/
 
 [![Timer Badge](https://img.shields.io/badge/Timer-live-yellow?style=for-the-badge)](#) [![Backup](https://img.shields.io/badge/Backup-JSON-orange?style=for-the-badge)](#)
 
- **Web App:** `v2.2.8`  •  **Build:** `local`  •  **Stand:** 2025-12-15
+ **Web App:** `v2.3.1`  •  **Build:** `local`  •  **Stand:** 2025-12-15
  
  **Release:** `v2.2.1`  •  **Stand:** Dezember 2025
 

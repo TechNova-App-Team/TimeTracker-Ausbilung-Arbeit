@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TimeTracker V2.2.8</title>
+<title>TimeTracker V2.3.1</title>
 <meta name="description" content="TimeTracker: Eine moderne, lokal laufende Single-File Zeiterfassungs-App. Kein Server, kein Cloud, nur deine Daten. Perfekt für Auszubildende und Mitarbeiter.">
 <meta name="theme-color" content="#a855f7">
 <meta name="author" content="TechNova App Team">
@@ -27,7 +27,7 @@
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
 <!-- OpenGraph Meta Tags (für Social Sharing) -->
-<meta property="og:title" content="TimeTracker V2.2.8 – Moderne Zeiterfassung">
+<meta property="og:title" content="TimeTracker V2.3.1 – Moderne Zeiterfassung">
 <meta property="og:description" content="Eine einfache, aber mächtige Browser-Anwendung zur lokalen Zeiterfassung. 100% Datenschutz, lokal gespeichert, keine Server.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://github.com/YourUsername/TimeTracker-Ausbildung-Arbeit">
@@ -35,7 +35,7 @@
 <meta property="og:locale" content="de_DE">
 <!-- Twitter Card Meta Tags -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="TimeTracker V2.2.8 – Moderne Zeiterfassung">
+<meta name="twitter:title" content="TimeTracker V2.3.1 – Moderne Zeiterfassung">
 <meta name="twitter:description" content="Lokal laufende Zeiterfassungs-App ohne Server. 100% Datenschutz, Backup/Export, Gleitzeit-Konto.">
 <meta name="twitter:image" content="https://img.shields.io/badge/TimeTracker-Modern%20&%20Local-purple?style=for-the-badge&logo=javascript">
 <meta name="twitter:creator" content="@YourTwitterHandle">
@@ -495,6 +495,26 @@
         .dashboard-grid.edit-mode { outline: 2px dashed rgba(var(--primary-rgb), 0.3); padding: 1rem; border-radius: var(--radius); }
         .dashboard-grid.edit-mode .dashboard-item { cursor: grab; border: 1px dashed rgba(var(--primary-rgb), 0.5); padding: 0.5rem; border-radius: var(--radius); position: relative; }
         .dashboard-grid.edit-mode .dashboard-item::before { content: '⋮⋮'; position: absolute; top: 5px; left: 8px; opacity: 0.5; font-size: 0.9rem; pointer-events: none; }
+        .dashboard-grid.edit-mode .dashboard-item::after { 
+            content: '✕'; 
+            position: absolute; 
+            top: 5px; 
+            right: 8px; 
+            background: rgba(239, 68, 68, 0.9); 
+            color: white; 
+            border-radius: 50%; 
+            width: 20px; 
+            height: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+            z-index: 10;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .dashboard-grid.edit-mode .dashboard-item::after:hover { opacity: 1; background: var(--danger); }
         .dashboard-grid.edit-mode .dashboard-item.dragging { opacity: 0.6; background-color: rgba(var(--primary-rgb), 0.1); box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.2); }
         .dashboard-item { transition: all 0.2s ease; }
         
@@ -741,7 +761,19 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
         .modal.active { display: flex; animation: fadeIn 0.2s ease; }
         /* Modal Box für Einstellungen ist breiter für das Urlaubs-Dashboard */
-        .modal-box { background: #121215; border: 1px solid var(--border); width: 680px; padding: 0; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); overflow-y: auto; max-height: 85vh; position: relative; }
+        .modal-box.widget-manager-box {
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            position: relative;
+            background: #121215;
+            margin: 0 auto;
+        }
         
         .modal-box::-webkit-scrollbar {
             width: 10px;
@@ -3018,33 +3050,33 @@
                     <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:10px; font-weight:600;">Design Accent Farbe:</label>
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(45px, 1fr)); gap:12px; margin-bottom:2rem;">
                         <!-- Primär Farben -->
-                        <div class="color-dot" style="background:#a855f7" onclick="setTheme('#a855f7')" title="Lila"></div>
-                        <div class="color-dot" style="background:#3b82f6" onclick="setTheme('#3b82f6')" title="Blau"></div>
-                        <div class="color-dot" style="background:#06b6d4" onclick="setTheme('#06b6d4')" title="Cyan"></div>
-                        <div class="color-dot" style="background:#10b981" onclick="setTheme('#10b981')" title="Grün"></div>
-                        <div class="color-dot" style="background:#f59e0b" onclick="setTheme('#f59e0b')" title="Gelb"></div>
-                        <div class="color-dot" style="background:#ec4899" onclick="setTheme('#ec4899')" title="Pink"></div>              
-                        <div class="color-dot" style="background:#ef4444" onclick="setTheme('#ef4444')" title="Rot"></div>
-                        <div class="color-dot" style="background:#8b5cf6" onclick="setTheme('#8b5cf6')" title="Indigo"></div>
-                        <div class="color-dot" style="background:#6366f1" onclick="setTheme('#6366f1')" title="Indigo-Hell"></div>
-                        <div class="color-dot" style="background:#0ea5e9" onclick="setTheme('#0ea5e9')" title="Sky Blue"></div>
-                        <div class="color-dot" style="background:#14b8a6" onclick="setTheme('#14b8a6')" title="Teal"></div>
-                        <div class="color-dot" style="background:#84cc16" onclick="setTheme('#84cc16')" title="Limette"></div>
-                        <div class="color-dot" style="background:#eab308" onclick="setTheme('#eab308')" title="Gelb-Hell"></div>
-                        <div class="color-dot" style="background:#fb923c" onclick="setTheme('#fb923c')" title="Orange"></div>
-                        <div class="color-dot" style="background:#f97316" onclick="setTheme('#f97316')" title="Orange-Hell"></div>
-                        <div class="color-dot" style="background:#d946ef" onclick="setTheme('#d946ef')" title="Fuchsia"></div>
-                        <div class="color-dot" style="background:#f43f5e" onclick="setTheme('#f43f5e')" title="Rose"></div>
-                        <div class="color-dot" style="background:#06d6a0" onclick="setTheme('#06d6a0')" title="Mint"></div>
-                        <div class="color-dot" style="background:#00d9ff" onclick="setTheme('#00d9ff')" title="Aqua"></div>
-                        <div class="color-dot" style="background:#7c3aed" onclick="setTheme('#7c3aed')" title="Violett"></div>
-                        <div class="color-dot" style="background:#db2777" onclick="setTheme('#db2777')" title="Crimson"></div>
-                        <div class="color-dot" style="background:#00b4d8" onclick="setTheme('#00b4d8')" title="Steel Blue"></div>
-                        <div class="color-dot" style="background:#a78bfa" onclick="setTheme('#a78bfa')" title="Lila-Hell"></div>
-                        <div class="color-dot" style="background:#60a5fa" onclick="setTheme('#60a5fa')" title="Blau-Hell"></div>
-                        <div class="color-dot" style="background:#4f46e5" onclick="setTheme('#4f46e5')" title="Deep Indigo"></div>
-                        <div class="color-dot" style="background:#22d3ee" onclick="setTheme('#22d3ee')" title="Cyan-Hell"></div>
-                        <div class="color-dot" style="background:#34d399" onclick="setTheme('#34d399')" title="Grün-Hell"></div>
+                        <div class="color-dot" style="background:#a855f7" onclick="setThemeColor('#a855f7')" title="Lila"></div>
+                        <div class="color-dot" style="background:#3b82f6" onclick="setThemeColor('#3b82f6')" title="Blau"></div>
+                        <div class="color-dot" style="background:#06b6d4" onclick="setThemeColor('#06b6d4')" title="Cyan"></div>
+                        <div class="color-dot" style="background:#10b981" onclick="setThemeColor('#10b981')" title="Grün"></div>
+                        <div class="color-dot" style="background:#f59e0b" onclick="setThemeColor('#f59e0b')" title="Gelb"></div>
+                        <div class="color-dot" style="background:#ec4899" onclick="setThemeColor('#ec4899')" title="Pink"></div>              
+                        <div class="color-dot" style="background:#ef4444" onclick="setThemeColor('#ef4444')" title="Rot"></div>
+                        <div class="color-dot" style="background:#8b5cf6" onclick="setThemeColor('#8b5cf6')" title="Indigo"></div>
+                        <div class="color-dot" style="background:#6366f1" onclick="setThemeColor('#6366f1')" title="Indigo-Hell"></div>
+                        <div class="color-dot" style="background:#0ea5e9" onclick="setThemeColor('#0ea5e9')" title="Sky Blue"></div>
+                        <div class="color-dot" style="background:#14b8a6" onclick="setThemeColor('#14b8a6')" title="Teal"></div>
+                        <div class="color-dot" style="background:#84cc16" onclick="setThemeColor('#84cc16')" title="Limette"></div>
+                        <div class="color-dot" style="background:#eab308" onclick="setThemeColor('#eab308')" title="Gelb-Hell"></div>
+                        <div class="color-dot" style="background:#fb923c" onclick="setThemeColor('#fb923c')" title="Orange"></div>
+                        <div class="color-dot" style="background:#f97316" onclick="setThemeColor('#f97316')" title="Orange-Hell"></div>
+                        <div class="color-dot" style="background:#d946ef" onclick="setThemeColor('#d946ef')" title="Fuchsia"></div>
+                        <div class="color-dot" style="background:#f43f5e" onclick="setThemeColor('#f43f5e')" title="Rose"></div>
+                        <div class="color-dot" style="background:#06d6a0" onclick="setThemeColor('#06d6a0')" title="Mint"></div>
+                        <div class="color-dot" style="background:#00d9ff" onclick="setThemeColor('#00d9ff')" title="Aqua"></div>
+                        <div class="color-dot" style="background:#7c3aed" onclick="setThemeColor('#7c3aed')" title="Violett"></div>
+                        <div class="color-dot" style="background:#db2777" onclick="setThemeColor('#db2777')" title="Crimson"></div>
+                        <div class="color-dot" style="background:#00b4d8" onclick="setThemeColor('#00b4d8')" title="Steel Blue"></div>
+                        <div class="color-dot" style="background:#a78bfa" onclick="setThemeColor('#a78bfa')" title="Lila-Hell"></div>
+                        <div class="color-dot" style="background:#60a5fa" onclick="setThemeColor('#60a5fa')" title="Blau-Hell"></div>
+                        <div class="color-dot" style="background:#4f46e5" onclick="setThemeColor('#4f46e5')" title="Deep Indigo"></div>
+                        <div class="color-dot" style="background:#22d3ee" onclick="setThemeColor('#22d3ee')" title="Cyan-Hell"></div>
+                        <div class="color-dot" style="background:#34d399" onclick="setThemeColor('#34d399')" title="Grün-Hell"></div>
                     </div>
 
                     <!-- Custom Farb-Editor (CLEAN GLASSMORPHISM DESIGN) -->
@@ -3103,10 +3135,11 @@
                     <!-- Dashboard Layout Control -->
                     <div style="margin-top:3rem; padding-top:2rem; border-top:1px solid var(--border);">
                         <h4 style="color:var(--primary); margin-bottom:15px; font-size:1rem;">📐 Dashboard Layout</h4>
-                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">Passe die Reihenfolge aller Dashboard-Elemente an. Drag & Drop zum Verschieben!</p>
-                        <div style="display:flex; gap:10px;">
-                            <button id="btnEditLayout" class="btn-primary" style="padding:10px 16px; font-size:0.9rem;" onclick="toggleDashboardEditMode()" title="Layout anpassen">🔧 Layout editieren</button>
-                            <button id="btnResetLayout" class="btn-secondary" style="padding:10px 16px; font-size:0.9rem; display:none;" onclick="resetDashboardLayout()" title="Standard-Layout wiederherstellen">↺ Zurücksetzen</button>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">Passe die Reihenfolge aller Dashboard-Elemente an. Drag & Drop zum Verschieben! Füge neue Widgets hinzu oder entferne unerwünschte.</p>
+                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                            <button id="btnEditLayout" class="btn btn-primary" style="padding:12px 20px; font-size:0.9rem; border-radius:16px; box-shadow:0 4px 15px rgba(168, 85, 247, 0.3); transition:all 0.3s ease; font-weight:600;" onclick="toggleDashboardEditMode()" title="Layout anpassen">🔧 Layout editieren</button>
+                            <button id="btnManageWidgets" class="btn btn-secondary" style="padding:12px 20px; font-size:0.9rem; border-radius:16px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; box-shadow:0 4px 15px rgba(102, 126, 234, 0.3); transition:all 0.3s ease; font-weight:600;" onclick="openWidgetManager()" title="Widgets verwalten">📦 Widgets verwalten</button>
+                            <button id="btnResetLayout" class="btn btn-secondary" style="padding:12px 20px; font-size:0.9rem; border-radius:16px; display:none; background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color:#fff; box-shadow:0 4px 15px rgba(245, 87, 108, 0.3); transition:all 0.3s ease; font-weight:600;" onclick="resetDashboardLayout()" title="Standard-Layout wiederherstellen">↺ Zurücksetzen</button>
                         </div>
                         <small id="editModeStatus" style="color:var(--text-muted); display:block; margin-top:8px; opacity:0; transition:opacity 0.3s;">📍 Layout-Bearbeitungsmodus AKTIV</small>
                     </div>
@@ -4096,6 +4129,39 @@
             
             <div style="text-align:center; margin-top:20px;">
                 <button class="btn btn-ghost" onclick="skipMood()" style="font-size:0.9rem;">Überspringen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Widget Manager Modal -->
+    <div class="modal" id="widgetManagerModal">
+        <div class="modal-box widget-manager-box">
+            <button class="modal-close-x" aria-label="Schließen" onclick="closeWidgetManager()" title="Schließen">×</button>
+            <h3 style="margin:0 0 20px 0; color:var(--primary);">📦 Widget Manager</h3>
+
+            <div style="margin-bottom:20px;">
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">Füge neue Widgets zu deinem Dashboard hinzu oder entferne vorhandene. Jedes Widget kann individuell konfiguriert werden.</p>
+
+                <div style="display:flex; gap:12px; margin-bottom:20px;">
+                    <button class="btn btn-primary" onclick="addWidgetToDashboard()" style="padding:10px 16px;">➕ Widget hinzufügen</button>
+                    <button class="btn btn-secondary" onclick="resetAllWidgets()" style="padding:10px 16px;">🔄 Alle zurücksetzen</button>
+                </div>
+            </div>
+
+            <!-- Available Widgets -->
+            <div style="margin-bottom:24px;">
+                <h4 style="color:var(--text-main); margin-bottom:12px; font-size:1rem;">Verfügbare Widgets</h4>
+                <div id="availableWidgets" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:16px;">
+                    <!-- Widgets werden per JS geladen -->
+                </div>
+            </div>
+
+            <!-- Current Dashboard Widgets -->
+            <div>
+                <h4 style="color:var(--text-main); margin-bottom:12px; font-size:1rem;">Aktuelle Dashboard-Widgets</h4>
+                <div id="currentWidgets" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:16px;">
+                    <!-- Widgets werden per JS geladen -->
+                </div>
             </div>
         </div>
     </div>
@@ -6089,6 +6155,9 @@
         // Update NEW Features
         if (typeof updateDailySummary === 'function') updateDailySummary();
         if (typeof updateWeeklyGoals === 'function') updateWeeklyGoals();
+        if (typeof updateLastActivities === 'function') updateLastActivities();
+        if (typeof updateMoodStats === 'function') updateMoodStats();
+        if (typeof updateProductivityScore === 'function') updateProductivityScore();
     }
     
     // --- NEW AUDIT PROTOCOL RENDER ---
@@ -10129,9 +10198,10 @@ TIPPS:
         save();
         document.getElementById('settingsModal').classList.remove('active');
     }
-    function setTheme(hex) {
+    function setThemeColor(hex) {
         data.settings.theme = hex;
         applyTheme(hex);
+        save();
     }
     function applyTheme(hex) {
         document.documentElement.style.setProperty('--primary', hex);
@@ -10145,6 +10215,8 @@ TIPPS:
         const color = document.getElementById('customColorPicker').value;
         document.getElementById('customColorHex').value = color.slice(1).toUpperCase();
         document.getElementById('colorPreview').style.background = color;
+        // Sofort anwenden
+        setThemeColor(color);
     }
 
     function updateColorPickerFromHex() {
@@ -10180,7 +10252,7 @@ TIPPS:
             return;
         }
 
-        setTheme(hex);
+        setThemeColor(hex);
         showCustomMessage('✅ Gespeichert', `Farbe: ${hex.toUpperCase()}`, 'success');
     }
 
@@ -12528,6 +12600,11 @@ TIPPS:
         
         // Initialize dashboard layout
         loadDashboardLayout();
+        
+        // Initialize all widgets
+        setTimeout(() => {
+            initializeAllWidgets();
+        }, 200);
     }
 
     // ============================================
@@ -12555,6 +12632,7 @@ TIPPS:
             if (editControls) editControls.style.opacity = '1';
             if (editControls) editControls.style.pointerEvents = 'auto';
             if (statusEl) statusEl.style.opacity = '1';
+            console.log('Entering edit mode, setting up drag drop');
             setupDashboardDragDrop();
         } else {
             btnEdit.textContent = '🔧 Layout editieren';
@@ -12590,6 +12668,62 @@ TIPPS:
         
         const items = container.querySelectorAll('.dashboard-item');
         let draggedItem = null;
+        
+// Remove existing remove buttons FIRST
+        console.log('Removing existing remove buttons');
+        container.querySelectorAll('.dashboard-item-remove-btn').forEach(btn => {
+            console.log('Removing existing button');
+            btn.remove();
+        });
+
+        // Add remove buttons if in edit mode
+        if (container.classList.contains('edit-mode')) {
+            console.log('Adding remove buttons for', items.length, 'items');
+            items.forEach((item, index) => {
+                console.log('Adding remove button to item', index, item.getAttribute('data-item-id'));
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'dashboard-item-remove-btn';
+                removeBtn.innerHTML = '🗑️';
+                removeBtn.title = 'Widget entfernen';
+                removeBtn.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: rgba(239, 68, 68, 0.95);
+                    color: white;
+                    border: 2px solid white;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    z-index: 100;
+                    opacity: 0.9;
+                    transition: all 0.2s;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                `;
+                removeBtn.onmouseover = () => {
+                    removeBtn.style.opacity = '1';
+                    removeBtn.style.transform = 'scale(1.1)';
+                };
+                removeBtn.onmouseout = () => {
+                    removeBtn.style.opacity = '0.9';
+                    removeBtn.style.transform = 'scale(1)';
+                };
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    const widgetId = item.getAttribute('data-item-id');
+                    console.log('Remove button clicked for widget:', widgetId);
+                    removeWidget(widgetId);
+                };
+                item.style.position = 'relative';
+                item.appendChild(removeBtn);
+                console.log('Remove button added to item', index);
+            });
+        }
         
         items.forEach(item => {
             item.draggable = true;
@@ -12681,6 +12815,627 @@ TIPPS:
                 }
             }
         }, 100);
+    }
+
+    // ============================================
+    // WIDGET MANAGER SYSTEM
+    // ============================================
+
+    // Widget Library
+    const widgetLibrary = {
+        'kpi-cards': {
+            name: 'KPI Karten',
+            description: 'Wochen-, Monats- und Gleitzeit-Übersicht',
+            icon: '📊',
+            defaultEnabled: true,
+            html: `
+                <div class="kpi-grid" id="dashboardGrid">
+                    <div class="card kpi-card" onclick="openCorrection('week')">
+                        <div class="progress-ring">
+                            <svg width="100" height="100">
+                                <circle class="ring-bg" cx="50" cy="50" r="44"></circle>
+                                <circle id="ringWeek" class="ring-val" cx="50" cy="50" r="44" stroke-dasharray="276" stroke-dashoffset="276"></circle>
+                            </svg>
+                            <div class="ring-center">
+                                <div class="ring-num" id="valWeek">0</div>
+                                <div class="ring-lbl">Woche</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card kpi-card" onclick="openCorrection('month')">
+                        <div class="progress-ring">
+                            <svg width="100" height="100">
+                                <circle class="ring-bg" cx="50" cy="50" r="44"></circle>
+                                <circle id="ringMonth" class="ring-val" cx="50" cy="50" r="44" stroke-dasharray="276" stroke-dashoffset="276"></circle>
+                            </svg>
+                            <div class="ring-center">
+                                <div class="ring-num" id="valMonth">0</div>
+                                <div class="ring-lbl">Monat</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
+                        <div class="ring-lbl">GLEITZEIT KONTO</div>
+                        <div style="font-size:2.8rem; font-weight:800; color:var(--primary); margin:10px 0; font-family:var(--font-mono); letter-spacing:-2px;" id="valTotal">+0.0h</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Prognose: <span id="valProjected" style="color:#fff">0h</span></div>
+                    </div>
+                    <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
+                        <div class="ring-lbl">Ø TÄGLICH</div>
+                        <div style="font-size:2rem; font-weight:800; color:#fff; margin:5px 0; font-family:var(--font-mono);" id="valAvg">0.0h</div>
+                        <div style="margin-top:auto; width:100%;">
+                            <div class="ring-lbl" style="margin-bottom:5px; display:flex; justify-content:space-between;">
+                                <span>Urlaubstage</span>
+                                <span id="valVacationUsed">0 / 30</span>
+                            </div>
+                            <div style="height:4px; background:rgba(255,255,255,0.1); border-radius:2px;"><div id="vacationProgressBar" style="width:0%; background:var(--success); height:100%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            `
+        },
+        'quick-actions': {
+            name: 'Schnellaktionen',
+            description: 'Direkter Zugriff auf häufige Aktionen',
+            icon: '⚡',
+            defaultEnabled: true,
+            html: `
+                <div class="quick-actions">
+                    <button onclick="openCorrection('month')">± Saldo korrigieren</button>
+                    <button onclick="openVacationModal()">🌴 Urlaub</button>
+                    <button onclick="checkAndBookHolidays()">🏖️ Feiertage prüfen</button>
+                    <button onclick="openMoreActionsModal()">⋯ Mehr Aktionen</button>
+                </div>
+            `
+        },
+        'daily-summary': {
+            name: 'Tägliche Zusammenfassung',
+            description: 'Heutige Arbeitszeit, Streak und Ticker',
+            icon: '📅',
+            defaultEnabled: true,
+            html: `
+                <div class="card" style="background:linear-gradient(90deg, rgba(168,85,247,0.08) 0%, rgba(16,185,129,0.08) 100%); border:1px solid rgba(168,85,247,0.15); padding:1rem;">
+                    <div style="display:flex; align-items:center; gap:12px; justify-content:space-between;">
+                        <div style="display:flex; align-items:center; gap:6px; flex:1;">
+                            <span style="font-size:1rem;">📅</span>
+                            <h5 style="margin:0; color:var(--text-main); font-size:0.9rem;">Heute: <span id="todayWorked" style="color:var(--primary);">0.0h</span> | <span id="todayEntries" style="color:var(--text-muted);">0 Eintr.</span></h5>
+                        </div>
+                        <div style="border-left:1px solid rgba(255,255,255,0.1); padding-left:12px; display:flex; align-items:center; gap:6px;">
+                            <span style="font-size:1rem;" id="streakEmoji">🔥</span>
+                            <h5 style="margin:0; color:var(--text-main); font-size:0.9rem;">Streak: <span id="streakCount" style="color:var(--success); font-weight:800;">0</span> | <span style="font-size:0.75rem; color:var(--text-muted);" id="streakBest">Best: 0</span></h5>
+                        </div>
+                    </div>
+                    <div id="quickTicker" style="margin-top:8px; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted); overflow:hidden; white-space:nowrap;">
+                        <div id="quickTickerInner" style="display:inline-block; padding-left:100%; animation: tickerScroll 12s linear infinite;">&nbsp;</div>
+                    </div>
+                    <style>
+                        @keyframes tickerScroll {
+                            0% { transform: translateX(0%); }
+                            100% { transform: translateX(-100%); }
+                        }
+                    </style>
+                </div>
+            `
+        },
+        'charts': {
+            name: 'Diagramme',
+            description: 'Saldo-Trend und Arbeitszeit-Verteilung',
+            icon: '📈',
+            defaultEnabled: true,
+            html: `
+                <div class="charts-row">
+                    <div class="card">
+                        <div class="chart-header">
+                            <div>
+                                <div class="chart-title">Saldo Trend</div>
+                                <div class="chart-sub">Entwicklung der letzten 30 Tage</div>
+                            </div>
+                        </div>
+                        <div class="trend-container" id="trendChart"></div>
+                    </div>
+                    <div class="card">
+                        <div class="chart-header">
+                            <div class="chart-title">Verteilung</div>
+                        </div>
+                        <div class="donut-container">
+                            <svg width="150" height="150" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="rgba(255,255,255,0.05)" stroke-width="12"></circle>
+                                <circle id="donutSick" cx="50" cy="50" r="40" fill="transparent" stroke="var(--danger)" stroke-width="12" stroke-dasharray="0 251"></circle>
+                                <circle id="donutVac" cx="50" cy="50" r="40" fill="transparent" stroke="var(--success)" stroke-width="12" stroke-dasharray="0 251"></circle>
+                                <circle id="donutSchool" cx="50" cy="50" r="40" fill="transparent" stroke="var(--school)" stroke-width="12" stroke-dasharray="0 251"></circle>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            `
+        },
+        'entry-form': {
+            name: 'Eingabeformular',
+            description: 'Schnelle Zeiteingabe direkt im Dashboard',
+            icon: '✏️',
+            defaultEnabled: false,
+            html: `
+                <div class="card" style="padding:1.5rem;">
+                    <h4 style="margin:0 0 1rem 0; color:var(--primary); font-size:1rem;">⏱️ Schnelle Eingabe</h4>
+                    <form onsubmit="quickAddEntry(event)" style="display:flex; gap:12px; align-items:flex-end;">
+                        <div style="flex:1;">
+                            <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:4px;">Projekt</label>
+                            <input type="text" id="quickProject" class="glass-input" placeholder="Projekt..." style="width:100%;" required>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:4px;">Stunden</label>
+                            <input type="number" id="quickHours" class="glass-input" placeholder="0.0" step="0.25" min="0" style="width:100%;" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="padding:10px 16px;">➕ Hinzufügen</button>
+                    </form>
+                </div>
+            `
+        },
+        'last-activities': {
+            name: 'Letzte Aktivitäten',
+            description: 'Übersicht der letzten Arbeitszeiteinträge',
+            icon: '📋',
+            defaultEnabled: false,
+            html: `
+                <div class="card" style="padding:1.5rem;">
+                    <h4 style="margin:0 0 1rem 0; color:var(--primary); font-size:1rem;">📋 Letzte Aktivitäten</h4>
+                    <div id="lastActivitiesList" style="max-height:200px; overflow-y:auto;">
+                        <!-- Wird per JS gefüllt -->
+                    </div>
+                </div>
+            `
+        },
+        'mood-tracker': {
+            name: 'Stimmungs-Tracker',
+            description: 'Verfolge deine Stimmung nach Arbeitstagen',
+            icon: '😊',
+            defaultEnabled: false,
+            html: `
+                <div class="card" style="padding:1.5rem;">
+                    <h4 style="margin:0 0 1rem 0; color:var(--primary); font-size:1rem;">😊 Stimmungs-Tracker</h4>
+                    <div id="moodStats" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap:8px; margin-bottom:1rem;">
+                        <!-- Wird per JS gefüllt -->
+                    </div>
+                    <button onclick="openMoodSelector()" class="btn btn-secondary" style="width:100%;">Stimmung hinzufügen</button>
+                </div>
+            `
+        },
+        'productivity-score': {
+            name: 'Produktivitäts-Score',
+            description: 'Persönlicher Produktivitäts-Score basierend auf Mustern',
+            icon: '🎯',
+            defaultEnabled: false,
+            html: `
+                <div class="card" style="padding:1.5rem; background:linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(245,158,11,0.05) 100%); border:1px solid rgba(245,158,11,0.2);">
+                    <h4 style="margin:0 0 1rem 0; color:#f59e0b; font-size:1rem;">🎯 Produktivitäts-Score</h4>
+                    <div style="text-align:center;">
+                        <div style="font-size:3rem; font-weight:800; color:#f59e0b; margin:1rem 0;" id="productivityScoreWidget">--</div>
+                        <div style="font-size:0.9rem; color:var(--text-muted);" id="productivityDescription">Berechne deinen Score...</div>
+                    </div>
+                </div>
+            `
+        }
+    };
+
+    function openWidgetManager() {
+        console.log('Opening widget manager - EXTREME MODE');
+        const modal = document.getElementById('widgetManagerModal');
+        console.log('Modal element:', modal);
+
+        if (modal) {
+            // ABSOLUTE FORCE VISIBILITY
+            modal.style.cssText = `
+                display: flex !important;
+                position: fixed !important;
+                top: 0px !important;
+                left: 0px !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                background: rgba(255, 0, 0, 0.9) !important;
+                z-index: 999999 !important;
+                justify-content: center !important;
+                align-items: center !important;
+                backdrop-filter: blur(5px) !important;
+            `;
+
+            const modalBox = modal.querySelector('.modal-box');
+            if (modalBox) {
+                modalBox.style.cssText = `
+                    display: block !important;
+                    position: relative !important;
+                    background: white !important;
+                    border: 5px solid black !important;
+                    border-radius: 15px !important;
+                    padding: 30px !important;
+                    max-width: 700px !important;
+                    max-height: 80vh !important;
+                    overflow-y: auto !important;
+                    color: black !important;
+                    font-size: 16px !important;
+                    z-index: 1000000 !important;
+                    box-shadow: 0 0 50px rgba(0,0,0,0.8) !important;
+                `;
+                console.log('Modal box EXTREME styled');
+            }
+
+            modal.classList.add('active');
+            console.log('Modal classes:', modal.className);
+            console.log('Modal computed display:', window.getComputedStyle(modal).display);
+
+            // Force render after a delay
+            setTimeout(() => {
+                renderWidgetManager();
+                console.log('Widget manager rendered with delay');
+            }, 100);
+
+        } else {
+            console.error('Widget manager modal not found');
+        }
+    }
+
+    function closeWidgetManager() {
+        const modal = document.getElementById('widgetManagerModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Alias for updateDashboard calls
+    function updateDashboard() {
+        updateUI();
+    }
+
+    function renderWidgetManager() {
+        console.log('Rendering widget manager');
+        try {
+            const availableContainer = document.getElementById('availableWidgets');
+            const currentContainer = document.getElementById('currentWidgets');
+            
+            console.log('Containers:', availableContainer, currentContainer);
+            
+            if (!availableContainer || !currentContainer) {
+                console.error('Widget manager containers not found');
+                return;
+            }
+            
+            // Get current dashboard widgets
+            const dashboardContainer = document.getElementById('dashboardContainer');
+            const currentWidgets = dashboardContainer ? Array.from(dashboardContainer.querySelectorAll('.dashboard-item')).map(item => 
+                item.getAttribute('data-item-id')
+            ).filter(Boolean) : [];
+
+            console.log('Current widgets:', currentWidgets);
+            
+            // Available widgets (not currently on dashboard)
+            availableContainer.innerHTML = '';
+            Object.keys(widgetLibrary).forEach(widgetId => {
+                if (!currentWidgets.includes(widgetId)) {
+                    const widget = widgetLibrary[widgetId];
+                    console.log('Adding available widget:', widgetId);
+                    const widgetCard = document.createElement('div');
+                    widgetCard.className = 'card';
+                    widgetCard.style.cssText = 'padding:16px; cursor:pointer; transition: all 0.2s; border:1px solid rgba(255,255,255,0.1);';
+                    widgetCard.onclick = () => addWidget(widgetId);
+                    widgetCard.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                            <span style="font-size:1.5rem;">${widget.icon}</span>
+                            <div>
+                                <div style="font-weight:600; color:var(--text-main);">${widget.name}</div>
+                                <div style="font-size:0.8rem; color:var(--text-muted);">${widget.description}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-ghost" style="width:100%; padding:8px;" onclick="console.log('Add widget clicked:', '${widgetId}'); event.stopPropagation(); addWidget('${widgetId}')">➕ Hinzufügen</button>
+                    `;
+                    availableContainer.appendChild(widgetCard);
+                }
+            });
+
+            // Current widgets
+            currentContainer.innerHTML = '';
+            currentWidgets.forEach(widgetId => {
+                const widget = widgetLibrary[widgetId];
+                if (widget) {
+                    console.log('Adding current widget:', widgetId);
+                    const widgetCard = document.createElement('div');
+                    widgetCard.className = 'card';
+                    widgetCard.style.cssText = 'padding:16px; border:1px solid rgba(255,255,255,0.1);';
+                    widgetCard.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                            <span style="font-size:1.5rem;">${widget.icon}</span>
+                            <div style="flex:1;">
+                                <div style="font-weight:600; color:var(--text-main);">${widget.name}</div>
+                                <div style="font-size:0.8rem; color:var(--text-muted);">${widget.description}</div>
+                            </div>
+                            <button class="btn btn-ghost" style="padding:6px;" onclick="removeWidget('${widgetId}')" title="Entfernen">🗑️</button>
+                        </div>
+                    `;
+                    currentContainer.appendChild(widgetCard);
+                }
+            });
+            
+            console.log('Widget manager rendered successfully');
+        } catch (e) {
+            console.error('Error rendering widget manager:', e);
+        }
+    }
+
+    function addWidget(widgetId) {
+        console.log('Adding widget:', widgetId);
+        const widget = widgetLibrary[widgetId];
+        if (!widget) {
+            console.error('Widget not found in library:', widgetId);
+            return;
+        }
+
+        const dashboardContainer = document.getElementById('dashboardContainer');
+        if (!dashboardContainer) {
+            console.error('Dashboard container not found');
+            return;
+        }
+
+        const widgetElement = document.createElement('div');
+        widgetElement.className = 'dashboard-item';
+        widgetElement.setAttribute('data-item-id', widgetId);
+        widgetElement.innerHTML = widget.html;
+
+        dashboardContainer.appendChild(widgetElement);
+        console.log('Widget added to DOM');
+        
+        saveDashboardLayout();
+        renderWidgetManager();
+        
+        // Initialize the specific widget
+        initializeWidget(widgetId);
+        
+        updateDashboard(); // Refresh data
+        console.log('Widget addition complete');
+    }
+
+    function removeWidget(widgetId) {
+        console.log('Removing widget:', widgetId);
+        const dashboardContainer = document.getElementById('dashboardContainer');
+        if (!dashboardContainer) {
+            console.error('Dashboard container not found');
+            return;
+        }
+        
+        const widgetElement = dashboardContainer.querySelector(`[data-item-id="${widgetId}"]`);
+        if (widgetElement) {
+            widgetElement.remove();
+            console.log('Widget removed from DOM');
+            saveDashboardLayout();
+            renderWidgetManager();
+            console.log('Widget removal complete');
+        } else {
+            console.error('Widget element not found for removal:', widgetId);
+        }
+    }
+
+    function initializeWidget(widgetId) {
+        console.log('Initializing widget:', widgetId);
+        
+        switch(widgetId) {
+            case 'charts':
+                // Initialize chart widgets
+                setTimeout(() => {
+                    if (typeof renderTrend === 'function') renderTrend([], 'trendChart');
+                    if (typeof renderDonut === 'function') renderDonut(0, 0, 0, 0, 0);
+                    updateDashboard(); // This will call renderTrend and renderDonut again with real data
+                }, 100);
+                break;
+                
+            case 'daily-summary':
+                if (typeof updateDailySummary === 'function') updateDailySummary();
+                break;
+                
+            case 'last-activities':
+                if (typeof updateLastActivities === 'function') updateLastActivities();
+                break;
+                
+            case 'mood-tracker':
+                if (typeof updateMoodStats === 'function') updateMoodStats();
+                break;
+                
+            case 'productivity-score':
+                if (typeof updateProductivityScore === 'function') updateProductivityScore();
+                break;
+                
+            case 'weekly-goals':
+                if (typeof updateWeeklyGoals === 'function') updateWeeklyGoals();
+                break;
+                
+            default:
+                console.log('No specific initialization needed for widget:', widgetId);
+        }
+    }
+
+    function initializeAllWidgets() {
+        console.log('Initializing all current widgets');
+        const dashboardContainer = document.getElementById('dashboardContainer');
+        if (!dashboardContainer) return;
+        
+        const currentWidgets = Array.from(dashboardContainer.querySelectorAll('.dashboard-item')).map(item => 
+            item.getAttribute('data-item-id')
+        ).filter(Boolean);
+        
+        currentWidgets.forEach(widgetId => {
+            initializeWidget(widgetId);
+        });
+    }
+
+    function addWidgetToDashboard() {
+        // Open a quick add dialog or just show available widgets
+        const availableContainer = document.getElementById('availableWidgets');
+        if (availableContainer.children.length === 0) {
+            showCustomMessage('Alle Widgets hinzugefügt', 'Es sind bereits alle verfügbaren Widgets auf dem Dashboard.', 'info');
+            return;
+        }
+        // Scroll to available widgets
+        availableContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetAllWidgets() {
+        showCustomMessage(
+            'Widgets zurücksetzen',
+            'Möchtest du wirklich alle Widgets auf die Standard-Konfiguration zurücksetzen?',
+            'confirm'
+        ).then(confirmed => {
+            if (confirmed) {
+                // Reset to default widgets
+                const dashboardContainer = document.getElementById('dashboardContainer');
+                dashboardContainer.innerHTML = '';
+                
+                // Add default widgets
+                const defaultWidgets = ['kpi-cards', 'quick-actions', 'daily-summary', 'charts'];
+                defaultWidgets.forEach(widgetId => {
+                    const widget = widgetLibrary[widgetId];
+                    if (widget) {
+                        const widgetElement = document.createElement('div');
+                        widgetElement.className = 'dashboard-item';
+                        widgetElement.setAttribute('data-item-id', widgetId);
+                        widgetElement.innerHTML = widget.html;
+                        dashboardContainer.appendChild(widgetElement);
+                    }
+                });
+                
+                localStorage.removeItem('tt_dashboard_layout');
+                saveDashboardLayout();
+                renderWidgetManager();
+                updateDashboard();
+            }
+        });
+    }
+
+    // Quick add entry from dashboard widget
+    function quickAddEntry(event) {
+        event.preventDefault();
+        
+        const project = document.getElementById('quickProject').value.trim();
+        const hours = parseFloat(document.getElementById('quickHours').value);
+        
+        if (!project) {
+            showCustomMessage('❌ Fehler', 'Bitte gib ein Projekt ein.', 'error');
+            return;
+        }
+        
+        if (!hours || hours <= 0) {
+            showCustomMessage('❌ Fehler', 'Bitte gib gültige Stunden ein.', 'error');
+            return;
+        }
+        
+        // Create entry using handleEntry logic
+        const date = new Date().toISOString().split('T')[0];
+        const entry = {
+            id: Date.now(),
+            date: date,
+            type: 'work',
+            start: '',
+            end: '',
+            worked: hours,
+            expected: data.settings.hours[new Date().getDay()] || 0,
+            diff: hours - (data.settings.hours[new Date().getDay()] || 0),
+            project: project,
+            info: `Dashboard-Eingabe: ${hours}h`,
+            breakMinutes: 0,
+            shiftStart: '',
+            shiftEnd: '',
+            shiftWarning: false,
+            breakLog: [],
+            mood: null,
+            created: new Date().toISOString()
+        };
+        
+        data.entries.push(entry);
+        save();
+        updateDashboard();
+        
+        // Clear form
+        document.getElementById('quickProject').value = '';
+        document.getElementById('quickHours').value = '';
+        
+        showCustomMessage('✅ Eintrag hinzugefügt', `${hours}h für "${project}" wurden erfolgreich eingetragen.`, 'success');
+    }
+
+    // Update functions for new widgets
+    function updateLastActivities() {
+        const container = document.getElementById('lastActivitiesList');
+        if (!container) return;
+        
+        const recentEntries = data.entries
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 5);
+        
+        container.innerHTML = recentEntries.length === 0 
+            ? '<div style="color:var(--text-muted); text-align:center; padding:1rem;">Noch keine Einträge</div>'
+            : recentEntries.map(entry => `
+                <div style="padding:0.5rem; border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div style="font-weight:600; color:var(--text-main);">${entry.project || 'Kein Projekt'}</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted);">
+                        ${new Date(entry.date).toLocaleDateString('de-DE')} • ${entry.worked.toFixed(1)}h • ${entry.type}
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    function updateMoodStats() {
+        const container = document.getElementById('moodStats');
+        if (!container) return;
+        
+        const moodCounts = {};
+        data.entries.forEach(entry => {
+            if (entry.mood) {
+                moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+            }
+        });
+        
+        const totalMoods = Object.values(moodCounts).reduce((a, b) => a + b, 0);
+        container.innerHTML = ['😄', '😊', '🙂', '😐', '😕', '😞', '😠', '🤒', '😴', '🤯'].map(mood => {
+            const count = moodCounts[mood] || 0;
+            const percentage = totalMoods > 0 ? (count / totalMoods * 100).toFixed(0) : 0;
+            return `
+                <div style="text-align:center;">
+                    <div style="font-size:1.5rem;">${mood}</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted);">${count}</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);">${percentage}%</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function openMoodSelector() {
+        const modal = document.getElementById('moodSelectorModal');
+        if (modal) modal.classList.add('active');
+    }
+
+    function updateProductivityScore() {
+        const scoreEl = document.getElementById('productivityScoreWidget');
+        const descEl = document.getElementById('productivityDescription');
+        if (!scoreEl || !descEl) return;
+        
+        // Calculate productivity score based on various factors
+        const recentEntries = data.entries.filter(e => {
+            const entryDate = new Date(e.date);
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            return entryDate >= weekAgo && e.type === 'work';
+        });
+        
+        if (recentEntries.length === 0) {
+            scoreEl.textContent = '--';
+            descEl.textContent = 'Nicht genug Daten für Score-Berechnung';
+            return;
+        }
+        
+        // Factors: consistency, average hours, streak maintenance
+        const avgHours = recentEntries.reduce((sum, e) => sum + e.worked, 0) / recentEntries.length;
+        const consistency = 1 - (recentEntries.reduce((sum, e) => sum + Math.abs(e.worked - avgHours), 0) / recentEntries.length) / avgHours;
+        const streakBonus = data.entries.filter(e => e.type === 'work').slice(-10).length / 10;
+        
+        const score = Math.round((consistency * 40 + streakBonus * 30 + Math.min(avgHours / 8, 1) * 30));
+        
+        scoreEl.textContent = score;
+        descEl.textContent = score >= 80 ? 'Ausgezeichnete Produktivität!' : 
+                           score >= 60 ? 'Gute Produktivität' : 
+                           score >= 40 ? 'Verbesserungspotenzial' : 'Aufholbedarf';
     }
 
     // ============================================

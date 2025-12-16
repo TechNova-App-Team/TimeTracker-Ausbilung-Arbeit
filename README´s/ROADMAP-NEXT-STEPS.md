@@ -4,8 +4,8 @@
 - ✅ **Step 1: Progressive Web App (PWA)** — COMPLETE
 - ✅ **Step 2: iCalendar/ICS Export** — COMPLETE
 - ⏳ **Step 3: Advanced Customization** — READY TO START
-- ⏳ **Step 4: Untis Integration** — Queued
-- ⏳ **Step 5: Plugin System** — Queued
+- ⏳ **Step 4: Untis Integration** — COMPLETE
+- ⏳ **Step 5: Plugin System** — COMPLETE
 
 ---
 
