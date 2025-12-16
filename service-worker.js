@@ -3,16 +3,16 @@
 
 const CACHE_NAME = 'timetracker-v1';
 const RUNTIME_CACHE = 'timetracker-runtime-v1';
-const OFFLINE_PAGE = '/offline.html';
+const OFFLINE_PAGE = './offline.html';
 
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons.js',
-  '/shortcuts.js',
-  '/touch-mobile-optimizations.js',
-  '/offline.html'
+  './',
+  './index.html',
+  './manifest.json',
+  './icons.js',
+  './shortcuts.js',
+  './touch-mobile-optimizations.js',
+  './offline.html'
 ];
 
 // ===== INSTALL EVENT =====
