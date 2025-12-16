@@ -3,16 +3,16 @@
 
 const CACHE_NAME = 'timetracker-v1';
 const RUNTIME_CACHE = 'timetracker-runtime-v1';
-const OFFLINE_PAGE = '/MyWorkLog/offline.html';
+const OFFLINE_PAGE = './offline.html';
 
 const ASSETS_TO_CACHE = [
-  '/MyWorkLog/',
-  '/MyWorkLog/index.html',
-  '/MyWorkLog/manifest.json',
-  '/MyWorkLog/icons.js',
-  '/MyWorkLog/shortcuts.js',
-  '/MyWorkLog/touch-mobile-optimizations.js',
-  '/MyWorkLog/offline.html'
+  './',
+  './index.html',
+  './manifest.json',
+  './icons.js',
+  './shortcuts.js',
+  './touch-mobile-optimizations.js',
+  './offline.html'
 ];
 
 // ===== INSTALL EVENT =====
@@ -179,7 +179,7 @@ self.addEventListener('push', event => {
   const data = event.data ? event.data.json() : {};
   const options = {
     body: data.body || 'TimeTracker Benachrichtigung',
-    icon: '/manifest.json', // Wird durch PWA-Icon ersetzt
+    icon: './manifest.json', // Wird durch PWA-Icon ersetzt
     badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect fill="%23a855f7" width="192" height="192"/><text x="96" y="96" font-size="120" fill="%23fff" text-anchor="middle" dominant-baseline="middle">⏱️</text></svg>',
     tag: data.tag || 'timetracker-notification',
     requireInteraction: data.requireInteraction || false

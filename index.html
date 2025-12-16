@@ -9,7 +9,7 @@
 <meta name="author" content="TechNova App Team">
 
 <!-- ===== PWA MANIFEST & META TAGS ===== -->
-<link rel="manifest" href="/MyWorkLog/manifest.json">
+<link rel="manifest" href="./manifest.json">
 
 <!-- iOS PWA Support -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,7 +27,7 @@
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
 <!-- OpenGraph Meta Tags (für Social Sharing) -->
-<meta property="og:title" content="TimeTracker V2.3.2 – Moderne Zeiterfassung">
+<meta property="og:title" content="TimeTracker V2.3.4 – Moderne Zeiterfassung">
 <meta property="og:description" content="Eine einfache, aber mächtige Browser-Anwendung zur lokalen Zeiterfassung. 100% Datenschutz, lokal gespeichert, keine Server.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://technova-app-team.github.io/MyWorkLog/">
@@ -35,7 +35,7 @@
 <meta property="og:locale" content="de_DE">
 <!-- Twitter Card Meta Tags -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="TimeTracker V2.3.2 – Moderne Zeiterfassung">
+<meta name="twitter:title" content="TimeTracker V2.3.4 – Moderne Zeiterfassung">
 <meta name="twitter:description" content="Lokal laufende Zeiterfassungs-App ohne Server. 100% Datenschutz, Backup/Export, Gleitzeit-Konto.">
 <meta name="twitter:image" content="https://img.shields.io/badge/TimeTracker-Modern%20&%20Local-purple?style=for-the-badge&logo=javascript">
 <meta name="twitter:creator" content="@YourTwitterHandle">
@@ -14900,11 +14900,42 @@ if (breakRemindersEnabled && Notification.permission === 'granted') {
 }
 
 // ===== PWA SERVICE WORKER REGISTRATION =====
+function setupPWABasePath() {
+    // Return a trailing-slash base path derived from the current location
+    try {
+        let p = location.pathname;
+        if (!p.endsWith('/')) {
+            p = p.substring(0, p.lastIndexOf('/') + 1);
+        }
+        // Ensure root path is '/'
+        if (!p) p = '/';
+
+        // Set the manifest link to the computed path (helps GitHub Pages and local servers)
+        const manifestLink = document.querySelector('link[rel="manifest"]');
+        if (manifestLink) {
+            manifestLink.href = p + 'manifest.json';
+        }
+
+        // Expose for debugging/status
+        window._pwaBasePath = p;
+        return p;
+    } catch (e) {
+        console.warn('setupPWABasePath error', e);
+        window._pwaBasePath = './';
+        return './';
+    }
+}
+
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
-            const registration = await navigator.serviceWorker.register('/MyWorkLog/service-worker.js', {
-                scope: '/MyWorkLog/',
+            const basePath = setupPWABasePath();
+            const swUrl = basePath + 'service-worker.js';
+            console.log('[PWA] Registering service worker at', swUrl, 'scope:', basePath);
+            const manifestLink = document.querySelector('link[rel="manifest"]');
+            console.log('[PWA] Resolved manifest link:', manifestLink ? manifestLink.href : 'none');
+            const registration = await navigator.serviceWorker.register(swUrl, {
+                scope: basePath,
                 updateViaCache: 'none'
             });
 
@@ -14982,6 +15013,9 @@ function checkPWAStatus() {
 
     let status = '🔍 PWA Status:\n\n';
 
+    // Show resolved base path for debugging (helps with manifest/SW 404 issues)
+    status += '📂 Resolved base path: ' + (window._pwaBasePath || './') + '\n\n';
+
     // Service Worker
     if ('serviceWorker' in navigator) {
         status += '✅ Service Worker: Unterstützt\n';
@@ -15020,6 +15054,19 @@ function checkPWAStatus() {
     } catch {
         status += '❌ localStorage: Nicht verfügbar\n';
     }
+
+    // IndexedDB
+    if (window.indexedDB) {
+        status += '✅ IndexedDB: Verfügbar\n';
+    } else {
+        status += '❌ IndexedDB: Nicht verfügbar\n';
+    }
+
+    statusEl.innerHTML = '<strong>📱 PWA Status:</strong><br>' + status.replace(/\n/g, '<br>');
+    
+    if (typeof showCustomMessage === 'function') {
+        showCustomMessage('📱 PWA Status', status, 'info');
+    }
 }
 
 // Warn user if they're opening from localhost/127.0.0.1 (common cause of 404 on mobile PWA installs)
@@ -15046,18 +15093,6 @@ function detectLocalhostAndWarn() {
         console.warn('detectLocalhostAndWarn error', e);
     }
 }
-    // IndexedDB
-    if (window.indexedDB) {
-        status += '✅ IndexedDB: Verfügbar\n';
-    } else {
-        status += '❌ IndexedDB: Nicht verfügbar\n';
-    }
-
-    statusEl.innerHTML = '<strong>📱 PWA Status:</strong><br>' + status.replace(/\n/g, '<br>');
-    
-    if (typeof showCustomMessage === 'function') {
-        showCustomMessage('📱 PWA Status', status, 'info');
-    }
 
 window.checkPWAStatus = checkPWAStatus;
 
