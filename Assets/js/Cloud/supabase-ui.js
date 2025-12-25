@@ -109,17 +109,23 @@ class SupabaseCloudSyncUI {
      * Öffnet das Login-Modal
      */
     openLoginModal() {
-        this.loginModal.style.display = 'flex';
-        this.emailInput.focus();
+        if (this.loginModal) {
+            this.loginModal.style.display = 'flex';
+            this.emailInput.focus();
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
     }
 
     /**
      * Schließt das Login-Modal
      */
     closeLoginModal() {
-        this.loginModal.style.display = 'none';
-        this.loginForm.reset();
-        this.clearMessage();
+        if (this.loginModal) {
+            this.loginModal.style.display = 'none';
+            document.body.style.overflow = ''; // Restore scrolling
+            this.loginForm.reset();
+            this.clearMessage();
+        }
     }
 
     /**
