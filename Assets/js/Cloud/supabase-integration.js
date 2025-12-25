@@ -81,8 +81,13 @@ class SupabaseCloudSync {
                 this.user = session.user;
                 console.log('[Session] Existierende Session gefunden:', this.user.email);
                 
-                // Automatisch vom Server synchronisieren
-                await this.downloadFromCloud();
+                // Trigger UI Update
+                this.onAuthStateChanged(true, this.user);
+                
+                // Automatisch vom Server synchronisieren (nicht-blocking)
+                this.downloadFromCloud().catch(err => {
+                    console.warn('[Cloud] Auto-Download beim Login fehlgeschlagen:', err);
+                });
             }
         } catch (error) {
             console.error('[Session] Fehler:', error);
@@ -186,14 +191,19 @@ class SupabaseCloudSync {
                 .select();
 
             if (error) {
-                console.error('[Cloud] Upload Fehler:', error);
-                throw error;
+                console.error('[Cloud] Upload Error Details:', {
+                    message: error.message,
+                    code: error.code,
+                    status: error.status,
+                    details: error.details
+                });
+                throw new Error(`Upload Fehler (${error.code}): ${error.message}`);
             }
 
             console.log('[Cloud] Daten erfolgreich hochgeladen!');
             return { success: true, data };
         } catch (error) {
-            console.error('[Cloud] uploadToCloud Fehler:', error);
+            console.error('[Cloud] uploadToCloud Fehler:', error.message || error);
             throw error;
         }
     }
@@ -216,21 +226,25 @@ class SupabaseCloudSync {
             console.log('[Cloud] Lade Daten herunter für User:', this.user.id);
 
             // Hole Daten für den aktuellen User
+            // Nutze maybeSingle statt single für bessere Error-Handling
             const { data, error } = await this.client
                 .from('users')
                 .select('all_data')
                 .eq('id', this.user.id)
-                .maybeSingle();  // Nutze maybeSingle statt single für bessere Error-Handling
+                .maybeSingle();
 
             if (error) {
-                // Nur bei echtem Fehler werfen (PGRST116 = no rows ist ok)
-                if (error.code !== 'PGRST116') {
-                    console.error('[Cloud] Download Fehler:', error);
-                    throw error;
-                }
+                console.error('[Cloud] Query Error Details:', {
+                    message: error.message,
+                    code: error.code,
+                    status: error.status,
+                    details: error.details
+                });
+                // Werfe Error - nicht einfach ignorieren
+                throw new Error(`Supabase Query Fehler (${error.code}): ${error.message}`);
             }
 
-            if (data && data.all_data) {
+            if (data && data.all_data && typeof data.all_data === 'object') {
                 console.log('[Cloud] Lade', Object.keys(data.all_data).length, 'Keys in LocalStorage');
                 
                 // Leere nicht alte Keys - nur neue hinzufügen
@@ -241,11 +255,11 @@ class SupabaseCloudSync {
                 console.log('[Cloud] Daten erfolgreich synchronisiert!');
                 return { success: true, itemsLoaded: Object.keys(data.all_data).length };
             } else {
-                console.log('[Cloud] Keine Daten für diesen User gefunden');
+                console.log('[Cloud] Keine Daten für diesen User gefunden (erste Nutzung?)');
                 return { success: true, itemsLoaded: 0 };
             }
         } catch (error) {
-            console.error('[Cloud] downloadFromCloud Fehler:', error);
+            console.error('[Cloud] downloadFromCloud Fehler:', error.message || error);
             throw error;
         }
     }

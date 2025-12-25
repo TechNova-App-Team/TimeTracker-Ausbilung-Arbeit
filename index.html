@@ -16249,6 +16249,11 @@ TIPPS:
                     window.cloudSyncUI = new SupabaseCloudSyncUI(window.cloudSync);
                     console.log('[App] ✅ Cloud Sync UI erfolgreich aktiviert!');
                     setupCloudSyncIntegration();
+                    
+                    // Aktualisiere UI sofort mit aktuellem Status
+                    const isLoggedIn = window.cloudSync.isLoggedIn();
+                    const user = window.cloudSync.getCurrentUser();
+                    updateCloudSyncUI(isLoggedIn, user);
                 } catch (err) {
                     console.warn('[App] ⚠️ Cloud Sync UI Init Fehler:', err.message);
                     // Trotzdem Cloud Sync Integration versuchen
@@ -16335,8 +16340,8 @@ TIPPS:
     }
     
     function createCloudSyncButtons() {
-        // Cloud Sync Buttons sind jetzt FEST im Settings Modal (nicht mehr dynamisch injiziert)
-        console.log('[Cloud Sync] ✅ Buttons sind im Settings Modal verfügbar (nicht mehr dynamisch)');
+        // DEPRECATED - Cloud Sync Buttons sind jetzt FEST im Settings Modal
+        // Diese Funktion wird nicht mehr verwendet
     }
     
     function openCloudLoginModal() {
