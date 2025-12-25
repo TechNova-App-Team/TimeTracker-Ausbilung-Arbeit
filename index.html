@@ -16282,6 +16282,13 @@ TIPPS:
             };
         }
         
+        // Initialisiere UI sofort mit aktuellem Status
+        if (window.cloudSync) {
+            const isLoggedIn = window.cloudSync.isLoggedIn ? window.cloudSync.isLoggedIn() : false;
+            const user = window.cloudSync.getCurrentUser ? window.cloudSync.getCurrentUser() : null;
+            updateCloudSyncUI(isLoggedIn, user);
+        }
+        
         // Auto-Sync beim Speichern aktivieren
         setupAutoSync();
     }
