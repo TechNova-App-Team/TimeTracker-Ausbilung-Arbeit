@@ -28,9 +28,9 @@ class SelectiveSyncManager {
 
         // Speichere in Supabase
         const { error } = await this.sync.client
-            .from('Users')
+            .from('users')
             .upsert({
-                case: this.sync.user.id,
+                id: this.sync.user.id,
                 all_data: dataToUpload,
                 updated_at: new Date().toISOString()
             })
@@ -46,9 +46,9 @@ class SelectiveSyncManager {
         }
 
         const { data, error } = await this.sync.client
-            .from('Users')
+            .from('users')
             .select('all_data')
-            .eq('case', this.sync.user.id)
+            .eq('id', this.sync.user.id)
             .single();
 
         if (error && error.code !== 'PGRST116') throw error;
@@ -167,9 +167,9 @@ class ConflictResolvingSyncManager {
         try {
             // Hole Cloud-Daten
             const { data, error } = await this.sync.client
-                .from('Users')
+                .from('users')
                 .select('all_data, updated_at')
-                .eq('case', this.sync.user.id)
+                .eq('id', this.sync.user.id)
                 .single();
 
             if (error && error.code !== 'PGRST116') throw error;
@@ -193,7 +193,7 @@ class ConflictResolvingSyncManager {
 
             // Speichere merged Data
             const { error: updateError } = await this.sync.client
-                .from('Users')
+                .from('users')
                 .upsert({
                     case: this.sync.user.id,
                     all_data: mergedData,
@@ -238,7 +238,7 @@ class EncryptedSyncManager {
         }
 
         const { error } = await this.sync.client
-            .from('Users')
+            .from('users')
             .upsert({
                 case: this.sync.user.id,
                 all_data: localData,
@@ -252,9 +252,9 @@ class EncryptedSyncManager {
 
     async downloadEncrypted() {
         const { data, error } = await this.sync.client
-            .from('Users')
+            .from('users')
             .select('all_data')
-            .eq('case', this.sync.user.id)
+            .eq('id', this.sync.user.id)
             .single();
 
         if (error && error.code !== 'PGRST116') throw error;
@@ -374,7 +374,7 @@ class BackupRestoreManager {
 
         // Speichere als separate Tabelle/Record
         const { error } = await this.sync.client
-            .from('Users')
+            .from('users')
             .upsert({
                 case: this.sync.user.id,
                 all_data: {
@@ -518,3 +518,5 @@ window.ConflictResolvingSyncManager = ConflictResolvingSyncManager;
 window.EncryptedSyncManager = EncryptedSyncManager;
 window.BackupRestoreManager = BackupRestoreManager;
 window.SyncStatisticsManager = SyncStatisticsManager;
+
+
