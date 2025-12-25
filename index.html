@@ -136,6 +136,40 @@
             overflow-x: hidden;
         }
         
+        /* ❄️ WEIHNACHTS SCHNEEFLOCKEN EFFEKT ❄️ */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            color: #fff;
+            font-size: 1.5em;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            z-index: 50;
+            opacity: 0.8;
+            pointer-events: none;
+            will-change: transform;
+            filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+        }
+        
+        @keyframes snowfall {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes sway {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(20px); }
+            75% { transform: translateX(-20px); }
+        }
+        
         /* Range Slider Styling */
         input[type="range"] {
             -webkit-appearance: none;
@@ -17933,6 +17967,60 @@ window.addEventListener('offline', () => {
         showCustomMessage('📡 Offline', 'Du bist offline. App funktioniert weiterhin!', 'warning');
     }
 });
+
+// ============================================
+// ❄️ WEIHNACHTS-SCHNEEFLOCKEN EFFEKT ❄️
+// ============================================
+(function createSnowflakes() {
+    const snowflakeSvg = `❄`;
+    const snowflakeCount = window.innerWidth < 768 ? 15 : 30; // Weniger auf mobil
+    
+    function createSnowflake() {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.textContent = snowflakeSvg;
+        
+        // Zufällige horizontale Position
+        const left = Math.random() * window.innerWidth;
+        snowflake.style.left = left + 'px';
+        
+        // Zufällige Animation Dauer (6-12 Sekunden)
+        const duration = Math.random() * 6 + 6;
+        snowflake.style.animationDuration = duration + 's';
+        
+        // Zufällige Verzögerung
+        const delay = Math.random() * 2;
+        snowflake.style.animationDelay = delay + 's';
+        
+        // Zufällige Größe
+        const fontSize = Math.random() * 15 + 10;
+        snowflake.style.fontSize = fontSize + 'px';
+        
+        // Sway Animation hinzufügen
+        snowflake.style.animation = `snowfall ${duration}s linear ${delay}s infinite`;
+        
+        document.body.appendChild(snowflake);
+        
+        // Entferne nach Animation wenn sie unten ist
+        setTimeout(() => {
+            snowflake.remove();
+        }, (duration + delay + 1) * 1000);
+    }
+    
+    // Erstelle initial Schneeflocken
+    for (let i = 0; i < snowflakeCount; i++) {
+        setTimeout(() => createSnowflake(), i * 200);
+    }
+    
+    // Erstelle kontinuierlich neue Schneeflocken
+    setInterval(() => {
+        if (document.querySelectorAll('.snowflake').length < snowflakeCount) {
+            createSnowflake();
+        }
+    }, 500);
+    
+    console.log('🎄 Frohe Weihnachten! ❄️ Schneeflocken-Effekt aktiviert!');
+})();
 
 </script>
 </body>
