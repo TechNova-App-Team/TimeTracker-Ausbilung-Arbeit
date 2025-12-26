@@ -39,11 +39,14 @@
 <meta name="twitter:description" content="Lokal laufende Zeiterfassungs-App ohne Server. 100% Datenschutz, Gleitzeit-Konto.">
 <meta name="twitter:image" content="https://img.shields.io/badge/TimeTracker-Modern%20&%20Local-purple?style=for-the-badge&logo=javascript">
 <meta name="twitter:creator" content="@YourTwitterHandle">
+<!-- Snowflakes CSS & JS -->
+<link rel="stylesheet" href="./Assets/css/snowflakes.css">
 <!-- Local Scripts (defer für korrektes Laden) -->
 <script defer src="./Assets/js/icons.js"></script>
 <script defer src="./Assets/js/shortcuts.js"></script>
 <script defer src="./Assets/js/touch-mobile-optimizations.js"></script>
 <script defer src="./Assets/js/pinch-zoom.js"></script>
+<script defer src="./Assets/js/snowflakes.js"></script>
 <!-- Preload External CDN Resources (für bessere Performance) -->
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/simple-peer@9/simplepeer.min.js">
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
@@ -57,14 +60,11 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script async src="https://plausible.io/js/pa-jiUWAYasLo3v5kIOac5C3.js"></script>
-
 <!-- Supabase JavaScript Client (MUSS zuerst laden!) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <!-- Supabase Integration (NACH Supabase JS) -->
 <script defer src="./Assets/js/Cloud/supabase-integration.js"></script>
 <script defer src="./Assets/js/Cloud/supabase-ui.js"></script>
-
 <!-- Deine Config (ZULETZT) -->
 <script defer src="./supabase-config.js"></script>
 <script>
@@ -136,41 +136,6 @@
             overflow-x: hidden;
         }
         
-        /* ❄️ WEIHNACHTS SCHNEEFLOCKEN EFFEKT ❄️ */
-        .snowflake {
-            position: fixed;
-            top: -10px;
-            color: #fff;
-            font-size: 1.5em;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-            z-index: 50;
-            opacity: 0.8;
-            pointer-events: none;
-            will-change: transform;
-            filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
-        }
-        
-        @keyframes snowfall {
-            0% {
-                transform: translateY(0) translateX(0) rotate(0deg);
-                opacity: 0.8;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) translateX(100px) rotate(360deg);
-                opacity: 0;
-            }
-        }
-        
-        @keyframes sway {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(20px); }
-            75% { transform: translateX(-20px); }
-        }
-        
-        /* ❄️ Modal & Cloud Login Styling (matches app theme) */
         .cloud-login-modal {
             position: fixed;
             top: 0;
@@ -2467,7 +2432,14 @@
         <a href="./Pages/App/vertrags-manager.html" class="nav-item" style="text-decoration:none; cursor:pointer;" aria-label="Vertrags-Manager — Gehalt & Urlaubsübersicht">
             <span>💼</span> Vertrags-Mgr
         </a>
-        <!-- 3. Bereich: Community & KI -->
+
+        <!-- 3. Bereich: Events -->
+        <div class="nav-section" style="margin-top: 1.5rem; opacity: 0.7;">Events</div>
+        <a href="./Pages/Event/Weihnachten.html" class="nav-item" style="text-decoration:none; cursor:pointer;" aria-label="Weihnachten — Festliche Feierlichkeiten">
+            <span>🎄</span> Weihnachten
+        </a>
+
+        <!-- 4. Bereich: Community & KI -->
         <div class="nav-section" style="margin-top: 1.5rem; opacity: 0.7;">Community & KI</div>
         <div class="nav-item" onclick="renderCommunityHub()">
             <span>🧠</span> Community
@@ -2476,7 +2448,7 @@
             <span>🤖</span> AI-Bot
         </div>
 
-        <!-- 4. Bereich: Tools & Werkzeuge -->
+        <!-- 5. Bereich: Tools & Werkzeuge -->
         <div class="nav-section" style="margin-top: 1.5rem; opacity: 0.7;">Tools & Werkzeuge</div>
         <div class="nav-item" id="nav-alerts" onclick="toggleAlertsPanel()" style="position:relative;">
             <span>🔔</span> Alerts
@@ -2497,7 +2469,7 @@
         <input type="file" id="fileImp" hidden onchange="importData(event)">
         <input type="file" id="fileImpEncrypted" hidden accept=".encrypted.json,application/json" onchange="importEncryptedBackup(event)">
 
-        <!-- 5. Bereich: Hilfe & Rechtliches -->
+        <!-- 6. Bereich: Hilfe & Rechtliches -->
         <div class="nav-section" style="margin-top: 1.5rem; opacity: 0.7;">Hilfe & Rechtliches</div>
         <div class="nav-item" id="nav-support" onclick="switchTab('support')">
             <span>☕</span> Unterstützung
@@ -18105,60 +18077,6 @@ window.addEventListener('offline', () => {
         showCustomMessage('📡 Offline', 'Du bist offline. App funktioniert weiterhin!', 'warning');
     }
 });
-
-// ============================================
-// ❄️ WEIHNACHTS-SCHNEEFLOCKEN EFFEKT ❄️
-// ============================================
-(function createSnowflakes() {
-    const snowflakeSvg = `❄`;
-    const snowflakeCount = window.innerWidth < 768 ? 15 : 30; // Weniger auf mobil
-    
-    function createSnowflake() {
-        const snowflake = document.createElement('div');
-        snowflake.className = 'snowflake';
-        snowflake.textContent = snowflakeSvg;
-        
-        // Zufällige horizontale Position
-        const left = Math.random() * window.innerWidth;
-        snowflake.style.left = left + 'px';
-        
-        // Zufällige Animation Dauer (6-12 Sekunden)
-        const duration = Math.random() * 6 + 6;
-        snowflake.style.animationDuration = duration + 's';
-        
-        // Zufällige Verzögerung
-        const delay = Math.random() * 2;
-        snowflake.style.animationDelay = delay + 's';
-        
-        // Zufällige Größe
-        const fontSize = Math.random() * 15 + 10;
-        snowflake.style.fontSize = fontSize + 'px';
-        
-        // Sway Animation hinzufügen
-        snowflake.style.animation = `snowfall ${duration}s linear ${delay}s infinite`;
-        
-        document.body.appendChild(snowflake);
-        
-        // Entferne nach Animation wenn sie unten ist
-        setTimeout(() => {
-            snowflake.remove();
-        }, (duration + delay + 1) * 1000);
-    }
-    
-    // Erstelle initial Schneeflocken
-    for (let i = 0; i < snowflakeCount; i++) {
-        setTimeout(() => createSnowflake(), i * 200);
-    }
-    
-    // Erstelle kontinuierlich neue Schneeflocken
-    setInterval(() => {
-        if (document.querySelectorAll('.snowflake').length < snowflakeCount) {
-            createSnowflake();
-        }
-    }, 500);
-    
-    console.log('🎄 Frohe Weihnachten! ❄️ Schneeflocken-Effekt aktiviert!');
-})();
 
 </script>
 </body>

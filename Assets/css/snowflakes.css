@@ -1,0 +1,52 @@
+/* ❄️ WEIHNACHTS SCHNEEFLOCKEN EFFEKT ❄️ */
+.snowflake {
+    position: fixed;
+    top: -10px;
+    color: #fff;
+    font-size: 1.5em;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
+                 0 0 16px rgba(255, 255, 255, 0.6),
+                 0 0 24px rgba(168, 85, 247, 0.4);
+    z-index: 50;
+    opacity: 0.85;
+    pointer-events: none;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.snowflake.light { opacity: 0.6; font-size: 1.2em; }
+.snowflake.medium { opacity: 0.8; font-size: 1.5em; }
+.snowflake.heavy { opacity: 0.95; font-size: 2em; text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 0 20px rgba(168, 85, 247, 0.5); }
+
+@keyframes snowfall {
+    0% {
+        transform: translateY(-10px) translateX(0) rotate(0deg);
+        opacity: 0;
+    }
+    5% {
+        opacity: 0.85;
+    }
+    95% {
+        opacity: 0.85;
+    }
+    100% {
+        transform: translateY(calc(100vh + 20px)) translateX(var(--sway-offset, 0px)) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes sway-left {
+    0%, 100% { --sway-offset: 0px; }
+    25% { --sway-offset: 30px; }
+    50% { --sway-offset: -40px; }
+    75% { --sway-offset: 20px; }
+}
+
+@keyframes sway-right {
+    0%, 100% { --sway-offset: 0px; }
+    25% { --sway-offset: -35px; }
+    50% { --sway-offset: 45px; }
+    75% { --sway-offset: -25px; }
+}
