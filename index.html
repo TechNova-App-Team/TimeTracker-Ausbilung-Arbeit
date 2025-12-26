@@ -3649,43 +3649,50 @@
 
     <!-- DSGVO/Privacy Modal -->
     <div class="modal" id="privacyModal" style="display:none;">
-        <div class="modal-box" style="width:90%; max-width:600px; max-height:85vh; overflow-y:auto; padding:32px; backdrop-filter:blur(20px); border-radius:24px; border:1px solid rgba(168, 85, 247, 0.3); position:relative;">
-            <div style="text-align:center; margin-bottom:24px;">
-                <div style="font-size:3rem; margin-bottom:12px;">🔐</div>
-                <h2 style="color:var(--text-main); font-size:1.8rem; font-weight:700; margin:0 0 8px 0;">Deine Daten sind sicher</h2>
-                <p style="color:var(--text-muted); margin:0; font-size:0.95rem;">Transparenz über deine Privatsphäre</p>
-            </div>
+        <div class="modal-box" style="width:90%; max-width:600px; max-height:85vh; display:flex; flex-direction:column; backdrop-filter:blur(20px); border-radius:24px; border:1px solid rgba(168, 85, 247, 0.3); position:relative;">
+            <!-- Close Button oben rechts - IMMER sichtbar -->
+            <button onclick="closePrivacyModal()" style="position:absolute; top:12px; right:12px; background:none; border:none; color:var(--text-main); font-size:1.8rem; cursor:pointer; width:40px; height:40px; display:flex; align-items:center; justify-content:center; transition:0.2s; z-index:10;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">×</button>
+            
+            <!-- Scrollable Content -->
+            <div style="overflow-y:auto; padding:32px; padding-top:16px;">
+                <div style="text-align:center; margin-bottom:24px;">
+                    <div style="font-size:3rem; margin-bottom:12px;">🔐</div>
+                    <h2 style="color:var(--text-main); font-size:1.8rem; font-weight:700; margin:0 0 8px 0;">Deine Daten sind sicher</h2>
+                    <p style="color:var(--text-muted); margin:0; font-size:0.95rem;">Transparenz über deine Privatsphäre</p>
+                </div>
 
-            <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.3); border-radius:16px; padding:16px; margin-bottom:20px;">
-                <p style="color:var(--text-main); font-weight:600; margin:0 0 10px 0; font-size:0.95rem;">✅ Das ist wichtig:</p>
-                <ul style="color:var(--text-muted); font-size:0.9rem; list-style:none; padding:0; margin:0; line-height:1.8;">
-                    <li>🔒 <strong>Keine externen Server:</strong> Alle Daten werden nur in deinem Browser gespeichert (LocalStorage)</li>
-                    <li>🚫 <strong>Keine Cookies:</strong> Wir setzen keine Tracking- oder Werbe-Cookies</li>
-                    <li>👤 <strong>"Keine" Datensammlung:</strong> Wir tracken dich nicht und sammeln keine persönlichen Daten — es werden nur Seitenaufrufe erfasst. Mehr dazu: <a href="./Pages/DE-Gestz/DSGVO.html" class="external-link" target="_blank" rel="noopener noreferrer" aria-label="DSGVO — Informationen zur Datenerfassung (öffnet in neuem Tab)" title="Öffnet in neuem Tab">DSGVO</a>.</li>
-                    <li>📊 <strong>Keine Analytics:</strong> Keine Auswertungen, Analysen oder Drittanbieter</li>
-                    <li>🔄 <strong>Nur du:</strong> Du bestimmst was mit deinen Daten passiert - nur du hast Zugriff</li>
-                </ul>
-            </div>
+                <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.3); border-radius:16px; padding:16px; margin-bottom:20px;">
+                    <p style="color:var(--text-main); font-weight:600; margin:0 0 10px 0; font-size:0.95rem;">✅ Das ist wichtig:</p>
+                    <ul style="color:var(--text-muted); font-size:0.9rem; list-style:none; padding:0; margin:0; line-height:1.8;">
+                        <li>🔒 <strong>Keine externen Server:</strong> Alle Daten werden nur in deinem Browser gespeichert (LocalStorage)</li>
+                        <li>🚫 <strong>Keine Cookies:</strong> Wir setzen keine Tracking- oder Werbe-Cookies</li>
+                        <li>👤 <strong>"Keine" Datensammlung:</strong> Wir tracken dich nicht und sammeln keine persönlichen Daten — es werden nur Seitenaufrufe erfasst. Mehr dazu: <a href="./Pages/DE-Gestz/DSGVO.html" class="external-link" target="_blank" rel="noopener noreferrer" aria-label="DSGVO — Informationen zur Datenerfassung (öffnet in neuem Tab)" title="Öffnet in neuem Tab">DSGVO</a>.</li>
+                        <li>📊 <strong>Keine Analytics:</strong> Keine Auswertungen, Analysen oder Drittanbieter</li>
+                        <li>🔄 <strong>Nur du:</strong> Du bestimmst was mit deinen Daten passiert - nur du hast Zugriff</li>
+                    </ul>
+                </div>
 
-            <div style="background:rgba(59, 130, 246, 0.08); border:1px solid rgba(59, 130, 246, 0.3); border-radius:16px; padding:16px; margin-bottom:20px;">
-                <p style="color:var(--text-main); font-weight:600; margin:0 0 10px 0; font-size:0.95rem;">📱 Deine Kontrolle:</p>
-                <ul style="color:var(--text-muted); font-size:0.9rem; list-style:none; padding:0; margin:0; line-height:1.8;">
-                    <li>💾 <strong>Export:</strong> Du kannst jederzeit deine Daten als JSON/CSV exportieren</li>
-                    <li>📂 <strong>Import:</strong> Deine Daten können jederzeit importiert werden</li>
-                    <li>🗑️ <strong>Löschen:</strong> Nutze die Browser Dev Tools (LocalStorage), um alles zu löschen</li>
-                    <li>🔄 <strong>Offline:</strong> Keine Internetverbindung nötig - alles funktioniert offline!</li>
-                </ul>
-            </div>
+                <div style="background:rgba(59, 130, 246, 0.08); border:1px solid rgba(59, 130, 246, 0.3); border-radius:16px; padding:16px; margin-bottom:20px;">
+                    <p style="color:var(--text-main); font-weight:600; margin:0 0 10px 0; font-size:0.95rem;">📱 Deine Kontrolle:</p>
+                    <ul style="color:var(--text-muted); font-size:0.9rem; list-style:none; padding:0; margin:0; line-height:1.8;">
+                        <li>💾 <strong>Export:</strong> Du kannst jederzeit deine Daten als JSON/CSV exportieren</li>
+                        <li>📂 <strong>Import:</strong> Deine Daten können jederzeit importiert werden</li>
+                        <li>🗑️ <strong>Löschen:</strong> Nutze die Browser Dev Tools (LocalStorage), um alles zu löschen</li>
+                        <li>🔄 <strong>Offline:</strong> Keine Internetverbindung nötig - alles funktioniert offline!</li>
+                    </ul>
+                </div>
 
-            <div style="background:rgba(255, 255, 255, 0.04); border-left:4px solid var(--primary); border-radius:8px; padding:12px; margin-bottom:24px;">
-                <p style="color:var(--text-muted); font-size:0.85rem; margin:0; line-height:1.6;">
-                    <strong style="color:var(--text-main);">Fragen?</strong> TIME.PRO ist Open Source auf GitHub. 
-                    Der gesamte Code ist transparent einsehbar und überprüfbar.
-                </p>
+                <div style="background:rgba(255, 255, 255, 0.04); border-left:4px solid var(--primary); border-radius:8px; padding:12px; margin-bottom:24px;">
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin:0; line-height:1.6;">
+                        <strong style="color:var(--text-main);">Fragen?</strong> TIME.PRO ist Open Source auf GitHub. 
+                        Der gesamte Code ist transparent einsehbar und überprüfbar.
+                    </p>
+                </div>
             </div>
-
-            <div style="display:flex; gap:12px; justify-content:flex-end;">
-                <button class="btn btn-primary" onclick="closePrivacyModal()" style="background:var(--primary); padding:12px 32px; font-weight:600;">
+            
+            <!-- Sticky Footer Button - IMMER sichtbar -->
+            <div style="border-top:1px solid rgba(168, 85, 247, 0.2); padding:16px 32px; background:rgba(0,0,0,0.3); flex-shrink:0;">
+                <button class="btn btn-primary" onclick="closePrivacyModal()" style="width:100%; background:var(--primary); padding:14px 32px; font-weight:600; border:none; border-radius:12px; color:white; cursor:pointer; font-size:1rem;">
                     ✅ Verstanden & weiter
                 </button>
             </div>
