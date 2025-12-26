@@ -56,11 +56,13 @@ class PinchZoom {
 
     setupStyles() {
         // Optimize for smooth transforms
-        this.element.style.transformOrigin = '0 0';
+        this.element.style.transformOrigin = 'center center';
         this.element.style.willChange = 'transform';
         this.element.style.touchAction = 'manipulation';
         this.element.style.userSelect = 'none';
         this.element.style.webkitUserSelect = 'none';
+        // Wichtig: Initial kein Transform setzen
+        this.element.style.transform = 'none';
     }
 
     preventDefaultBehaviors() {
@@ -354,9 +356,14 @@ class PinchZoom {
     }
 
     render() {
-        // Use transform for GPU acceleration
-        const transform = `translate3d(${this.x}px, ${this.y}px, 0) scale(${this.scale})`;
-        this.element.style.transform = transform;
+        // Nur transform anwenden wenn wir tatsächlich gezoomt haben
+        if (this.scale === 1 && this.x === 0 && this.y === 0) {
+            this.element.style.transform = 'none';
+        } else {
+            // Use transform for GPU acceleration
+            const transform = `translate3d(${this.x}px, ${this.y}px, 0) scale(${this.scale})`;
+            this.element.style.transform = transform;
+        }
     }
 
     getDistance(touches) {
@@ -403,12 +410,14 @@ document.addEventListener('DOMContentLoaded', () => {
                      || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
     
     if (isMobile) {
+        // Nur auf spezifischen Elementen anwenden, nicht auf body!
+        // Das verhindert Zoom-Probleme beim Initial Load
         window.pinchZoom = new PinchZoom({
-            element: document.body,
+            element: document.documentElement,
             minZoom: 1,
             maxZoom: 4,
-            resetDelay: 200,        // Wait 200ms after finger release
-            animationDuration: 300   // Smooth 300ms reset animation
+            resetDelay: 200,
+            animationDuration: 300
         });
     }
 });
