@@ -139,6 +139,8 @@
         canvas {
             display: block;
             width: 100%;
+            height: auto;
+            max-width: 100%;
             border-radius: 20px;
             background: radial-gradient(circle at center, #0d0d0d 0%, #000000 100%);
             box-shadow: inset 0 0 80px rgba(0,0,0,0.9),
@@ -429,9 +431,9 @@
             }
 
             .canvas-container {
-                padding: 15px;
-                border-radius: 15px;
-                margin-bottom: 15px;
+                padding: 10px;
+                border-radius: 12px;
+                margin-bottom: 10px;
             }
 
             canvas {
@@ -443,15 +445,34 @@
             }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            header {
+                padding: 15px 0;
+                margin-bottom: 15px;
+            }
             h1 {
-                font-size: 1.6em;
+                font-size: clamp(1.2em, 5vw, 2.2em);
                 letter-spacing: 1px;
                 margin-bottom: 5px;
             }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: clamp(1em, 4vw, 1.6em);
+                letter-spacing: 0.5px;
+                margin-bottom: 3px;
+            }
 
             .subtitle {
-                font-size: 0.85em;
+                font-size: clamp(0.75em, 3vw, 0.85em);
+            }
+
+            .container {
+                padding: 0 5px;
             }
 
             .panel {
@@ -1050,8 +1071,11 @@
         document.body.appendChild(snowballUI);
 
         const snowballCanvas = document.createElement('canvas');
-        snowballCanvas.width = window.innerWidth;
-        snowballCanvas.height = window.innerHeight;
+        const dpr = window.devicePixelRatio || 1;
+        snowballCanvas.width = window.innerWidth * dpr;
+        snowballCanvas.height = window.innerHeight * dpr;
+        snowballCanvas.style.width = window.innerWidth + 'px';
+        snowballCanvas.style.height = window.innerHeight + 'px';
         Object.assign(snowballCanvas.style, {
             position: 'fixed',
             top: '0',
@@ -1062,6 +1086,7 @@
         document.body.appendChild(snowballCanvas);
 
         const snowCtx = snowballCanvas.getContext('2d');
+        snowCtx.scale(dpr, dpr);
         let snowballs = [];
         let splatters = [];
         let snowballCount = 0;
@@ -1485,10 +1510,17 @@
         }
         animate();
 
-        window.addEventListener('resize', () => {
-            snowballCanvas.width = window.innerWidth;
-            snowballCanvas.height = window.innerHeight;
-        });
+        function resizeSnowballCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            snowballCanvas.width = window.innerWidth * dpr;
+            snowballCanvas.height = window.innerHeight * dpr;
+            snowballCanvas.style.width = window.innerWidth + 'px';
+            snowballCanvas.style.height = window.innerHeight + 'px';
+            snowCtx.scale(dpr, dpr);
+        }
+        
+        resizeSnowballCanvas();
+        window.addEventListener('resize', resizeSnowballCanvas);
     </script>
 
 </body>
