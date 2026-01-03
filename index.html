@@ -67,6 +67,15 @@
 <script defer src="./Assets/js/Cloud/supabase-ui.js"></script>
 <!-- Deine Config (ZULETZT) -->
 <script defer src="./supabase-config.js"></script>
+
+<!-- AI-Bot Engine Scripts -->
+<script src="./AI-Bot/data-analyzer-pro.js"></script>
+<script src="./AI-Bot/aibot-engine-pro.js"></script>
+<!-- WebLLM Integration -->
+<script defer src="./AI-Bot/LLM/webllm-config.js"></script>
+<script defer src="./AI-Bot/LLM/webllm-integration.js"></script>
+<script defer src="./AI-Bot/LLM/webllm-validator.js"></script>
+
 <script>
   window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
   plausible.init()
@@ -2351,12 +2360,309 @@
             display: block;
         }
 
+        /* ===== WEBLLM INTEGRATION STYLES ===== */
+        
+        /* WebLLM Toggle Button */
+        #webllm-toggle-btn {
+            padding: 10px 16px;
+            background: rgba(168, 85, 247, 0.1);
+            border: 2px solid var(--primary);
+            color: var(--text-main);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #webllm-toggle-btn:hover {
+            background: rgba(168, 85, 247, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+
+        #webllm-toggle-btn.active {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+        }
+
+        #webllm-toggle-btn.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.6);
+        }
+
+        /* Warning Modal */
+        .webllm-warning-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .webllm-modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .webllm-modal-box {
+            position: relative;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: slideUp 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .webllm-modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), transparent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .webllm-modal-header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            color: var(--text-main);
+        }
+
+        .webllm-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .webllm-close-btn:hover {
+            color: var(--text-main);
+            transform: rotate(90deg);
+        }
+
+        .webllm-modal-content {
+            padding: 2rem;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .webllm-modal-content p {
+            margin: 0 0 1rem 0;
+            color: var(--text-muted);
+        }
+
+        .webllm-modal-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .webllm-modal-content li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-muted);
+        }
+
+        .webllm-modal-content li:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .webllm-modal-actions {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* Buttons */
+        .webllm-btn-primary,
+        .webllm-btn-secondary {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .webllm-btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .webllm-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .webllm-btn-primary {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+
+        .webllm-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(168, 85, 247, 0.5);
+        }
+
+        .webllm-btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Loading Container */
+        .webllm-loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .webllm-loading-box {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .webllm-loading-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            animation: spin 2s linear infinite;
+        }
+
+        .webllm-loading-box h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-main);
+            font-size: 1.3rem;
+        }
+
+        #webllm-loading-status {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Progress Bar */
+        .webllm-progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .webllm-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #8b5cf6);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+
+        .webllm-progress-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            margin: 0;
+        }
+
+        /* Loading animations */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 640px) {
+            #webllm-toggle-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+
+            .webllm-modal-box {
+                width: 95%;
+                max-width: none;
+            }
+
+            .webllm-loading-box {
+                padding: 2rem 1.5rem;
+            }
+        }
+
     </style>
-    
-    <!-- AI-Bot Engine Scripts -->
-    <!-- Advanced Intelligence, Analytics & Insights -->
-    <script src="./AI-Bot/data-analyzer-pro.js"></script>
-    <script src="./AI-Bot/aibot-engine-pro.js"></script>
 </head>
 <body>
 
@@ -3257,7 +3563,10 @@
                     <button class="help-slim" title="Hilfe" onclick="openQuickHelp('global')">?</button>
                 </div>
             </div>
-            <div class="date-badge" id="currentDate">loading...</div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="date-badge" id="currentDate">loading...</div>
+                <button id="webllm-toggle-btn" onclick="window.webLLMIntegration.toggleMode()" title="Klick um WebLLM zu aktivieren">🤖 Lokaler Bot</button>
+            </div>
         </header>
 
         <div id="view-dashboard" class="view-section active">
@@ -5655,6 +5964,7 @@
                 <button class="btn btn-ghost" onclick="openSettings(); closeMoreActionsModal()">⚙️ Einstellungen</button>
                 <button class="btn btn-ghost" onclick="startFocusMode(); closeMoreActionsModal()">🎯 Focus Mode starten</button>
                 <button class="btn btn-ghost" onclick="openBreakSettingsModal(); closeMoreActionsModal()">🔔 Break Settings</button>
+                <button class="btn btn-ghost" onclick="window.webLLMIntegration.clearCache(); closeMoreActionsModal()" title="Löscht den WebLLM Browser-Cache">🗑️ WebLLM Cache leeren</button>
             </div>
             
             <button class="modal-close-x" aria-label="Schließen" onclick="closeMoreActionsModal()" title="Schließen">×</button>
@@ -18790,25 +19100,40 @@ function sendAIBotMessage() {
     // Show THINKING indicator
     showThinkingIndicator();
     
-    // Nutze die neue AI-Bot Engine PRO für intelligente Responses
-    // Random delay zwischen 1500-3500ms
-    const thinkingDelay = Math.random() * 2000 + 1500;
-    setTimeout(() => {
-        let response;
-        try {
-            // Verwende PRO Version (alte Versionen sind gelöscht)
-            if (typeof aiBotEnginePro !== 'undefined' && aiBotEnginePro && typeof aiBotEnginePro.generateResponse === 'function') {
-                response = aiBotEnginePro.generateResponse(message);
-            } else {
-                response = '🤖 AI-Bot wird gerade initialisiert... Bitte warte einen Moment!';
+    // Prüfe ob WebLLM aktiv ist
+    const isWebLLMActive = window.webLLMIntegration && window.webLLMIntegration.isWebLLMActive;
+    
+    if (isWebLLMActive) {
+        // Verwende WebLLM
+        window.webLLMIntegration.generateResponse(message).then(response => {
+            removeThinkingIndicator();
+            addAIBotMessage(response, 'bot');
+        }).catch(err => {
+            console.error('[WebLLM] Error:', err);
+            removeThinkingIndicator();
+            addAIBotMessage('❌ Fehler bei WebLLM: ' + err.message, 'bot');
+        });
+    } else {
+        // Nutze die lokale AI-Bot Engine PRO für intelligente Responses
+        // Random delay zwischen 1500-3500ms
+        const thinkingDelay = Math.random() * 2000 + 1500;
+        setTimeout(() => {
+            let response;
+            try {
+                // Verwende PRO Version (alte Versionen sind gelöscht)
+                if (typeof aiBotEnginePro !== 'undefined' && aiBotEnginePro && typeof aiBotEnginePro.generateResponse === 'function') {
+                    response = aiBotEnginePro.generateResponse(message);
+                } else {
+                    response = '🤖 AI-Bot wird gerade initialisiert... Bitte warte einen Moment!';
+                }
+            } catch (err) {
+                console.error('[AI-Bot] Error:', err);
+                response = '❌ Ein Fehler ist aufgetreten. Bitte versuche es erneut oder lade die Seite neu.';
             }
-        } catch (err) {
-            console.error('[AI-Bot] Error:', err);
-            response = '❌ Ein Fehler ist aufgetreten. Bitte versuche es erneut oder lade die Seite neu.';
-        }
-        removeThinkingIndicator();
-        addAIBotMessage(response, 'bot');
-    }, thinkingDelay);
+            removeThinkingIndicator();
+            addAIBotMessage(response, 'bot');
+        }, thinkingDelay);
+    }
 }
 
 function setAIBotQuestion(question) {
