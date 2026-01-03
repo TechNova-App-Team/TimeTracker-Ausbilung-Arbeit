@@ -12,7 +12,7 @@ class WebLLMIntegration {
         // Nutze Config wenn verfügbar, sonst Fallback
         this.model = (typeof WebLLMConfig !== 'undefined' && WebLLMConfig.model) 
             ? WebLLMConfig.model 
-            : 'Llama-3.2-1B-Instruct-q4f32_1';
+            : 'Llama-3.2-1B-Instruct-q4f32_1-MLC';
         this.conversationHistory = [];
         this.loadState();
         this.logDebug('WebLLM Integration initialisiert');
@@ -177,37 +177,67 @@ class WebLLMIntegration {
         this.showLoadingBar();
 
         try {
-            // Lade WebLLM Bibliothek
+            // Lade WebLLM Bibliothek mit Fallback URLs
             if (!window.mlc) {
                 this.updateProgress(10, 'Läde WebLLM Bibliothek...');
-                await this.loadScript('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.10/dist/web-llm.js');
+                
+                // Moderne CDN URLs für WebLLM v0.2.80+
+                const cdnUrls = [
+                    'https://esm.run/@mlc-ai/web-llm@0.2.80',      // ESM Hauptadresse (zuverlässig)
+                    'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.80/+esm',  // jsdelivr ESM
+                    'https://unpkg.com/@mlc-ai/web-llm@0.2.80/+esm', // unpkg ESM Fallback
+                ];
+                
+                let loaded = false;
+                let lastError = null;
+                
+                for (const url of cdnUrls) {
+                    try {
+                        console.log('[WebLLM] Versuche zu laden:', url);
+                        // Verwende dynamischen import für ESM URLs
+                        if (url.includes('esm.run')) {
+                            window.mlc = await import(url);
+                            loaded = true;
+                            break;
+                        } else {
+                            await this.loadScript(url);
+                            loaded = true;
+                            break;
+                        }
+                    } catch (err) {
+                        console.warn('[WebLLM] CDN fehlgeschlagen:', url, err.message);
+                        lastError = err;
+                    }
+                }
+                
+                if (!loaded) {
+                    throw new Error('WebLLM Library konnte von keiner CDN geladen werden. Prüfe deine Internet-Verbindung!');
+                }
             }
 
             this.updateProgress(30, 'Initialisiere Modell...');
 
-            // Initialisiere MLCEngine
-            const { MLCEngine } = window.mlc;
-            this.engine = new MLCEngine({
-                model: this.model,
-                logitProcessor: 'top_p',
-            });
+            // Prüfe ob MLCEngine verfügbar ist
+            if (!window.mlc || !window.mlc.CreateMLCEngine) {
+                throw new Error('WebLLM Library wurde geladen, aber CreateMLCEngine ist nicht verfügbar. Browser könnte nicht kompatibel sein.');
+            }
 
-            // Überwache den Loading-Prozess
-            let lastProgress = 30;
-            const progressInterval = setInterval(() => {
-                if (this.engine && this.engine.getEngineProgress) {
-                    const progress = this.engine.getEngineProgress();
-                    if (progress.progress > lastProgress && progress.progress < 100) {
-                        lastProgress = progress.progress;
-                        const message = `Lädt Modell ${progress.text}...`;
-                        this.updateProgress(lastProgress, message);
-                    }
-                }
-            }, 500);
+            // Initialisiere MLCEngine mit Model Loading
+            const { CreateMLCEngine } = window.mlc;
+            
+            // Progress Callback für Loading
+            const initProgressCallback = (progress) => {
+                const percent = Math.round(progress.progress * 100);
+                const message = `Lädt Modell: ${progress.text || 'Initialisierung'}`;
+                this.updateProgress(Math.min(99, 30 + (percent * 0.7)), message);
+            };
 
-            // Warte auf vollständiges Laden
-            await this.engine.ready;
-            clearInterval(progressInterval);
+            // Erstelle Engine und lade Modell
+            this.engine = await CreateMLCEngine(
+                this.model,
+                { initProgressCallback },
+                { temperature: 0.7, top_p: 0.95 }
+            );
 
             this.updateProgress(100, 'WebLLM ist bereit!');
             this.isWebLLMActive = true;
@@ -223,8 +253,24 @@ class WebLLMIntegration {
         } catch (error) {
             console.error('[WebLLM] Fehler beim Laden:', error);
             this.removeLoadingBar();
-            this.showErrorMessage(error.message);
+            await this.showErrorMessage(error.message);
             this.isLoading = false;
+        }
+    }
+
+    /**
+     * Prüft Internet-Verbindung
+     */
+    async checkNetworkConnection() {
+        try {
+            const response = await fetch('https://www.google.com/favicon.ico', { 
+                method: 'HEAD',
+                mode: 'no-cors'
+            });
+            return true;
+        } catch (err) {
+            console.warn('[WebLLM] Netzwerk-Prüfung fehlgeschlagen:', err);
+            return false;
         }
     }
 
@@ -235,8 +281,16 @@ class WebLLMIntegration {
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
             script.src = src;
-            script.onload = resolve;
-            script.onerror = reject;
+            script.onload = () => {
+                console.log('[WebLLM] Script geladen:', src);
+                resolve();
+            };
+            script.onerror = () => {
+                const error = new Error(`Fehler beim Laden von ${src}. Prüfe Internet-Verbindung oder versuche später erneut.`);
+                console.error('[WebLLM] Script-Fehler:', error);
+                reject(error);
+            };
+            script.async = true;
             document.head.appendChild(script);
         });
     }
@@ -250,6 +304,11 @@ class WebLLMIntegration {
         }
 
         try {
+            // Basis-Prüfung: Hat engine die required methods?
+            if (!this.engine.chat || !this.engine.chat.completions) {
+                return '⚠️ Modell wird noch geladen. Bitte warten Sie...';
+            }
+
             this.conversationHistory.push({
                 role: 'user',
                 content: userMessage
@@ -265,6 +324,10 @@ class WebLLMIntegration {
                 temperature: 0.7,
             });
 
+            if (!response || !response.choices || response.choices.length === 0) {
+                throw new Error('Keine gültige Antwort vom Modell erhalten');
+            }
+
             const assistantMessage = response.choices[0].message.content;
 
             this.conversationHistory.push({
@@ -277,7 +340,20 @@ class WebLLMIntegration {
 
         } catch (error) {
             console.error('[WebLLM] Fehler bei Antwortgenerierung:', error);
-            return `❌ Fehler bei der Antwortgenerierung: ${error.message}`;
+            
+            // Bessere Fehlermeldungen
+            let userMessage = '❌ Fehler bei der Antwortgenerierung: ';
+            if (error.message.includes('Model not loaded')) {
+                userMessage += 'Modell ist nicht geladen. Versuche WebLLM neu zu laden...';
+            } else if (error.message.includes('out of memory')) {
+                userMessage += 'Nicht genug Speicher. Schließe andere Tabs.';
+            } else if (error.message.includes('timeout')) {
+                userMessage += 'Anfrage hat zu lange gedauert. Versuche erneut.';
+            } else {
+                userMessage += error.message;
+            }
+            
+            return userMessage;
         }
     }
 
@@ -289,7 +365,9 @@ class WebLLMIntegration {
             // Schalte zu lokalem Bot zurück
             this.isWebLLMActive = false;
             this.saveState();
-            this.showCustomMessage('✅ Modus gewechselt', 'Zurück zum lokalen AI-Bot', 'success');
+            if (typeof showCustomMessage === 'function') {
+                showCustomMessage('✅ Modus gewechselt', 'Zurück zum lokalen AI-Bot', 'success');
+            }
             this.updateButtonState();
         } else {
             // Lade WebLLM
@@ -329,14 +407,63 @@ class WebLLMIntegration {
     /**
      * Zeigt Fehlermeldung an
      */
-    showErrorMessage(error) {
+    async showErrorMessage(error) {
+        // Erstelle aussagekräftige Fehlermeldung
+        let errorMsg = error || 'Unbekannter Fehler';
+        
+        if (typeof error === 'object') {
+            errorMsg = error.message || error.toString();
+        }
+        
+        // Gib freundliche Fehlermeldung aus
+        let userMessage = this.getFriendlyErrorMessage(errorMsg);
+        
+        // Bei Netzwerk-Fehlern, prüfe Internet
+        if (errorMsg.includes('CDN') || errorMsg.includes('laden')) {
+            const hasNetwork = await this.checkNetworkConnection();
+            if (!hasNetwork) {
+                userMessage = '🌐 Keine Internet-Verbindung erkannt. Bitte verbinde dich mit dem Internet und versuche erneut.';
+            } else {
+                userMessage += '\n\n💡 Tipp: Die CDN-Server könnten überlastet sein. Versuche es in ein paar Minuten erneut.';
+            }
+        }
+        
         if (typeof showCustomMessage === 'function') {
             showCustomMessage(
                 '❌ Fehler beim Laden',
-                `WebLLM konnte nicht geladen werden: ${error}`,
+                userMessage,
                 'danger'
             );
+        } else {
+            alert(`WebLLM Fehler: ${userMessage}`);
         }
+        
+        console.error('[WebLLM] Fehler:', errorMsg);
+    }
+
+    /**
+     * Konvertiert technische Fehlermeldungen in benutzerfreundliche Texte
+     */
+    getFriendlyErrorMessage(error) {
+        const msg = String(error).toLowerCase();
+        
+        if (msg.includes('cdn') || msg.includes('network') || msg.includes('fetch')) {
+            return '🌐 Internet-Verbindung fehlgeschlagen. Prüfe deine Verbindung oder versuche es später.';
+        }
+        if (msg.includes('indexeddb') || msg.includes('storage')) {
+            return '💾 Browser-Speicher nicht verfügbar. Prüfe Browser-Einstellungen.';
+        }
+        if (msg.includes('webassembly')) {
+            return '⚠️ Dein Browser unterstützt WebAssembly nicht. Aktualisiere deinen Browser!';
+        }
+        if (msg.includes('memory') || msg.includes('ram')) {
+            return '💥 Nicht genug Speicher. Schließe andere Tabs und versuche es erneut.';
+        }
+        if (msg.includes('timeout')) {
+            return '⏱️ Das Laden hat zu lange gedauert. Versuche es später erneut.';
+        }
+        
+        return error;
     }
 
     /**

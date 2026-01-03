@@ -25,9 +25,32 @@ class WebLLMValidator {
         this.checkScripts();
         this.checkStorage();
         this.checkFeatures();
+        await this.checkNetworkConnectivity();
         
         this.printReport();
         return this.isValid;
+    }
+
+    /**
+     * Prüft Netzwerk-Konnektivität
+     */
+    async checkNetworkConnectivity() {
+        console.log('\n%c🌐 Prüfe Netzwerk-Konnektivität...', 'color: #0891b2; font-size: 12px;');
+        
+        const cdnUrls = [
+            'https://esm.run/@mlc-ai/web-llm@0.2.80',
+            'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.80/+esm',
+            'https://unpkg.com/@mlc-ai/web-llm@0.2.80/+esm'
+        ];
+        
+        for (const url of cdnUrls) {
+            try {
+                const response = await fetch(url, { method: 'HEAD', mode: 'no-cors', timeout: 5000 });
+                console.log(`  ✅ ${url} - erreichbar`);
+            } catch (err) {
+                console.warn(`  ⚠️ ${url} - nicht erreichbar: ${err.message}`);
+            }
+        }
     }
 
     /**

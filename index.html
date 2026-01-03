@@ -40,13 +40,13 @@
 <meta name="twitter:image" content="https://img.shields.io/badge/TimeTracker-Modern%20&%20Local-purple?style=for-the-badge&logo=javascript">
 <meta name="twitter:creator" content="@YourTwitterHandle">
 <!-- Fireworks CSS & JS -->
-<link rel="stylesheet" href="./Assets/css/Event/New_Year/fireworks.css">
+<link rel="stylesheet" href="./Assets/css/Event/Weihnachten/snowflakes.css">
 <!-- Local Scripts (defer für korrektes Laden) -->
 <script defer src="./Assets/js/icons.js"></script>
 <script defer src="./Assets/js/shortcuts.js"></script>
 <script defer src="./Assets/js/touch-mobile-optimizations.js"></script>
 <script defer src="./Assets/js/pinch-zoom.js"></script>
-<script src="Assets/js/Event/New_Year/fireworks.js"></script>
+<script src="Assets/js/Event/Weihnachten/snowflakes.js"></script>
 <!-- Preload External CDN Resources (für bessere Performance) -->
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/simple-peer@9/simplepeer.min.js">
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
@@ -71,10 +71,10 @@
 <!-- AI-Bot Engine Scripts -->
 <script src="./AI-Bot/data-analyzer-pro.js"></script>
 <script src="./AI-Bot/aibot-engine-pro.js"></script>
-<!-- WebLLM Integration -->
-<script defer src="./AI-Bot/LLM/webllm-config.js"></script>
-<script defer src="./AI-Bot/LLM/webllm-integration.js"></script>
-<script defer src="./AI-Bot/LLM/webllm-validator.js"></script>
+<!-- WebLLM Integration (Cache-buster: v0.2.80 / Jan 3 2026) -->
+<script defer src="./AI-Bot/LLM/webllm-config.js?v=0.2.80"></script>
+<script defer src="./AI-Bot/LLM/webllm-integration.js?v=0.2.80"></script>
+<script defer src="./AI-Bot/LLM/webllm-validator.js?v=0.2.80"></script>
 
 <script>
   window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
@@ -3563,10 +3563,7 @@
                     <button class="help-slim" title="Hilfe" onclick="openQuickHelp('global')">?</button>
                 </div>
             </div>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <div class="date-badge" id="currentDate">loading...</div>
-                <button id="webllm-toggle-btn" onclick="window.webLLMIntegration.toggleMode()" title="Klick um WebLLM zu aktivieren">🤖 Lokaler Bot</button>
-            </div>
+            <div class="date-badge" id="currentDate">loading...</div>
         </header>
 
         <div id="view-dashboard" class="view-section active">
@@ -4466,8 +4463,13 @@
         <!-- Support Section -->
         <div id="view-aibot" class="view-section">
             <div class="view-header">
-                <h2 class="view-title">AI Assistant</h2>
-                <p style="color:var(--text-muted); margin-top:8px;">Intelligente Unterstützung für deine Zeiterfassung</p>
+                <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+                    <div>
+                        <h2 class="view-title">AI Assistant</h2>
+                        <p style="color:var(--text-muted); margin-top:8px;">Intelligente Unterstützung für deine Zeiterfassung</p>
+                    </div>
+                    <button id="webllm-toggle-btn" style="display:none; padding:10px 16px; background:rgba(168,85,247,0.1); border:2px solid var(--primary); color:var(--text-main); border-radius:8px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s ease; white-space:nowrap;" onclick="window.webLLMIntegration.toggleMode()" title="Klick um WebLLM zu aktivieren" onmouseover="this.style.background='rgba(168,85,247,0.2)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(168,85,247,0.3)'" onmouseout="this.style.background='rgba(168,85,247,0.1)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">🤖 Lokaler Bot</button>
+                </div>
                 <button onclick="localStorage.removeItem('aiBotModalDismissed'); document.getElementById('aiBotInfoModal').style.display='flex'; document.getElementById('aiBotInfoModal').style.opacity='1'; document.getElementById('aiBotInfoModal').style.pointerEvents='auto';" style="position:absolute; top:1.5rem; right:1.5rem; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.3); color:var(--text-main); padding:0.5rem 1rem; border-radius:8px; cursor:pointer; font-size:0.85rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(168,85,247,0.25)'" onmouseout="this.style.background='rgba(168,85,247,0.15)'">🔒 Info anzeigen</button>
             </div>
 
@@ -18627,10 +18629,8 @@ function checkPWAStatus() {
 
     let status = '🔍 PWA Status:\n\n';
 
-    // Show resolved base path for debugging (helps with manifest/SW 404 issues)
     status += '📂 Resolved base path: ' + (window._pwaBasePath || './') + '\n\n';
 
-    // Service Worker
     if ('serviceWorker' in navigator) {
         status += '✅ Service Worker: Unterstützt\n';
         navigator.serviceWorker.getRegistrations().then(registrations => {
@@ -18644,10 +18644,8 @@ function checkPWAStatus() {
         status += '❌ Service Worker: Nicht unterstützt\n';
     }
 
-    // Web App Manifest
     status += navigator.serviceWorker ? '✅ Manifest: Vorhanden\n' : '❌ Manifest: Fehlt\n';
 
-    // Installation
     if (window.navigator.standalone === true) {
         status += '✅ Installiert: Ja (als App läufig)\n';
     } else if (deferredPrompt) {
@@ -18656,10 +18654,8 @@ function checkPWAStatus() {
         status += 'ℹ️  Installation: Nicht möglich (oder bereits installiert)\n';
     }
 
-    // Online Status
     status += navigator.onLine ? '✅ Online: Ja\n' : '❌ Online: Nein (Offline-Modus)\n';
 
-    // localStorage
     try {
         const test = '__test__';
         localStorage.setItem(test, test);
@@ -18669,7 +18665,6 @@ function checkPWAStatus() {
         status += '❌ localStorage: Nicht verfügbar\n';
     }
 
-    // IndexedDB
     if (window.indexedDB) {
         status += '✅ IndexedDB: Verfügbar\n';
     } else {
@@ -18683,7 +18678,6 @@ function checkPWAStatus() {
     }
 }
 
-// Warn user if they're opening from localhost/127.0.0.1 (common cause of 404 on mobile PWA installs)
 function detectLocalhostAndWarn() {
     try {
         const host = location.hostname;
@@ -18716,22 +18710,17 @@ let aiBotConversation = [];
 function initializeAIBot() {
     const chatContainer = document.getElementById('aiBotChat');
     if (!chatContainer) return;
-    
-    // Zeige Modal an wenn noch nicht dismissed
     if (!localStorage.getItem('aiBotModalDismissed')) {
         showAIBotModal();
     }
     
-    // Clear existing messages
     const existingMessages = chatContainer.querySelectorAll('div[data-message]');
     existingMessages.forEach(msg => msg.remove());
     
-    // Add welcome message
     addAIBotMessage('Willkommen! 👋 Ich helfe dir mit deinen Daten.', 'bot');
 }
 
 function showAIBotModal() {
-    // Lösche den localStorage-Eintrag wenn Button geklickt wird
     localStorage.removeItem('aiBotModalDismissed');
     
     const modal = document.getElementById('aiBotInfoModal');
@@ -18748,7 +18737,6 @@ function hideAIBotModal() {
         modal.style.opacity = '0';
         modal.style.pointerEvents = 'none';
         
-        // Check ob Checkbox aktiviert ist
         const checkbox = document.getElementById('dontShowAIBotModal2');
         if (checkbox && checkbox.checked) {
             localStorage.setItem('aiBotModalDismissed', '1');
@@ -18792,13 +18780,10 @@ function addAIBotMessage(text, sender = 'bot') {
         chatContainer.appendChild(messageEl);
         chatContainer.scrollTop = chatContainer.scrollHeight;
         
-        // Typing effect für Bot-Nachrichten
         typeMessage(text, textDiv, 15, () => {
-            // Nach Typing-Effekt: Quick-Reply Buttons hinzufügen
             addQuickReplyButtons(messageEl);
         });
     } else {
-        // Format user messages
         messageEl.style.justifyContent = 'flex-end';
         messageEl.innerHTML = `
             <div style="background:linear-gradient(135deg, var(--primary), #7c3aed); padding:1rem 1.2rem; border-radius:16px 0 16px 16px; max-width:85%; box-shadow: 0 4px 12px rgba(168,85,247,0.2);">
@@ -18816,13 +18801,11 @@ function typeMessage(text, element, speed = 15, onComplete = null) {
     let index = 0;
     let displayedText = '';
     
-    // Parse text für Formatierung
     const parseAndDisplay = () => {
         if (index < text.length) {
             const char = text[index];
             displayedText += char;
             
-            // Formatiere während des Tippens
             let formattedDisplay = displayedText;
             formattedDisplay = formattedDisplay.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--primary);">$1</strong>');
             formattedDisplay = formattedDisplay.replace(/• /g, '<span style="color:var(--primary);">▸ </span>');
@@ -18830,7 +18813,6 @@ function typeMessage(text, element, speed = 15, onComplete = null) {
             
             element.innerHTML = formattedDisplay;
             
-            // Cursor-Animation
             if (index === text.length - 1) {
                 element.style.borderRight = 'none';
             } else {
@@ -18841,7 +18823,6 @@ function typeMessage(text, element, speed = 15, onComplete = null) {
             index++;
             setTimeout(parseAndDisplay, speed);
         } else {
-            // Finish formatting when complete
             let finalText = text;
             finalText = finalText.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--primary);">$1</strong>');
             finalText = finalText.replace(/• /g, '<span style="color:var(--primary);">▸ </span>');
@@ -18850,7 +18831,6 @@ function typeMessage(text, element, speed = 15, onComplete = null) {
             element.style.borderRight = 'none';
             element.style.animation = 'none';
             
-            // Callback when typing is complete
             if (onComplete) onComplete();
         }
     };
@@ -18903,7 +18883,6 @@ function addQuickReplyButtons(messageElement) {
     buttonsContainer.style.flexWrap = 'wrap';
     buttonsContainer.style.animation = 'fadeIn 0.3s ease 0.3s both';
     
-    // Intelligente Quick-Reply Suggestions basierend auf Kontext
     const suggestions = generateQuickReplies();
     
     suggestions.forEach((suggestion, index) => {
@@ -18937,7 +18916,6 @@ function addQuickReplyButtons(messageElement) {
             document.getElementById('aiBotInput').value = suggestion;
             document.getElementById('aiBotInput').focus();
             sendAIBotMessage();
-            // Entferne alle Quick-Reply Buttons nach Klick
             document.querySelectorAll('.quick-reply-buttons').forEach(el => el.remove());
         };
         
@@ -18948,13 +18926,11 @@ function addQuickReplyButtons(messageElement) {
 }
 
 function generateQuickReplies() {
-    // Intelligente Vorschläge basierend auf Konversations-Kontext
     const lastMessage = document.querySelectorAll('[data-message="true"]');
     const lastBotMessage = lastMessage.length > 1 ? lastMessage[lastMessage.length - 1].textContent : '';
     
     let suggestions = [];
     
-    // Basierend auf dem Inhalt der letzten Nachricht
     if (lastBotMessage.toLowerCase().includes('weekly') || lastBotMessage.toLowerCase().includes('wöchentlich')) {
         suggestions = ['📊 Mehr Details', '📈 Trend-Analyse', '💡 Tipps', '⬅️ Zurück'];
     } else if (lastBotMessage.toLowerCase().includes('monthly') || lastBotMessage.toLowerCase().includes('monatlich')) {
@@ -18964,7 +18940,6 @@ function generateQuickReplies() {
     } else if (lastBotMessage.toLowerCase().includes('fehler') || lastBotMessage.toLowerCase().includes('error')) {
         suggestions = ['🔧 Erneut versuchen', '❓ Hilfe', '📞 Support', '⬅️ Zurück'];
     } else {
-        // Standard-Vorschläge
         suggestions = ['📊 Meine Stats', '🎯 Ziele', '💡 Tipps', '❓ Hilfe'];
     }
     
@@ -18994,7 +18969,6 @@ function exportConversationTXT() {
     content += `Gesamte Nachrichten: ${conversation.length}\n`;
     content += `Export erstellt: ${new Date().toLocaleString('de-DE')}\n`;
     
-    // Download
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -19012,7 +18986,6 @@ function exportConversationPDF() {
         return;
     }
     
-    // Nutze jsPDF (bereits eingebunden)
     if (typeof jspdf === 'undefined' || !jspdf.jsPDF) {
         showCustomMessage('⚠️ Bibliothek wird geladen', 'PDF-Export ist noch nicht verfügbar. Bitte warte einen Moment!', 'warning');
         return;
@@ -19021,7 +18994,6 @@ function exportConversationPDF() {
     const { jsPDF } = jspdf;
     const doc = new jsPDF();
     
-    // Header
     doc.setFontSize(16);
     doc.text('AI-BOT CONVERSATION EXPORT', 105, 15, { align: 'center' });
     
@@ -19032,7 +19004,6 @@ function exportConversationPDF() {
     doc.setDrawColor(168, 85, 247);
     doc.line(20, 25, 190, 25);
     
-    // Content
     let yPosition = 35;
     doc.setFontSize(10);
     doc.setTextColor(50);
@@ -19042,29 +19013,25 @@ function exportConversationPDF() {
         const sender = msg.sender === 'user' ? '👤 DU' : '🤖 AI-BOT';
         const label = `[${timestamp}] ${sender}:`;
         
-        // Sender-Label
         doc.setTextColor(100, 100, 100);
         doc.setFontSize(9);
         doc.text(label, 20, yPosition);
         yPosition += 5;
         
-        // Message text mit Text-Wrapping
         doc.setTextColor(50);
         doc.setFontSize(9);
-        const splitText = doc.splitTextToSize(msg.text.replace(/<[^>]*>/g, ''), 170); // Remove HTML tags
+        const splitText = doc.splitTextToSize(msg.text.replace(/<[^>]*>/g, ''), 170);
         const textHeight = splitText.length * 4;
         
         doc.text(splitText, 25, yPosition);
         yPosition += textHeight + 4;
         
-        // Check für neue Seite
         if (yPosition > 260) {
             doc.addPage();
             yPosition = 20;
         }
     });
     
-    // Footer
     doc.setTextColor(150);
     doc.setFontSize(8);
     const pageCount = doc.getNumberOfPages();
@@ -19097,14 +19064,11 @@ function sendAIBotMessage() {
     addAIBotMessage(message, 'user');
     input.value = '';
     
-    // Show THINKING indicator
     showThinkingIndicator();
     
-    // Prüfe ob WebLLM aktiv ist
     const isWebLLMActive = window.webLLMIntegration && window.webLLMIntegration.isWebLLMActive;
     
     if (isWebLLMActive) {
-        // Verwende WebLLM
         window.webLLMIntegration.generateResponse(message).then(response => {
             removeThinkingIndicator();
             addAIBotMessage(response, 'bot');
@@ -19114,13 +19078,10 @@ function sendAIBotMessage() {
             addAIBotMessage('❌ Fehler bei WebLLM: ' + err.message, 'bot');
         });
     } else {
-        // Nutze die lokale AI-Bot Engine PRO für intelligente Responses
-        // Random delay zwischen 1500-3500ms
         const thinkingDelay = Math.random() * 2000 + 1500;
         setTimeout(() => {
             let response;
             try {
-                // Verwende PRO Version (alte Versionen sind gelöscht)
                 if (typeof aiBotEnginePro !== 'undefined' && aiBotEnginePro && typeof aiBotEnginePro.generateResponse === 'function') {
                     response = aiBotEnginePro.generateResponse(message);
                 } else {
@@ -19145,7 +19106,6 @@ function setAIBotQuestion(question) {
 }
 
 function calculateWeeklyHours() {
-    // Nutze PRO Analyzer wenn verfügbar
     if (typeof aiAnalyzerPro !== 'undefined' && aiAnalyzerPro && typeof aiAnalyzerPro.getWeeklyStats === 'function') {
         return parseFloat(aiAnalyzerPro.getWeeklyStats().worked) || 0;
     }
@@ -19153,7 +19113,6 @@ function calculateWeeklyHours() {
 }
 
 // ===== AI-BOT MODAL FUNCTIONS =====
-    // closeAIBotModal removed - functionality now handled inline in button
 // ===== PWA STATUS CHECK =====
 window.addEventListener('online', () => {
     console.log('[PWA] Online');
@@ -19168,6 +19127,64 @@ window.addEventListener('offline', () => {
         showCustomMessage('📡 Offline', 'Du bist offline. App funktioniert weiterhin!', 'warning');
     }
 });
+
+// ===== WEBLLM FEATURE DETECTION =====
+function initWebLLMButtonVisibility() {
+    const isWebLLMSupported = 
+        typeof window.indexedDB !== 'undefined' &&
+        typeof window.Worker !== 'undefined' &&
+        typeof WebAssembly !== 'undefined' &&
+        navigator.hardwareConcurrency >= 2;  // Mindestens 2 CPU-Kerne
+    
+    console.log('[WebLLM] Browser Support:', {
+        IndexedDB: typeof window.indexedDB !== 'undefined',
+        WebWorker: typeof window.Worker !== 'undefined',
+        WebAssembly: typeof WebAssembly !== 'undefined',
+        CPUCores: navigator.hardwareConcurrency,
+        Supported: isWebLLMSupported
+    });
+    
+    if (!isWebLLMSupported) {
+        console.warn('[WebLLM] Browser nicht unterstützt - Button wird nicht angezeigt');
+        return;
+    }
+    
+    const checkAndShowButton = () => {
+        const button = document.getElementById('webllm-toggle-btn');
+        const aiBotView = document.getElementById('view-aibot');
+        
+        if (!button) return;
+        
+        const isAiBotActive = aiBotView && aiBotView.classList.contains('active');
+        
+        if (isAiBotActive) {
+            button.style.display = 'block';
+        } else {
+            button.style.display = 'none';
+        }
+    };
+    
+    setTimeout(checkAndShowButton, 100);
+    
+    const observer = new MutationObserver(() => {
+        checkAndShowButton();
+    });
+    
+    const viewContainer = document.querySelector('[id^="view-"]');
+    if (viewContainer && viewContainer.parentElement) {
+        observer.observe(viewContainer.parentElement, { 
+            subtree: true,
+            attributes: true, 
+            attributeFilter: ['class'] 
+        });
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWebLLMButtonVisibility);
+} else {
+    initWebLLMButtonVisibility();
+}
 
 </script>
 </body>
